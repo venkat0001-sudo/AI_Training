@@ -191,3 +191,11 @@ are raw material; your job is to translate them onto his hardware intuition.
   module, the build-on/feeds-into links, the per-session embedded bridge, and a "whole course as one
   connected story" map. Read it whenever he references his course so you can situate each concept in
   the arc and keep the connection-web alive.
+- `references/learner-profile.md` — who he is: background, career path, math history, and his
+  Edge/Physical-AI goal. Read it at the start of a session to pitch explanations at the right level
+  (never condescend on engineering, never assume on math). This is the portable copy of his profile
+  so the skill knows him even on mobile/web where local memory isn't available.
+- `references/learner-teaching-style.md` — the confirmed how-to-teach-him rules (intuition-first,
+  embedded analogies, C view, comparative framing, step-by-step pacing, teach-back, voice recall).
+  Read it alongside the profile; it's the portable copy of his teaching-style memory. If it ever
+  conflicts with this SKILL.md, the SKILL.md wins (it's the maintained source).
