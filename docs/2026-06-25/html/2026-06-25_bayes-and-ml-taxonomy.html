@@ -115,8 +115,9 @@ li{margin:5px 0;}
     <a href="#tree">④ Decision Trees</a>
     <a href="#vocab">⑤ Features vs Weights</a>
     <a href="#traffic">⑥ Bonus: Bangalore Traffic</a>
-    <a href="#takeaways">⑦ Key Takeaways</a>
-    <a href="#recall">⑧ Recall Test</a>
+    <a href="#intuitions">⑦ Intuitions: Math Fn &amp; Trainer</a>
+    <a href="#takeaways">⑧ Key Takeaways</a>
+    <a href="#recall">⑨ Recall Test</a>
   </div>
 </div>
 
@@ -345,6 +346,51 @@ score = 0.7·temp + 0.2·cycles + 0.05·retention + 0.4·workload</pre>
   <div class="quote">Same "when is the simpler tool still right?" call you make on hardware (SRAM vs DRAM, polling vs interrupt).</div>
 </div>
 
+<!-- ════════ INTUITIONS ════════ -->
+<div class="card" id="intuitions">
+  <span class="scroll-tag">LEARNER-DERIVED INTUITIONS</span>
+  <div class="sec-title">ML = a learned math function · Algorithm vs Model</div>
+
+  <h3>🧮 An ML model is a <i>learned mathematical function</i></h3>
+  <p class="lead"><code>output = f(features, parameters)</code> — not magic, just arithmetic.</p>
+  <ul>
+    <li><b>Everything boils down to numbers</b>, and math only plays with numbers. Image = grid of RGB values (each pixel = 3 numbers, 0–255). Audio = samples. Text = token IDs. "Modulated into a number" — like sampling analog into ADC counts.</li>
+    <li>The numbers are <b>structured into vectors / matrices / tensors</b> (linear algebra). An image is a tensor <code>H × W × 3</code> — that structure is <i>why</i> CNNs exist.</li>
+  </ul>
+  <div class="quote"><b>Physics models are math functions too</b> (<code>F=ma</code>). The difference isn't math-vs-physics — it's <i>where the numbers come from</i>: physics derives them from <b>laws</b>; ML <b>fits them from data</b>. Same math universe, different origin of the constants.</div>
+  <pre>raw world → numbers → arranged into tensors → fed to a math function → prediction</pre>
+  <div class="quote">🔌 <b>Why this unlocks Edge-AI:</b> if the model is just arithmetic (multiply each feature by a weight, add them up = a dot product / MAC), it runs on the controller. Inference = MAC loops on integers → that's why INT8 quantization works and a tiny model fits in SRAM.</div>
+
+  <h3>🏋️ Algorithm vs Model — the trainer &amp; the bodybuilder</h3>
+  <p><b>The algorithm doesn't <i>become</i> the model — it <i>produces</i> it.</b></p>
+  <table>
+    <tr><th>Term</th><th>What it is</th><th>Example</th></tr>
+    <tr><td><b>Algorithm</b></td><td>the <i>procedure</i> that adjusts parameters from data</td><td>gradient descent; CART tree-builder</td></tr>
+    <tr><td><b>Model (architecture)</b></td><td>the <i>shape</i> of the function, params not yet set</td><td>"a logistic regression," "a decision tree"</td></tr>
+    <tr><td><b>Trained model</b></td><td>shape <b>+ learned parameters</b> — deployable artifact</td><td>the fitted weights; tree with split values</td></tr>
+  </table>
+  <pre>untrained model + data
+       │  <span class="cmt">(the ALGORITHM runs)</span>
+       ▼
+  TRAINED MODEL  ← function with learned parameters, ready to predict</pre>
+  <div class="quote"><b>Algorithm = how it learns. Model = what it learned.</b> You don't train an algorithm — it's what <i>does</i> the training. Embedded anchor: algorithm = the Vref-calibration sweep routine; model = the calibration table it produces. You ship the table, not the sweep.</div>
+
+  <h3>The bodybuilder analogy <span style="font-size:.7em;color:var(--cream-dark)">(learner's own — a complete picture of supervised training)</span></h3>
+  <table>
+    <tr><th>Bodybuilder world</th><th>ML world</th></tr>
+    <tr><td>the trainer's method</td><td>the <b>algorithm</b> (e.g. gradient descent)</td></tr>
+    <tr><td>the bodybuilder</td><td>the <b>model</b></td></tr>
+    <tr><td>muscles built (emerge from training, not chosen)</td><td><b>parameters / weights</b></td></tr>
+    <tr><td>height, weight (inputs)</td><td><b>features</b></td></tr>
+    <tr><td>target physique (sprinter vs lifter)</td><td><b>label / target</b></td></tr>
+    <tr><td>workouts &amp; meals trained on</td><td><b>training data</b></td></tr>
+    <tr><td>how hard each session pushes</td><td><b>learning rate</b></td></tr>
+    <tr><td>one workout session</td><td>one <b>iteration</b></td></tr>
+    <tr><td>gap between his body and the goal</td><td>the <b>loss</b> (shrinking it = training)</td></tr>
+  </table>
+  <div class="quote">Key line: <b>features go IN, the target is what you aim AT.</b> The goal is not a feature — it's the target. The trainer adjusts muscles (parameters) until output matches the goal.</div>
+</div>
+
 <!-- ════════ TAKEAWAYS ════════ -->
 <div class="card" id="takeaways">
   <span class="scroll-tag">SCROLL SUMMARY</span>
@@ -356,6 +402,8 @@ score = 0.7·temp + 0.2·cycles + 0.05·retention + 0.4·workload</pre>
   <div class="kt"><b>Decision tree</b> = learned nested if/else. Twin of firmware at runtime; difference is the constants came from data.</div>
   <div class="kt"><b>Feature</b> = input you feed. <b>Weight/parameter</b> = what the model learns. Never confuse them again.</div>
   <div class="kt"><b>Edge-AI line:</b> small classic models (tree/logistic) fit constrained silicon; deep nets only earn their cost on huge unstructured data.</div>
+  <div class="kt"><b>ML = a learned math function.</b> Everything → numbers → tensors → arithmetic → prediction. Physics derives constants from laws; ML fits them from data.</div>
+  <div class="kt"><b>Algorithm ≠ model.</b> Algorithm = how it learns (the trainer); model = what it learned (the bodybuilder + his muscles). The algorithm produces the model.</div>
 
   <h3>📐 Formula sheet</h3>
   <pre>z-score (standardize a feature)   z = (x − μ) / σ

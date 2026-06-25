@@ -195,6 +195,61 @@ Same two clans, new domain.
 
 ---
 
+## ⑥ Intuitions from this session (learner-derived)
+
+### ML = a *learned mathematical function*
+
+An ML model is a mathematical function: `output = f(features, parameters)`. Not magic — arithmetic.
+
+- **Everything in the world boils down to numbers**, and math only plays with numbers. Image = grid of RGB values (each pixel = 3 numbers, 0–255). Audio = samples. Text = token IDs. "Modulated into a number" — like sampling an analog signal into ADC counts.
+- The numbers aren't a loose pile — they're **structured into vectors / matrices / tensors** (linear algebra). An image is a tensor `H × W × 3`; that structure is *why* CNNs exist.
+
+> **Physics models are math functions too** (`F = ma`). The difference isn't math-vs-physics — it's *where the numbers come from*: physics derives them from **laws**; ML **fits them from data**. Same math universe, different origin of the constants.
+
+```
+raw world → numbers → arranged into tensors → fed to a math function → prediction
+```
+
+> 🔌 **Why this unlocks Edge-AI:** if the model is just arithmetic (multiply each feature by a weight, add them up = a dot product / MAC), it can run on the controller. Inference = MAC loops on integers → that's why INT8 quantization works and a tiny model fits in SRAM.
+
+### Algorithm vs Model — the trainer and the bodybuilder
+
+**The algorithm doesn't *become* the model — it *produces* it.**
+
+| Term | What it is | Example |
+|---|---|---|
+| **Algorithm** | the *procedure* that adjusts parameters from data | gradient descent; CART tree-builder |
+| **Model (architecture)** | the *shape* of the function, params not yet set | "a logistic regression," "a decision tree" |
+| **Trained model** | shape **+ learned parameters** — the deployable artifact | the fitted weights; the tree with split values |
+
+```
+untrained model + data
+       │  (the ALGORITHM runs)
+       ▼
+  TRAINED MODEL  ← function with learned parameters, ready to predict
+```
+
+> **Algorithm = how it learns. Model = what it learned.** You don't train an algorithm; the algorithm is what *does* the training. (Library caveat: sklearn loosely calls both "estimators.")
+> Embedded anchor: algorithm = the **Vref-calibration sweep routine**; model = the **calibration table** it produces. You ship the table, not the sweep.
+
+**The bodybuilder analogy (learner's own — it's a complete, correct picture of supervised training):**
+
+| Bodybuilder world | ML world |
+|---|---|
+| the trainer's method | the **algorithm** (e.g. gradient descent) |
+| the bodybuilder | the **model** |
+| muscles built (emerge from training, not chosen) | **parameters / weights** |
+| height, weight (inputs) | **features** |
+| target physique (sprinter vs lifter) | **label / target** |
+| workouts & meals trained on | **training data** |
+| how hard each session pushes | **learning rate** |
+| one workout session | one **iteration** |
+| gap between his body and the goal | the **loss** (shrinking it = training) |
+
+> Key line: **features go IN, the target is what you aim AT.** The goal is not a feature — it's the target. The trainer adjusts muscles (parameters) until output matches the goal (target).
+
+---
+
 ## ⚡ Key Takeaways
 
 - **Bayes** = flip `P(evidence|cause)` into `P(cause|evidence)`. Posterior = one real bucket ÷ all buckets. **Rarity is the villain.**
@@ -204,6 +259,8 @@ Same two clans, new domain.
 - **Decision tree** = learned nested if/else. Runtime-twin of firmware; difference is constants came from data.
 - **Feature** = input you feed. **Weight/parameter** = what the model learns. Never confuse them.
 - **Edge-AI line:** small classic models fit constrained silicon; deep nets only earn their cost on huge unstructured data.
+- **ML = a learned math function.** Everything → numbers → tensors → arithmetic → prediction. Physics derives constants from laws; ML fits them from data.
+- **Algorithm ≠ model.** Algorithm = how it learns (the trainer); model = what it learned (the bodybuilder + his muscles). The algorithm produces the model.
 
 ### 📐 Formula sheet
 ```
