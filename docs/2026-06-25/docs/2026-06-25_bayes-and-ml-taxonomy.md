@@ -248,6 +248,35 @@ untrained model + data
 
 > Key line: **features go IN, the target is what you aim AT.** The goal is not a feature — it's the target. The trainer adjusts muscles (parameters) until output matches the goal (target).
 
+### Who supervises "supervised learning"?
+
+**Not the trainer, not the algorithm — the labels do.** "Supervised" means every training example comes with its correct answer attached.
+
+```
+features → [ MODEL ] → prediction
+                          │
+                          ▼
+                  compare to the LABEL   ← ★ the supervisor (known correct answer)
+                          │
+                          ▼
+                    error = LOSS
+                          │
+                          ▼
+        ALGORITHM adjusts the weights to shrink that error
+```
+
+- **Label (ground truth)** = the *supervisor*. "This tumor *was* malignant," "this cycle *was* a real event."
+- **Loss** = the gap between the model's guess and the label.
+- **Algorithm** = the *worker* that corrects the weights — but it only knows which way to go *because the label told it what right looks like.*
+
+> Control-loop anchor: supervised learning = a **closed-loop controller with a setpoint.** Label = setpoint/reference · error = setpoint − output = loss · algorithm = the controller driving error → 0. No setpoint → no closed loop → no correction.
+
+**Supervised vs unsupervised:**
+- **Supervised** = you *have* labels (setpoints); model corrects against them.
+- **Unsupervised** (k-means, PCA) = **no labels, no supervisor**; the model just finds structure on its own. Nobody holds up a mirror.
+
+> **Labels supervise · the algorithm corrects.**
+
 ---
 
 ## ⚡ Key Takeaways

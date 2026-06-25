@@ -389,6 +389,31 @@ score = 0.7·temp + 0.2·cycles + 0.05·retention + 0.4·workload</pre>
     <tr><td>gap between his body and the goal</td><td>the <b>loss</b> (shrinking it = training)</td></tr>
   </table>
   <div class="quote">Key line: <b>features go IN, the target is what you aim AT.</b> The goal is not a feature — it's the target. The trainer adjusts muscles (parameters) until output matches the goal.</div>
+
+  <h3>👁️ Who supervises "supervised learning"?</h3>
+  <p><b>Not the trainer, not the algorithm — the labels do.</b> "Supervised" means every training example comes with its correct answer attached.</p>
+  <pre>features → [ MODEL ] → prediction
+                          │
+                          ▼
+                  compare to the LABEL   <span class="cmt">← ★ the supervisor (known correct answer)</span>
+                          │
+                          ▼
+                    error = LOSS
+                          │
+                          ▼
+        ALGORITHM adjusts the weights to shrink that error</pre>
+  <ul>
+    <li><b>Label (ground truth)</b> = the <i>supervisor</i>. "This tumor <i>was</i> malignant," "this cycle <i>was</i> a real event."</li>
+    <li><b>Loss</b> = the gap between the model's guess and the label.</li>
+    <li><b>Algorithm</b> = the <i>worker</i> that corrects the weights — but only knows which way to go because the label told it what right looks like.</li>
+  </ul>
+  <div class="quote">🔁 Control-loop anchor: supervised learning = a <b>closed-loop controller with a setpoint.</b> Label = setpoint/reference · error = setpoint − output = loss · algorithm = the controller driving error → 0. No setpoint → no closed loop → no correction.</div>
+  <table>
+    <tr><th>Branch</th><th>Labels?</th><th>What happens</th></tr>
+    <tr><td><b>Supervised</b></td><td>✅ have them</td><td>model corrects against the setpoints</td></tr>
+    <tr><td><b>Unsupervised</b> (k-means, PCA)</td><td>❌ none</td><td>model finds structure on its own — nobody holds up a mirror</td></tr>
+  </table>
+  <div class="quote"><b>Labels supervise · the algorithm corrects.</b></div>
 </div>
 
 <!-- ════════ TAKEAWAYS ════════ -->
