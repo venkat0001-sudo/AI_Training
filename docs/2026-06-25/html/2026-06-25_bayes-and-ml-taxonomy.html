@@ -414,6 +414,37 @@ score = 0.7·temp + 0.2·cycles + 0.05·retention + 0.4·workload</pre>
     <tr><td><b>Unsupervised</b> (k-means, PCA)</td><td>❌ none</td><td>model finds structure on its own — nobody holds up a mirror</td></tr>
   </table>
   <div class="quote"><b>Labels supervise · the algorithm corrects.</b></div>
+
+  <h3>🎛️ What <i>is</i> a model? — a learned transfer function</h3>
+  <p class="lead">You already think in transfer functions (ADC count → temperature, voltage → BER). A model is exactly that — a box mapping inputs → output — with two twists: it takes <b>many inputs at once</b>, and its shape &amp; constants are <b>learned from data</b>, not derived from a datasheet.</p>
+  <pre>inputs ──► [ MODEL ] ──► output
+(features)  knobs =       (prediction)
+            weights</pre>
+  <ul>
+    <li>The <b>knobs inside = weights</b> — they hold everything the model learned. Untrained = random knobs (garbage out); training turns them until the box reproduces the data's patterns.</li>
+    <li><b>A model is compressed experience:</b> shown 200k cycles, it can't store them all — it distills them into a handful of numbers (weights) capturing the <i>pattern</i>, then discards the raw rows.</li>
+  </ul>
+  <div class="quote">A model = the <b>pattern</b>, squeezed out of data and frozen into numbers — so you can replay it on inputs you've never seen.</div>
+
+  <h3>⚙️ How the weights actually get calculated</h3>
+  <p>Training a <b>weight-based</b> model = an optimization algorithm finds the weights that minimize the loss:</p>
+  <table>
+    <tr><th>Algorithm</th><th>How</th><th>Note</th></tr>
+    <tr><td><b>Gradient descent</b> (iterative)</td><td>predict → loss → slope → step downhill → repeat</td><td>the workhorse; scales to neural nets · <b>= Vref calibration</b></td></tr>
+    <tr><td><b>Closed-form</b> (one-shot)</td><td>solve directly via linear algebra (normal equations)</td><td>exact, but dies at huge feature counts</td></tr>
+    <tr><td><b>Tree-splitting</b> (CART)</td><td>greedy "best feature+threshold" by information gain</td><td>trees have NO weights — not gradient descent</td></tr>
+  </table>
+  <div class="quote">🎯 The Jun-20 notebook implements <b>both</b> gradient-descent and closed-form solvers for the same linear classifier — that comparison is its whole point.</div>
+
+  <h3>📇 Model vs lookup table — generalization is the prize</h3>
+  <pre>Lookup table:  82°C → ???  <span class="cmt">(no matching row → fails)</span>
+Model:         82°C → "probably no event"  <span class="cmt">(learned the pattern)</span></pre>
+  <ul>
+    <li><b>Lookup table</b> answers only inputs it has already seen — it <b>memorizes</b>.</li>
+    <li><b>Model</b> learns the rule ("tips around 85°C") → answers inputs it never saw — it <b>generalizes</b>.</li>
+  </ul>
+  <div class="quote">⚠️ <b>Previews overfitting:</b> a lookup table is just a model that <i>memorized instead of learning</i>. Train one badly (cram every row) → it <b>becomes a lookup table</b>: perfect on seen data, useless on new data. Same as a firmware heuristic that cheats one benchmark and collapses on real workloads.</div>
+  <div class="quote"><b>Data = examples · Lookup table = memorized · Model = learned pattern · Generalization = the prize, overfitting = losing it.</b></div>
 </div>
 
 <!-- ════════ TAKEAWAYS ════════ -->
@@ -429,6 +460,10 @@ score = 0.7·temp + 0.2·cycles + 0.05·retention + 0.4·workload</pre>
   <div class="kt"><b>Edge-AI line:</b> small classic models (tree/logistic) fit constrained silicon; deep nets only earn their cost on huge unstructured data.</div>
   <div class="kt"><b>ML = a learned math function.</b> Everything → numbers → tensors → arithmetic → prediction. Physics derives constants from laws; ML fits them from data.</div>
   <div class="kt"><b>Algorithm ≠ model.</b> Algorithm = how it learns (the trainer); model = what it learned (the bodybuilder + his muscles). The algorithm produces the model.</div>
+  <div class="kt"><b>A model = a learned transfer function.</b> Inputs → knobs (weights) → output; the knobs store the pattern distilled from data (not derived from a datasheet).</div>
+  <div class="kt"><b>Weights are found by optimization:</b> gradient descent (iterative, = Vref calibration sweep), closed-form (one-shot), or — for trees — greedy split-search (no weights).</div>
+  <div class="kt"><b>Model vs lookup table = generalization.</b> Table memorizes seen inputs; model handles unseen ones. Overfitting = a model that became a lookup table.</div>
+  <div class="kt"><b>Supervised</b> = labels are the supervisor (the setpoint); the algorithm corrects the weights to shrink the loss. No labels = unsupervised.</div>
 
   <h3>📐 Formula sheet</h3>
   <pre>z-score (standardize a feature)   z = (x − μ) / σ

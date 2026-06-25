@@ -277,6 +277,39 @@ features → [ MODEL ] → prediction
 
 > **Labels supervise · the algorithm corrects.**
 
+### What *is* a model? — a learned transfer function
+
+You already think in transfer functions (ADC count → temperature, voltage → BER). **A model is exactly that — a box mapping inputs → output — with two twists:** (1) it takes *many* inputs at once, and (2) its shape & constants are *learned from data*, not derived from a datasheet.
+
+```
+inputs ──► [ MODEL ] ──► output
+(features)  knobs =       (prediction)
+            weights
+```
+
+- The **knobs inside = weights**; they hold everything the model learned. Untrained = random knobs (garbage out). Training turns the knobs until the box reproduces the data's patterns.
+- **A model is compressed experience:** you showed it 200k cycles; it can't store them all, so it distills them into a handful of numbers (weights) capturing the *pattern*, then discards the raw rows.
+
+> A model = the **pattern**, squeezed out of data and frozen into numbers — so you can replay it on inputs you've never seen.
+
+### How the weights actually get calculated (training algorithms)
+
+Training a **weight-based** model = an optimization algorithm finds the weights that minimize the loss:
+- **Gradient descent** (iterative workhorse) — predict → loss → slope of loss → step downhill → repeat. The gradient *is* the derivative of the loss (calculus foundation). Scales to neural nets. Embedded anchor: **= Vref read-level calibration** (sweep voltage, measure BER, walk to the minimum).
+- **Closed-form / normal equations** (one-shot, analytic) — solve directly with linear algebra. Exact, but needs a matrix inverse → dies at huge feature counts. *(Jun-20 notebook implements BOTH for the same linear classifier to show this trade-off.)*
+- **Neither (trees)** — a decision tree has no weights; CART uses greedy split-search (best feature+threshold by information gain), not gradient descent.
+
+### Model vs lookup table — generalization (the prize)
+
+- **Lookup table** answers only inputs it has *already seen*. Ask it 82°C with no row for 82 → it fails. It **memorizes**.
+- **Model** learns the *rule* ("tips around 85°C") → answers 82°C it never saw. It **generalizes**.
+
+> **Generalization** is the whole reason to build a model. Table memorizes; model learns the pattern behind the data and applies it to new situations.
+
+**The twist → previews overfitting:** a lookup table is just a model that *memorized instead of learning*. Train a model badly (cram every row perfectly) and it **becomes a lookup table** — perfect on seen data, useless on new data. That failure = **overfitting** (same as a firmware heuristic that cheats one benchmark and collapses on real workloads).
+
+> Data = the examples · Lookup table = memorized examples · Model = the learned pattern · **Generalization = the prize, overfitting = losing it.**
+
 ---
 
 ## ⚡ Key Takeaways
@@ -290,6 +323,10 @@ features → [ MODEL ] → prediction
 - **Edge-AI line:** small classic models fit constrained silicon; deep nets only earn their cost on huge unstructured data.
 - **ML = a learned math function.** Everything → numbers → tensors → arithmetic → prediction. Physics derives constants from laws; ML fits them from data.
 - **Algorithm ≠ model.** Algorithm = how it learns (the trainer); model = what it learned (the bodybuilder + his muscles). The algorithm produces the model.
+- **A model = a learned transfer function / compressed pattern.** Inputs → knobs (weights) → output; the knobs store the pattern distilled from data.
+- **Weights are found by optimization:** gradient descent (iterative, = Vref calibration), closed-form (one-shot), or — for trees — greedy split-search (no weights).
+- **Model vs lookup table = generalization.** Table memorizes seen inputs; model handles unseen ones. Overfitting = a model that became a lookup table.
+- **Supervised:** labels are the supervisor (the setpoint); algorithm corrects the weights to shrink the loss. No labels = unsupervised.
 
 ### 📐 Formula sheet
 ```
