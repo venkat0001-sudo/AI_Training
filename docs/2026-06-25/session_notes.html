@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sage Scroll II — Bayes & The ML Bloodline | 2026-06-25</title>
+<style>
+:root{
+  --sage-dark:#1a2e0d; --sage-deep:#2d4a1e; --sage-mid:#4a7a2e; --sage-light:#7a9e5a; --sage-pale:#a8c87a;
+  --earth-dark:#3d2b0d; --earth-mid:#8b5e1a; --earth-light:#c4902e;
+  --orange:#ff8c00; --orange-glow:#ffb347; --cream:#f5e6c8; --cream-dark:#d4c09a;
+  --glow:rgba(255,140,0,0.3); --red:#d9534f; --blue:#5a8fbf;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:linear-gradient(135deg,#0d1a07 0%,#0d1f08 50%,#1a1a0a 100%);
+  color:var(--cream); font-family:'Courier New',monospace; min-height:100vh; overflow-x:hidden; line-height:1.6;
+}
+.particle{position:fixed;border-radius:50%;pointer-events:none;animation:floatUp linear infinite;z-index:0;}
+@keyframes floatUp{0%{transform:translateY(100vh) rotate(0deg);opacity:0;}10%{opacity:.6;}90%{opacity:.4;}100%{transform:translateY(-120px) rotate(720deg);opacity:0;}}
+.header{text-align:center;padding:50px 20px 20px;position:relative;z-index:1;}
+.frog{font-size:70px;display:block;animation:sagePulse 3s ease-in-out infinite;}
+@keyframes sagePulse{0%,100%{text-shadow:0 0 20px #7a9e5a,0 0 40px rgba(122,158,90,.4);transform:scale(1);}50%{text-shadow:0 0 40px var(--orange),0 0 80px rgba(255,140,0,.4);transform:scale(1.08);}}
+.title{font-size:2.3em;color:var(--orange);text-shadow:0 0 25px var(--orange);letter-spacing:3px;margin:12px 0 6px;}
+.subtitle{color:var(--sage-pale);font-size:.9em;letter-spacing:2px;}
+.dojo-line{color:var(--sage-mid);font-size:.7em;letter-spacing:4px;margin:8px 0;}
+.card{
+  background:rgba(20,40,12,.7);border:1px solid rgba(74,122,46,.5);border-radius:14px;
+  padding:28px;margin:20px auto;max-width:1050px;backdrop-filter:blur(6px);position:relative;z-index:1;
+}
+.card::before{content:'';position:absolute;top:0;left:10%;right:10%;height:2px;background:linear-gradient(90deg,transparent,var(--orange),transparent);border-radius:2px;}
+.sec-title{color:var(--orange);font-size:1.3em;margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+.sec-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(74,122,46,.6),transparent);}
+.scroll-tag{display:inline-block;font-size:.6em;color:var(--earth-light);border:1px solid var(--earth-mid);border-radius:20px;padding:2px 12px;letter-spacing:2px;margin-bottom:8px;}
+h3{color:var(--orange-glow);margin:18px 0 8px;font-size:1.05em;}
+p{margin:8px 0;}
+.quote{border-left:4px solid var(--orange);padding:10px 16px;margin:14px 0;color:var(--sage-pale);font-size:.92em;font-style:italic;background:rgba(0,0,0,.25);border-radius:0 8px 8px 0;}
+.lead{color:var(--cream-dark);font-size:.95em;}
+code{background:rgba(0,0,0,.45);color:var(--orange-glow);padding:2px 7px;border-radius:5px;font-size:.9em;}
+pre{background:rgba(0,0,0,.5);border:1px solid rgba(74,122,46,.35);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:12px 0;color:var(--sage-pale);font-size:.85em;line-height:1.5;}
+pre .cmt{color:var(--sage-mid);}
+pre .kw{color:var(--orange);}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.85em;}
+th,td{border:1px solid rgba(74,122,46,.4);padding:9px 11px;text-align:left;}
+th{background:rgba(74,122,46,.25);color:var(--orange-glow);}
+tr:nth-child(even) td{background:rgba(0,0,0,.2);}
+.tag-good{color:#9fd67a;font-weight:bold;}
+.tag-bad{color:var(--red);font-weight:bold;}
+ul{margin:8px 0 8px 22px;}
+li{margin:5px 0;}
+.toc{display:flex;flex-wrap:wrap;gap:10px;}
+.toc a{color:var(--cream);text-decoration:none;background:rgba(74,122,46,.2);border:1px solid rgba(74,122,46,.45);border-radius:8px;padding:8px 14px;font-size:.8em;transition:all .25s;}
+.toc a:hover{background:var(--orange);color:#1a1a0a;box-shadow:0 0 16px var(--orange);}
+
+/* Bayes interactive */
+.controls{display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:flex-end;margin:18px 0;}
+.ctrl{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.ctrl label{font-size:.75em;color:var(--sage-pale);}
+.ctrl input[type=range]{width:200px;accent-color:var(--orange);}
+.ctrl .val{color:var(--orange-glow);font-size:1.1em;font-weight:bold;}
+.bayes-out{text-align:center;margin:16px 0;}
+.posterior{font-size:2.6em;color:var(--orange);text-shadow:0 0 22px var(--orange);transition:color .3s;}
+.posterior.danger{color:var(--red);text-shadow:0 0 22px var(--red);}
+.bar-wrap{max-width:520px;margin:14px auto;}
+.bar-row{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:.78em;}
+.bar-row .lbl{width:120px;text-align:right;color:var(--cream-dark);}
+.bar{height:22px;border-radius:5px;transition:width .35s;min-width:2px;}
+.bar.real{background:linear-gradient(90deg,#4a7a2e,#9fd67a);}
+.bar.false{background:linear-gradient(90deg,#8b2e1a,#d9534f);}
+.bar .cnt{display:inline-block;margin-left:8px;color:var(--cream-dark);}
+
+/* tree */
+.tree-box{background:rgba(0,0,0,.4);border-radius:10px;padding:18px;margin:14px 0;text-align:center;font-size:.8em;line-height:1.9;color:var(--sage-pale);}
+.node-q{color:var(--orange-glow);font-weight:bold;}
+.leaf-t{color:var(--red);font-weight:bold;}
+.leaf-n{color:#9fd67a;font-weight:bold;}
+
+/* taxonomy nesting */
+.nest{font-family:'Courier New',monospace;}
+.nest .box{border:2px solid;border-radius:10px;padding:14px 16px;margin:10px 0;}
+.nest .ai{border-color:var(--earth-light);}
+.nest .rule{border-color:var(--red);background:rgba(217,83,79,.08);margin:10px 0;}
+.nest .ml{border-color:var(--sage-mid);background:rgba(74,122,46,.1);}
+.nest .leaf{display:inline-block;border:1px solid var(--orange);border-radius:8px;padding:8px 14px;margin:6px;font-size:.85em;}
+.lvl{font-size:.7em;letter-spacing:2px;color:var(--cream-dark);text-transform:uppercase;}
+
+.recall{background:rgba(255,140,0,.08);border:1px dashed var(--orange);border-radius:10px;padding:16px 20px;margin:14px 0;}
+.recall summary{cursor:pointer;color:var(--orange-glow);font-weight:bold;list-style:none;}
+.recall summary::before{content:'🍥 ';}
+.recall[open] summary::before{content:'🔓 ';}
+.recall .ans{margin-top:10px;color:var(--sage-pale);font-size:.9em;border-top:1px solid rgba(74,122,46,.3);padding-top:10px;}
+.foot{text-align:center;color:var(--sage-mid);font-size:.75em;padding:30px 20px 50px;}
+.pill{display:inline-block;background:rgba(74,122,46,.25);border:1px solid var(--sage-mid);border-radius:20px;padding:3px 12px;font-size:.72em;margin:3px;color:var(--cream-dark);}
+.kt{border-left:3px solid var(--orange);padding:6px 0 6px 14px;margin:10px 0;}
+.kt b{color:var(--orange-glow);}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="frog">🐸</span>
+  <div class="title">SAGE SCROLL II</div>
+  <div class="subtitle">Bayes' Theorem &amp; The Machine-Learning Bloodline</div>
+  <div class="dojo-line">◈ MOUNT MYŌBOKU DOJO · SESSION 2026-06-25 ◈</div>
+  <div style="color:var(--cream-dark);font-size:.78em;margin-top:8px;">Taught in SSD-firmware chakra · Edge-AI is the goal</div>
+</div>
+
+<div class="card">
+  <div class="sec-title">📜 What this scroll holds</div>
+  <p class="lead">Five jutsu mastered today, each grounded in SSD thermal firmware:</p>
+  <div class="toc">
+    <a href="#bayes">① Bayes' Theorem</a>
+    <a href="#taxonomy">② AI → ML → Classic/Deep</a>
+    <a href="#models">③ The Two Model Clans</a>
+    <a href="#tree">④ Decision Trees</a>
+    <a href="#vocab">⑤ Features vs Weights</a>
+    <a href="#traffic">⑥ Bonus: Bangalore Traffic</a>
+    <a href="#takeaways">⑦ Key Takeaways</a>
+    <a href="#recall">⑧ Recall Test</a>
+  </div>
+</div>
+
+<!-- ════════ BAYES ════════ -->
+<div class="card" id="bayes">
+  <span class="scroll-tag">JUTSU ①</span>
+  <div class="sec-title">Bayes' Theorem — flipping a conditional you know into the one you want</div>
+
+  <div class="quote">A sensor screams HOT. Do you trust it? Bayes is the math that answers "given the alarm fired, how likely is it real?" — by combining the sensor's spec with how rare real events actually are.</div>
+
+  <h3>The core move</h3>
+  <p>You always have two different conditional questions. Don't confuse them:</p>
+  <table>
+    <tr><th>Direction</th><th>Reads as</th><th>Where it lives</th></tr>
+    <tr><td><b>KNOWN</b> — P(HOT&nbsp;|&nbsp;Real)</td><td>"given it's truly real, how often does the sensor catch it?"</td><td>the <span class="tag-good">datasheet</span> (hardware, fixed)</td></tr>
+    <tr><td><b>WANT</b> — P(Real&nbsp;|&nbsp;HOT)</td><td>"the alarm just fired — should I trust it?"</td><td>this <span class="tag-good">field moment</span> (depends on base rate)</td></tr>
+  </table>
+  <div class="quote">Known is about the <b>hardware</b>. Want is about <b>this moment in the field</b>. Bayes is the bridge between them.</div>
+
+  <h3>The four numbers (from the 200-cycle table)</h3>
+  <table>
+    <tr><th></th><th>Real Event</th><th>No Event</th><th>Total</th></tr>
+    <tr><td><b>Sensor HOT</b></td><td>18</td><td>18</td><td>36</td></tr>
+    <tr><td><b>Sensor NORMAL</b></td><td>2</td><td>162</td><td>164</td></tr>
+    <tr><td><b>Total</b></td><td>20</td><td>180</td><td>200</td></tr>
+  </table>
+  <ul>
+    <li><b>Base rate</b> P(Real) = 20/200 = <b>10%</b> &nbsp;— the piece the datasheet can't give you</li>
+    <li><b>Detection rate</b> P(HOT|Real) = 18/20 = <b>90%</b> &nbsp;— the sensor's spec</li>
+    <li><b>False-alarm rate</b> P(HOT|No Event) = 18/180 = <b>10%</b> &nbsp;— the sensor's noise</li>
+    <li><b>Prior calm</b> P(No Event) = 180/200 = <b>90%</b></li>
+  </ul>
+
+  <h3>The formula = your body-counting, written out</h3>
+  <pre><span class="cmt"># You said: "36 alarms fired, 18 were real → 18/36 = 50%"</span>
+<span class="cmt"># Bayes rebuilds that top &amp; bottom from the four numbers:</span>
+
+P(Real | HOT) =        P(HOT|Real)·P(Real)
+              ────────────────────────────────────────────
+              P(HOT|Real)·P(Real) + P(HOT|NoEvent)·P(NoEvent)
+
+              =       0.90 × 0.10              0.09
+                ──────────────────────────  =  ──────  = <span class="kw">0.50  (50%)</span>
+                0.90×0.10  +  0.10×0.90        0.18</pre>
+  <div class="quote">Shape to remember: <b>posterior = (one real-alarm bucket) ÷ (all alarm buckets summed)</b>. The bottom is "every way the sensor could fire HOT." The top is "the one way that's actually real."</div>
+
+  <h3>🎮 Watch it bite — drag the base rate</h3>
+  <p class="lead">Real events are the villain when they're <i>rare</i>. Drag the slider and watch a trustworthy-looking alarm rot.</p>
+  <div class="controls">
+    <div class="ctrl">
+      <label>Base rate — how common are real events?</label>
+      <input type="range" id="baseRate" min="0.5" max="30" step="0.5" value="10">
+      <span class="val"><span id="brVal">10.0</span>%</span>
+    </div>
+    <div class="ctrl">
+      <label>Detection rate P(HOT|Real)</label>
+      <input type="range" id="det" min="50" max="100" step="1" value="90">
+      <span class="val"><span id="detVal">90</span>%</span>
+    </div>
+    <div class="ctrl">
+      <label>False-alarm rate P(HOT|Calm)</label>
+      <input type="range" id="fa" min="1" max="30" step="1" value="10">
+      <span class="val"><span id="faVal">10</span>%</span>
+    </div>
+  </div>
+  <div class="bayes-out">
+    <div style="font-size:.8em;color:var(--cream-dark);">If the sensor fires HOT, probability it's REAL:</div>
+    <div class="posterior" id="post">50%</div>
+    <div id="verdict" style="font-size:.8em;color:var(--sage-pale);"></div>
+  </div>
+  <div class="bar-wrap">
+    <div class="bar-row"><span class="lbl">Real alarms</span><div class="bar real" id="barReal" style="width:50%"></div><span class="cnt" id="cntReal"></span></div>
+    <div class="bar-row"><span class="lbl">False alarms</span><div class="bar false" id="barFalse" style="width:50%"></div><span class="cnt" id="cntFalse"></span></div>
+  </div>
+
+  <h3>↩ Why it beats a fixed threshold — and when the threshold still wins</h3>
+  <ul>
+    <li><span class="tag-good">Bayes wins</span> when real events are rare and your detector is imperfect — exactly when a naive "HOT ⇒ throttle" rule drowns in false alarms.</li>
+    <li><span class="tag-bad">Fixed threshold wins</span> when the rule is simple, known &amp; hard — e.g. datasheet says 95°C is a thermal hard-limit. Don't compute a posterior for what you already know for certain.</li>
+  </ul>
+  <div class="quote">🔌 Edge-AI bridge: the base rate is exactly what your on-device predictive throttle must carry. A controller that ignores how rare real events are will throttle on noise and tank performance.</div>
+</div>
+
+<!-- ════════ TAXONOMY ════════ -->
+<div class="card" id="taxonomy">
+  <span class="scroll-tag">JUTSU ②</span>
+  <div class="sec-title">AI → ML → Classic / Deep — the bloodline</div>
+
+  <p class="lead">The nesting is right; the one trap is thinking "classic ML = rule-based." It isn't. Rule-based sits <b>outside</b> ML entirely.</p>
+
+  <div class="nest">
+    <div class="box ai">
+      <span class="lvl">Artificial Intelligence — anything that acts smart</span>
+      <div class="box rule">
+        <span class="lvl" style="color:var(--red)">Rule-based / expert systems</span><br>
+        hand-coded <code>if/else</code> — <b>NO learning</b> &nbsp;·&nbsp; this is your <code>if(temp&gt;90) throttle;</code> firmware
+      </div>
+      <div class="box ml">
+        <span class="lvl" style="color:var(--sage-pale)">Machine Learning — learns weights FROM DATA</span><br>
+        <span class="leaf"><b>Classic ML</b><br><span style="font-size:.85em;color:var(--cream-dark)">you hand-pick features</span></span>
+        <span class="leaf"><b>Deep Learning</b><br><span style="font-size:.85em;color:var(--cream-dark)">network finds its own features</span></span>
+      </div>
+    </div>
+  </div>
+
+  <h3>The two dividing lines</h3>
+  <table>
+    <tr><th>Boundary</th><th>Question</th><th>Answer A</th><th>Answer B</th></tr>
+    <tr><td>Rule-based vs ML</td><td><b>Who writes the logic?</b></td><td>Human writes <code>if(temp&gt;90)</code> → rule-based</td><td>Machine learns thresholds from data → ML</td></tr>
+    <tr><td>Classic vs Deep</td><td><b>Who finds the features?</b></td><td>You hand-pick them → classic</td><td>Network discovers them in layers → deep</td></tr>
+  </table>
+
+  <div class="quote">Anchor: the Jun-20 linear classifier <b>learned</b> its weights via gradient descent — so it's classic ML, <b>not</b> rule-based. If "classic = rule-based" were true, that notebook wouldn't have needed any training at all.</div>
+
+  <h3>The bridge between the clans</h3>
+  <div class="quote">A single neuron = <b>logistic regression</b>. Stack that neuron into many feeding-forward <b>layers</b>, let it learn its own features → you've crossed from classic ML into deep learning. <br>⚠️ Only logistic regression is "the neuron." A <b>decision tree is a sibling model</b> — stacking trees gives a <i>random forest</i> (still classic ML), never a neural net.</div>
+</div>
+
+<!-- ════════ MODELS ════════ -->
+<div class="card" id="models">
+  <span class="scroll-tag">JUTSU ③</span>
+  <div class="sec-title">The Two Model Clans — and where your course teaches each</div>
+
+  <h3>🍃 Classic ML clan <span style="font-size:.7em;color:var(--cream-dark)">(you curate features, model learns weights)</span></h3>
+  <table>
+    <tr><th>Model</th><th>What it does</th><th>Course session</th></tr>
+    <tr><td>Linear regression</td><td>fit a line → predict a number</td><td>Sess 2 · Jun 27</td></tr>
+    <tr><td>Logistic regression</td><td>soft yes/no boundary → classify <span class="pill">= the neuron</span></td><td>Sess 2 · Jun 27</td></tr>
+    <tr><td>Decision tree</td><td>nested if/else, but <i>learned</i></td><td>Sess 3 · Jul 4</td></tr>
+    <tr><td>SVM</td><td>widest margin between classes</td><td>Sess 3 · Jul 4</td></tr>
+    <tr><td>Random forest / boosting</td><td>many weak voters → one strong call</td><td>Sess 4 · Jul 11</td></tr>
+    <tr><td>k-NN</td><td>"what do my nearest neighbors look like?"</td><td>—</td></tr>
+    <tr><td>Naive Bayes</td><td>classify using Bayes' theorem (jutsu ①!)</td><td>—</td></tr>
+    <tr><td>k-means / PCA</td><td>cluster / squeeze features</td><td>Sess 5 · Jul 18</td></tr>
+  </table>
+
+  <h3>🌀 Deep Learning clan <span style="font-size:.7em;color:var(--cream-dark)">(network finds its own features)</span></h3>
+  <table>
+    <tr><th>Model</th><th>What it does</th><th>Course session</th></tr>
+    <tr><td>Feedforward NN / MLP</td><td>stacked neurons — the base net</td><td>Sess 7 · Jul 25</td></tr>
+    <tr><td>CNN</td><td>sees images; convolution = sliding FIR filter</td><td>Sess 9 · Aug 8</td></tr>
+    <tr><td>RNN / LSTM</td><td>remembers sequences; hidden state = persistent register</td><td>Sess 10 · Aug 16</td></tr>
+    <tr><td>Transformer</td><td>attention replaces recurrence — powers all LLMs</td><td>Sess 14 · Sep 5</td></tr>
+    <tr><td>LLMs / GANs / diffusion</td><td>scaled transformers; generate data</td><td>Modules 4+</td></tr>
+  </table>
+
+  <div class="quote">🔌 For your <b>on-device SSD throttle</b>: classic ML (a small tree or logistic model) likely wins — fits in SRAM, runs in nanoseconds, explainable. A deep net would be silicon you can't afford. Deep learning earns its cost only on huge, <i>unstructured</i> data (images, audio, text).</div>
+</div>
+
+<!-- ════════ TREE ════════ -->
+<div class="card" id="tree">
+  <span class="scroll-tag">JUTSU ④</span>
+  <div class="sec-title">Decision Trees — firmware whose constants were learned</div>
+
+  <p class="lead">Not a knowledge tree — a flowchart of yes/no questions. You've written hundreds in C. The only difference: the machine learns the branch values from data.</p>
+
+  <div class="tree-box">
+    <span class="node-q">[ temp &gt; 85°C ? ]</span><br>
+    &nbsp;&nbsp;├─ no ─→ <span class="leaf-n">DON'T THROTTLE</span><br>
+    &nbsp;&nbsp;└─ yes ─→ <span class="node-q">[ P/E cycles &gt; 50k ? ]</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ no ─→ <span class="node-q">[ retention &gt; 30d ? ]</span> ─→ <span class="leaf-n">NO</span> / <span class="leaf-t">THROTTLE</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ yes ─→ <span class="leaf-t">THROTTLE</span>
+  </div>
+  <p><b>Vocab from the picture:</b> <span class="pill">Node = a question</span><span class="pill">Branch = yes/no path</span><span class="pill">Leaf = final answer</span><span class="pill">Depth = questions before deciding</span></p>
+
+  <h3>Trained tree vs your actual firmware</h3>
+  <p>At <b>runtime they're twins</b> — both are nested <code>if</code> comparisons. The difference is upstream:</p>
+  <table>
+    <tr><th></th><th>Hand-coded firmware</th><th>Trained decision tree</th></tr>
+    <tr><td>Who picks thresholds</td><td>your gut / datasheet (<code>90°C</code>)</td><td>algorithm proves <code>85°C</code> best separates the data</td></tr>
+    <tr><td>How many signals at once</td><td>2–3 you can reason about</td><td>finds 4-way interactions automatically</td></tr>
+    <tr><td>When data changes</td><td>engineer rewrites &amp; revalidates</td><td>feed fresh telemetry → regenerate → reflash</td></tr>
+  </table>
+  <div class="quote">A trained tree <b>is</b> firmware — just firmware whose constants were learned from the field instead of written by you. <br>↩ Hand-code when the rule is simple/known/hard (95°C hard-limit). Learn a tree when the right thresholds are unknown, drift across lots, and depend on several signals at once.</div>
+</div>
+
+<!-- ════════ VOCAB ════════ -->
+<div class="card" id="vocab">
+  <span class="scroll-tag">JUTSU ⑤</span>
+  <div class="sec-title">Features vs Weights — the vocabulary that bites in class</div>
+
+  <table>
+    <tr><th>Word</th><th>What it is</th><th>Who sets it</th></tr>
+    <tr><td><b>Feature</b></td><td>an input column (workload, temp, P/E cycles)</td><td><span class="tag-good">human</span>, in classic ML</td></tr>
+    <tr><td><b>Weight</b> = <b>parameter</b></td><td>how much each feature counts</td><td><span class="tag-good">always learned</span> from data</td></tr>
+  </table>
+  <div class="quote"><b>Feature = the question you feed in. Parameter/weight = what the model learns.</b> Parameters are never hand-set — if a human set them, it wouldn't be learning.</div>
+
+  <h3>Your SSD model, concretely</h3>
+  <pre><span class="cmt"># Predict: THROTTLE or NOT</span>
+features (you curated):       temp   P/E   retention   workload
+weights  (model learned):     0.7    0.2     0.05         0.4
+                               ↑ temp matters most — the model figured that out
+
+score = 0.7·temp + 0.2·cycles + 0.05·retention + 0.4·workload</pre>
+  <div class="quote">That <code>score = Σ wᵢ·featureᵢ</code> is a <b>dot product</b> — your MAC loop. The linear-algebra you learned IS the engine inside the linear classifier. Full circle. 🐸</div>
+
+  <h3>Difference in one breath</h3>
+  <table>
+    <tr><th></th><th>What you feed in</th><th>Who engineers features</th><th>Who learns weights</th></tr>
+    <tr><td><b>Classic ML</b></td><td>clean hand-built features</td><td><span class="tag-good">you</span></td><td>data</td></tr>
+    <tr><td><b>Deep Learning</b></td><td>raw messy data</td><td><span class="tag-good">the network</span></td><td>data</td></tr>
+  </table>
+</div>
+
+<!-- ════════ TRAFFIC ════════ -->
+<div class="card" id="traffic">
+  <span class="scroll-tag">BONUS · TRANSFER TEST</span>
+  <div class="sec-title">🚦 Bangalore Traffic — the concept in a new domain</div>
+
+  <p class="lead">Same two clans, totally different problem — proof the idea transfers off SSDs.</p>
+
+  <h3>Classic ML approach</h3>
+  <p>You hand-curate features and feed 2–3 years of traffic history; the model learns weights:</p>
+  <p><span class="pill">time of day</span><span class="pill">8am rush flag</span><span class="pill">bus departure timings</span><span class="pill">school open/close</span><span class="pill">is it a weekday?</span></p>
+
+  <h3>Deep Learning approach</h3>
+  <p>You feed <b>raw, richer data</b> — live GPS pings, raw timestamps, weather feeds — and the network builds its own internal features, finding patterns you'd never hand-code:</p>
+  <div class="quote">"rain <b>+</b> Friday evening <b>+</b> a match at Chinnaswamy = total gridlock" — you never wrote a "cricket-match feature." The network found that combination buried in the raw data.</div>
+
+  <h3>Which would you actually pick?</h3>
+  <ul>
+    <li><span class="tag-good">Classic ML</span> — clean tabular history + you know 8am &amp; school timings matter. Cheaper, faster, explainable. Often plenty.</li>
+    <li><span class="tag-good">Deep Learning</span> — massive raw feeds (millions of GPS pings, weather, events) where hand-engineering is hopeless. Earns its cost.</li>
+  </ul>
+  <div class="quote">Same "when is the simpler tool still right?" call you make on hardware (SRAM vs DRAM, polling vs interrupt).</div>
+</div>
+
+<!-- ════════ TAKEAWAYS ════════ -->
+<div class="card" id="takeaways">
+  <span class="scroll-tag">SCROLL SUMMARY</span>
+  <div class="sec-title">⚡ Key Takeaways</div>
+  <div class="kt"><b>Bayes</b> = flip "P(evidence|cause)" into "P(cause|evidence)". Posterior = one real bucket ÷ all buckets. Rarity is the villain — a rare event makes even a good alarm untrustworthy.</div>
+  <div class="kt"><b>Rule-based ≠ classic ML.</b> Rule-based hand-codes logic (no learning) and sits outside ML. Classic ML &amp; deep learning both learn weights from data.</div>
+  <div class="kt"><b>Classic vs Deep</b> = who finds the features. Classic: you. Deep: the network, via stacked layers.</div>
+  <div class="kt"><b>The neuron</b> = logistic regression. Stack it in layers → deep learning. A decision tree is a sibling, not a neuron.</div>
+  <div class="kt"><b>Decision tree</b> = learned nested if/else. Twin of firmware at runtime; difference is the constants came from data.</div>
+  <div class="kt"><b>Feature</b> = input you feed. <b>Weight/parameter</b> = what the model learns. Never confuse them again.</div>
+  <div class="kt"><b>Edge-AI line:</b> small classic models (tree/logistic) fit constrained silicon; deep nets only earn their cost on huge unstructured data.</div>
+
+  <h3>📐 Formula sheet</h3>
+  <pre>z-score (standardize a feature)   z = (x − μ) / σ
+linear score (a "neuron")         score = Σ wᵢ·xᵢ   (= dot product = MAC)
+Bayes posterior                   P(A|B) = P(B|A)·P(A) / P(B)
+   where  P(B) = P(B|A)·P(A) + P(B|¬A)·P(¬A)   ← all the buckets summed</pre>
+</div>
+
+<!-- ════════ RECALL ════════ -->
+<div class="card" id="recall">
+  <span class="scroll-tag">FEYNMAN TEST</span>
+  <div class="sec-title">🍥 Active Recall — answer before you open</div>
+
+  <details class="recall"><summary>1. A HOT alarm is 90% accurate at catching real events. So if it fires, is it 90% likely real?</summary>
+    <div class="ans">No — that confuses P(HOT|Real) with P(Real|HOT). If real events are rare (10%), false alarms from the huge calm population swamp the few real catches → trust drops to ~50% or lower. That's the base-rate trap.</div></details>
+
+  <details class="recall"><summary>2. Is a decision tree a kind of neural network?</summary>
+    <div class="ans">No. The "neuron you stack into a net" is logistic regression. A decision tree is a separate classic-ML model. Stack trees and you get a random forest — still classic ML, never a neural net.</div></details>
+
+  <details class="recall"><summary>3. Your firmware has <code>if(temp&gt;90) throttle;</code>. Is that machine learning?</summary>
+    <div class="ans">No — it's rule-based. You hand-coded the threshold. It becomes ML only when the machine <i>learns</i> the threshold (e.g. 85°C) from data.</div></details>
+
+  <details class="recall"><summary>4. In <code>score = 0.7·temp + 0.2·cycles</code>, which are features and which are weights?</summary>
+    <div class="ans">temp, cycles = features (inputs you fed). 0.7, 0.2 = weights/parameters (learned by the model). The whole sum is a dot product.</div></details>
+
+  <details class="recall"><summary>5. For an on-device SSD throttle predictor — classic ML or deep learning, and why?</summary>
+    <div class="ans">Classic ML. Tabular telemetry, small feature set, must fit in SRAM and run in nanoseconds, needs to be explainable. A deep net is overkill silicon you can't afford on a controller.</div></details>
+</div>
+
+<div class="foot">
+  🐸 Sage Scroll II sealed · 2026-06-25 · "A jutsu you can teach back is a jutsu you own."<br>
+  Next: watch the Jun-20 recording → walk the linear-classifier notebook as your thermal model.
+</div>
+
+<script>
+// floating chakra particles
+const colors=['#7a9e5a','#ff8c00','#a8c87a','#c4902e'];
+for(let i=0;i<26;i++){
+  const p=document.createElement('div');p.className='particle';
+  const s=Math.random()*8+3;
+  p.style.width=s+'px';p.style.height=s+'px';
+  p.style.left=Math.random()*100+'vw';
+  p.style.background=colors[Math.floor(Math.random()*colors.length)];
+  p.style.boxShadow='0 0 8px '+p.style.background;
+  p.style.animationDuration=(Math.random()*12+8)+'s';
+  p.style.animationDelay=(Math.random()*8)+'s';
+  document.body.appendChild(p);
+}
+
+// Bayes interactive
+const br=document.getElementById('baseRate'), det=document.getElementById('det'), fa=document.getElementById('fa');
+const brVal=document.getElementById('brVal'), detVal=document.getElementById('detVal'), faVal=document.getElementById('faVal');
+const post=document.getElementById('post'), verdict=document.getElementById('verdict');
+const barReal=document.getElementById('barReal'), barFalse=document.getElementById('barFalse');
+const cntReal=document.getElementById('cntReal'), cntFalse=document.getElementById('cntFalse');
+const N=10000;
+function updateBayes(){
+  const p=br.value/100, d=det.value/100, f=fa.value/100;
+  brVal.textContent=Number(br.value).toFixed(1);
+  detVal.textContent=det.value; faVal.textContent=fa.value;
+  const realAlarms=N*p*d;            // truly real AND fired HOT
+  const falseAlarms=N*(1-p)*f;       // calm AND fired HOT
+  const total=realAlarms+falseAlarms;
+  const posterior= total>0 ? realAlarms/total : 0;
+  const pct=(posterior*100);
+  post.textContent=pct.toFixed(0)+'%';
+  const danger=posterior<0.5;
+  post.classList.toggle('danger',danger);
+  verdict.textContent = posterior>=0.7 ? 'trustworthy — act on it'
+                      : posterior>=0.4 ? 'a coin-flip — base rate is biting'
+                      : 'mostly false alarms — do NOT trust a bare HOT';
+  const mx=Math.max(realAlarms,falseAlarms,1);
+  barReal.style.width=(realAlarms/mx*100)+'%';
+  barFalse.style.width=(falseAlarms/mx*100)+'%';
+  cntReal.textContent=Math.round(realAlarms)+' real';
+  cntFalse.textContent=Math.round(falseAlarms)+' false';
+}
+[br,det,fa].forEach(el=>el.addEventListener('input',updateBayes));
+updateBayes();
+</script>
+</body>
+</html>
