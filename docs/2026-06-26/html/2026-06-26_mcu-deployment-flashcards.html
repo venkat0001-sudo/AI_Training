@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sage Flash-Scroll — MCU Deployment & Decision Trees | 2026-06-26</title>
+<style>
+:root{
+  --sage-dark:#1a2e0d; --sage-deep:#2d4a1e; --sage-mid:#4a7a2e; --sage-light:#7a9e5a; --sage-pale:#a8c87a;
+  --earth-dark:#3d2b0d; --earth-mid:#8b5e1a; --earth-light:#c4902e;
+  --orange:#ff8c00; --orange-glow:#ffb347; --cream:#f5e6c8; --cream-dark:#d4c09a;
+  --glow:rgba(255,140,0,0.3); --red:#d9534f; --blue:#5a8fbf; --green:#9fd67a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:linear-gradient(135deg,#0d1a07 0%,#0d1f08 50%,#1a1a0a 100%);
+  color:var(--cream); font-family:'Courier New',monospace; min-height:100vh; overflow-x:hidden; line-height:1.6;
+}
+.particle{position:fixed;border-radius:50%;pointer-events:none;animation:floatUp linear infinite;z-index:0;}
+@keyframes floatUp{0%{transform:translateY(100vh) rotate(0deg);opacity:0;}10%{opacity:.6;}90%{opacity:.4;}100%{transform:translateY(-120px) rotate(720deg);opacity:0;}}
+.header{text-align:center;padding:46px 20px 10px;position:relative;z-index:1;}
+.frog{font-size:62px;display:block;animation:sagePulse 3s ease-in-out infinite;}
+@keyframes sagePulse{0%,100%{text-shadow:0 0 20px #7a9e5a,0 0 40px rgba(122,158,90,.4);transform:scale(1);}50%{text-shadow:0 0 40px var(--orange),0 0 80px rgba(255,140,0,.4);transform:scale(1.08);}}
+.title{font-size:2.1em;color:var(--orange);text-shadow:0 0 25px var(--orange);letter-spacing:3px;margin:10px 0 6px;}
+.subtitle{color:var(--sage-pale);font-size:.88em;letter-spacing:2px;}
+.dojo-line{color:var(--sage-mid);font-size:.7em;letter-spacing:4px;margin:8px 0;}
+
+/* progress + controls */
+.bar-top{max-width:760px;margin:10px auto 0;position:relative;z-index:1;padding:0 16px;}
+.meta{display:flex;justify-content:space-between;align-items:center;font-size:.78em;color:var(--cream-dark);margin-bottom:6px;flex-wrap:wrap;gap:8px;}
+.meta b{color:var(--orange-glow);}
+.progress{height:8px;background:rgba(0,0,0,.4);border:1px solid rgba(74,122,46,.4);border-radius:6px;overflow:hidden;}
+.progress .fill{height:100%;background:linear-gradient(90deg,var(--sage-mid),var(--orange));width:0;transition:width .3s;}
+
+/* deck filter pills */
+.decks{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:16px auto;max-width:760px;padding:0 16px;position:relative;z-index:1;}
+.deck-pill{cursor:pointer;background:rgba(74,122,46,.18);border:1px solid rgba(74,122,46,.45);border-radius:20px;padding:5px 14px;font-size:.74em;color:var(--cream-dark);transition:all .2s;user-select:none;}
+.deck-pill:hover{border-color:var(--orange);color:var(--cream);}
+.deck-pill.active{background:var(--orange);color:#1a1a0a;font-weight:bold;box-shadow:0 0 14px var(--orange);}
+
+/* CARD */
+.stage{max-width:760px;margin:14px auto;padding:0 16px;position:relative;z-index:1;}
+.flip{perspective:1600px;cursor:pointer;}
+.flip-inner{position:relative;width:100%;min-height:340px;transition:transform .55s cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d;}
+.flip.flipped .flip-inner{transform:rotateY(180deg);}
+.face{
+  position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  background:rgba(20,40,12,.78);border:1px solid rgba(74,122,46,.55);border-radius:16px;
+  padding:30px 32px;backdrop-filter:blur(6px);display:flex;flex-direction:column;justify-content:center;overflow-y:auto;
+}
+.face::before{content:'';position:absolute;top:0;left:10%;right:10%;height:2px;background:linear-gradient(90deg,transparent,var(--orange),transparent);border-radius:2px;}
+.face.back{transform:rotateY(180deg);border-color:rgba(255,140,0,.5);background:rgba(28,30,12,.85);}
+.tag{position:absolute;top:14px;left:20px;font-size:.6em;color:var(--earth-light);border:1px solid var(--earth-mid);border-radius:20px;padding:2px 11px;letter-spacing:2px;}
+.side-tag{position:absolute;top:14px;right:20px;font-size:.62em;letter-spacing:3px;}
+.side-q{color:var(--sage-pale);}
+.side-a{color:var(--orange-glow);}
+.q-text{font-size:1.25em;color:var(--cream);text-align:center;margin:10px 0;}
+.a-text{font-size:.98em;color:var(--sage-pale);}
+.a-text b{color:var(--orange-glow);}
+.a-text code{background:rgba(0,0,0,.45);color:var(--orange-glow);padding:2px 7px;border-radius:5px;font-size:.92em;}
+.a-text .ssd{color:var(--green);}
+.hint{position:absolute;bottom:14px;left:0;right:0;text-align:center;font-size:.68em;color:var(--sage-mid);letter-spacing:1px;}
+
+/* nav buttons */
+.nav{display:flex;justify-content:center;align-items:center;gap:12px;margin:18px auto;flex-wrap:wrap;max-width:760px;}
+.btn{cursor:pointer;background:rgba(74,122,46,.2);border:1px solid rgba(74,122,46,.5);border-radius:10px;padding:10px 18px;font-size:.82em;color:var(--cream);font-family:inherit;transition:all .2s;user-select:none;}
+.btn:hover{background:var(--orange);color:#1a1a0a;box-shadow:0 0 14px var(--orange);}
+.btn.know{border-color:var(--green);color:var(--green);}
+.btn.know:hover{background:var(--green);color:#1a1a0a;box-shadow:0 0 14px var(--green);}
+.btn.again{border-color:var(--red);color:var(--red);}
+.btn.again:hover{background:var(--red);color:#1a1a0a;box-shadow:0 0 14px var(--red);}
+.btn.ghost{opacity:.8;}
+.score{text-align:center;font-size:.78em;color:var(--cream-dark);margin:4px auto 30px;}
+.score b.good{color:var(--green);} .score b.bad{color:var(--red);}
+.kbd{display:inline-block;background:rgba(0,0,0,.5);border:1px solid var(--sage-mid);border-radius:5px;padding:1px 7px;font-size:.82em;color:var(--cream-dark);margin:0 2px;}
+.foot{text-align:center;color:var(--sage-mid);font-size:.72em;padding:10px 20px 50px;position:relative;z-index:1;}
+.done{text-align:center;color:var(--orange-glow);font-size:1.1em;margin:20px 0;display:none;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="frog">🐸</span>
+  <div class="title">SAGE FLASH-SCROLL</div>
+  <div class="subtitle">MCU Deployment &amp; Decision-Tree Geometry — Active Recall</div>
+  <div class="dojo-line">◈ MOUNT MYŌBOKU DOJO · DECK 2026-06-26 ◈</div>
+</div>
+
+<div class="bar-top">
+  <div class="meta">
+    <span>Card <b id="idx">1</b> / <b id="total">0</b></span>
+    <span id="deckname">All jutsu</span>
+    <span><b id="seen">0</b> seen · <span style="color:var(--green)">✔ <b id="kcount">0</b></span> · <span style="color:var(--red)">↺ <b id="acount">0</b></span></span>
+  </div>
+  <div class="progress"><div class="fill" id="fill"></div></div>
+</div>
+
+<div class="decks" id="decks"></div>
+
+<div class="stage">
+  <div class="flip" id="flip" onclick="toggleFlip()">
+    <div class="flip-inner">
+      <div class="face front">
+        <span class="tag" id="ftag">·</span>
+        <span class="side-tag side-q">QUESTION</span>
+        <div class="q-text" id="qtext">—</div>
+        <div class="hint">click / <span class="kbd">Space</span> to flip 🍥</div>
+      </div>
+      <div class="face back">
+        <span class="tag" id="btag">·</span>
+        <span class="side-tag side-a">🔓 ANSWER</span>
+        <div class="a-text" id="atext">—</div>
+        <div class="hint"><span class="kbd">J</span> know · <span class="kbd">F</span> again · <span class="kbd">→</span> next</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="nav">
+  <div class="btn ghost" onclick="prev()">◀ Prev <span class="kbd">←</span></div>
+  <div class="btn again" onclick="mark(false)">↺ Again <span class="kbd">F</span></div>
+  <div class="btn know" onclick="mark(true)">✔ Got it <span class="kbd">J</span></div>
+  <div class="btn ghost" onclick="next()">Next ▶ <span class="kbd">→</span></div>
+  <div class="btn ghost" onclick="shuffle()">🔀 Shuffle</div>
+  <div class="btn ghost" onclick="resetAll()">⟲ Reset</div>
+</div>
+<div class="score" id="score">Flip every card. Mark <b class="good">✔ Got it</b> only when you could say it out loud to a junior engineer.</div>
+<div class="done" id="done">🐸 Sage Mode achieved — every card marked known. Re-shuffle for another pass.</div>
+
+<div class="foot">Active recall &gt; re-reading · answer out loud · the struggle to retrieve is the part that sticks.</div>
+
+<script>
+/* chakra particles */
+const colors=['#7a9e5a','#ff8c00','#a8c87a','#c4902e'];
+for(let i=0;i<26;i++){const p=document.createElement('div');p.className='particle';const s=Math.random()*8+3;
+ p.style.width=p.style.height=s+'px';p.style.left=Math.random()*100+'%';
+ p.style.background=colors[i%colors.length];p.style.boxShadow='0 0 '+(s*2)+'px '+colors[i%colors.length];
+ p.style.animationDuration=(Math.random()*16+12)+'s';p.style.animationDelay=(Math.random()*-20)+'s';
+ document.body.appendChild(p);}
+
+/* ---- DECK ---- */
+const CARDS=[
+ {d:"Lifecycle", q:"The full path from raw data to a model answering in the field — name the 5 stages in order.",
+  a:"<b>Dataset → Model → Algorithm (trains it) → Weights tuned until loss is small → Deploy → Inference.</b><br><span class='ssd'>Training</span> = learn the weights once (offline, expensive). <span class='ssd'>Inference</span> = the trained model answering on <b>new, unseen</b> data (cheap, runs forever on the controller)."},
+ {d:"Lifecycle", q:"What does 'inference' mean, precisely — and how is it different from training?",
+  a:"<b>Inference</b> = the frozen, trained model maps new input → output. No learning happens; weights don't change.<br><b>Training</b> = the algorithm <i>adjusts</i> weights to fit input→label. Train once, infer a billion times. The generalization payoff is that inference works on inputs never seen in training."},
+ {d:"Lifecycle", q:"In supervised learning, who is the 'supervisor', and what does the algorithm do with it?",
+  a:"The <b>labels (targets)</b> are the supervisor — like a <span class='ssd'>setpoint</span> in a control loop. The algorithm measures the <b>gap (loss)</b> between prediction and label, then corrects the weights to shrink it. No labels = <b>unsupervised</b>."},
+
+ {d:"Classic vs Deep", q:"Classic ML vs Deep Learning — what is the single dividing line?",
+  a:"<b>Who finds the features.</b><br>• <b>Classic ML</b> → <span class='ssd'>you</span> hand-curate features. Tiny, fast, fits SRAM.<br>• <b>Deep learning</b> → the <b>network</b> finds features via stacked layers. Needs lots of data + compute + RAM.<br>Both still learn weights from data."},
+ {d:"Classic vs Deep", q:"For an on-device SSD thermal-throttle model, classic or deep — and why?",
+  a:"<b>Classic ML</b> (a small decision tree / logistic regression). Inputs are <b>tabular telemetry you already understand</b> (temp, voltage, queue depth), and you've got <span class='ssd'>KB of SRAM + a real-time deadline</span>. A deep net's 'free feature curation' isn't worth its RAM/cycle cost here."},
+
+ {d:"MCU Models", q:"Name the Tier-1 (classic) models that actually ship on a microcontroller.",
+  a:"<b>Decision tree</b> (compares only), <b>Logistic regression</b> (one dot-product + sigmoid), <b>Random forest / GBDT</b> (small trees, strongest on tabular), <b>Linear/ridge regression</b> (numeric output), <b>Naïve Bayes</b> (counting). All fit in flash/SRAM."},
+ {d:"MCU Models", q:"When do you abandon classic ML and reach for TinyML (a small neural net) on-device?",
+  a:"When the input is a <b>raw signal you can't summarize by hand</b> — a waveform / time-series where the <i>shape</i> carries the meaning. Then a <b>1D CNN</b> or small <b>INT8-quantized MLP</b> earns its RAM by finding features you couldn't hand-pick. Tooling: TFLite Micro, CMSIS-NN, Edge Impulse."},
+
+ {d:"Tree vs Logistic", q:"Why does a decision tree beat logistic regression on the very cheapest MCUs? (the exact mechanism)",
+  a:"A tree does only <b>integer compares</b>: <code>if (temp &gt; 78)</code> → branch. <b>No multiplication.</b><br>Logistic regression needs a <b>multiply-accumulate</b> per feature plus a <b>sigmoid</b> (<code>exp()</code> = float). On a chip with <b>no FPU</b>, every multiply/exp is <span class='ssd'>software-emulated</span> — tens-hundreds of cycles each. The tree never pays that toll."},
+ {d:"Tree vs Logistic", q:"Is 'logistic regression is expensive' a hard law? What's the caveat?",
+  a:"No — a <b>default, not a law</b>. <b>Quantize</b> logistic regression to <b>INT8</b> and you skip the float math, getting close to a tree's cost. Conversely, a <b>huge</b> tree (thousands of nodes) can blow your <b>flash</b> budget even though each inference is cheap. Depth and node count are the knobs."},
+
+ {d:"Tree Geometry", q:"A tree's worst-case inference latency depends on DEPTH, not node count. Why?",
+  a:"One inference walks <b>exactly one path, root → leaf</b>, touching one node per level. The other subtrees are invisible for that prediction. So <b>compares = path length = depth</b>. A 10,000-node bushy tree of depth 12 → ≤12 compares; a skinny depth-60 tree → up to 60."},
+ {d:"Tree Geometry", q:"Separate the two budgets: what does NODE COUNT cost, and what does DEPTH cost?",
+  a:"<b>Node count → flash budget.</b> Every node's threshold + pointers must be stored.<br><b>Depth → latency + SRAM/stack budget.</b> Only the walked path costs time and stack.<br>A fat-shallow and a skinny-deep tree can hold the same nodes yet have wildly different latency."},
+ {d:"Tree Geometry", q:"Why are real decision trees (CART) binary instead of multiway?",
+  a:"A <b>multiway</b> node with k children would <b>scan up to k branches</b> to pick one — O(k) per node. A <b>binary</b> node is one yes/no test → left or right, <b>O(1)</b>, never scans siblings. Loop: <code>node = (x &gt; thr) ? node.right : node.left;</code> runs once per level = <b>depth</b> times. Binary kills the scan."},
+ {d:"Tree Geometry", q:"What's the max number of nodes a binary tree of depth d can hold? So can you have '15 nodes, depth 2'?",
+  a:"<b>max nodes = 2^(d+1) − 1.</b> Depth 2 → 7 max; depth 3 → 15. So <b>'15 nodes at depth 2' is impossible</b> for a binary tree — 15 nodes <i>forces</i> depth 3 (a perfect tree, 7 decisions + 8 leaves). Depth both <b>floors</b> and <b>ceilings</b> node count."},
+ {d:"Tree Geometry", q:"If you reduce max_depth, does node count drop? How tight is that relationship?",
+  a:"<b>Yes — it can only shrink, never grow.</b> (1) It drops the <b>ceiling</b>: each level cut roughly halves max nodes (15→7→3). (2) It chops branches: training stops splitting at the limit. But it's a <b>governor, not a setpoint</b> — branches that find a clean answer early stop on their own, so the exact count is set by the data, not by you."},
+ {d:"Tree Geometry", q:"Why is capping max_depth such a clean knob for deployment?",
+  a:"One number bounds <b>both</b> worst-case latency (≤ depth compares → guaranteed inside the real-time tick) <b>and</b> flash (≤ 2^(depth+1)−1 nodes). Same move as a <span class='ssd'>max-iteration cap on a calibration loop</span>: guarantees it finishes inside the tick, but it often converges and exits early."},
+];
+
+let order=[...CARDS.keys()];
+let cur=0, flipped=false;
+const status={}; // idx -> 'know'|'again'|seen
+let activeDeck="ALL";
+
+const decks=["ALL",...[...new Set(CARDS.map(c=>c.d))]];
+const deckBox=document.getElementById('decks');
+decks.forEach(d=>{const el=document.createElement('div');el.className='deck-pill'+(d==="ALL"?' active':'');
+ el.textContent=d==="ALL"?"All jutsu":d;el.onclick=()=>setDeck(d,el);deckBox.appendChild(el);});
+
+function setDeck(d,el){activeDeck=d;document.querySelectorAll('.deck-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');
+ order=[...CARDS.keys()].filter(i=>d==="ALL"||CARDS[i].d===d);cur=0;render();}
+
+function render(){
+ if(order.length===0)return;
+ const c=CARDS[order[cur]];
+ flipped=false;document.getElementById('flip').classList.remove('flipped');
+ document.getElementById('qtext').innerHTML=c.q;
+ document.getElementById('atext').innerHTML=c.a;
+ document.getElementById('ftag').textContent=c.d;
+ document.getElementById('btag').textContent=c.d;
+ document.getElementById('idx').textContent=cur+1;
+ document.getElementById('total').textContent=order.length;
+ document.getElementById('deckname').textContent=activeDeck==="ALL"?"All jutsu":activeDeck;
+ updateScore();
+}
+function toggleFlip(){flipped=!flipped;document.getElementById('flip').classList.toggle('flipped',flipped);
+ if(flipped)status[order[cur]]=status[order[cur]]||'seen';updateScore();}
+function next(){if(cur<order.length-1){cur++;render();}}
+function prev(){if(cur>0){cur--;render();}}
+function mark(known){status[order[cur]]=known?'know':'again';updateScore();
+ setTimeout(()=>{if(cur<order.length-1){cur++;render();}else{checkDone();}},180);}
+function shuffle(){for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]];}cur=0;render();}
+function resetAll(){for(const k in status)delete status[k];cur=0;render();document.getElementById('done').style.display='none';}
+function updateScore(){
+ const k=Object.values(status).filter(v=>v==='know').length;
+ const a=Object.values(status).filter(v=>v==='again').length;
+ const seen=Object.keys(status).length;
+ document.getElementById('kcount').textContent=k;
+ document.getElementById('acount').textContent=a;
+ document.getElementById('seen').textContent=seen;
+ document.getElementById('fill').style.width=(seen/CARDS.length*100)+'%';
+ document.getElementById('score').innerHTML=`<b class="good">✔ ${k} known</b> · <b class="bad">↺ ${a} to review</b> · ${seen}/${CARDS.length} seen`;
+}
+function checkDone(){const k=Object.values(status).filter(v=>v==='know').length;
+ if(k===CARDS.length)document.getElementById('done').style.display='block';}
+
+document.addEventListener('keydown',e=>{
+ if(e.code==='Space'){e.preventDefault();toggleFlip();}
+ else if(e.code==='ArrowRight')next();
+ else if(e.code==='ArrowLeft')prev();
+ else if(e.key==='j'||e.key==='J')mark(true);
+ else if(e.key==='f'||e.key==='F')mark(false);
+ else if(e.key==='s'||e.key==='S')shuffle();
+});
+render();
+</script>
+</body>
+</html>
