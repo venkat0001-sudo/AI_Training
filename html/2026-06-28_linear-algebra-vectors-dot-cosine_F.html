@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dot Product &amp; Cosine — Predict-Then-Reveal Lab</title>
+<style>
+  :root{
+    --bg:#0c1410; --panel:#11201a; --panel2:#16291f;
+    --green:#3ddc84; --green-dim:#1f7a4d; --orange:#ff9d3c; --orange-dim:#7a4a14;
+    --text:#dfeee6; --muted:#8fae9d; --line:#234234; --red:#ff6b6b;
+    --mono:'SF Mono',ui-monospace,'Cascadia Code',Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(circle at 30% 0%,#10241a,#0c1410 60%);
+    color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:820px;margin:0 auto;padding:22px 18px 90px}
+  h1{font-size:1.5rem;margin:.2em 0;color:var(--green)}
+  h2{font-size:1.2rem;color:var(--orange);margin:.1em 0 .4em}
+  .sub{color:var(--muted);font-size:.92rem;margin-bottom:18px}
+  code,.mono{font-family:var(--mono)}
+  .step{display:none;animation:fade .45s ease}
+  .step.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:14px 0;
+    box-shadow:0 6px 24px rgba(0,0,0,.35)}
+  .num{font-family:var(--mono);background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+    padding:10px 12px;white-space:pre;overflow-x:auto;display:block;margin:10px 0;color:#cfeede;font-size:.92rem}
+  .reveal{cursor:pointer;display:inline-block;background:var(--orange-dim);border:1px dashed var(--orange);
+    color:var(--orange);border-radius:6px;padding:1px 10px;font-family:var(--mono);user-select:none;transition:.2s}
+  .reveal:hover{background:#9a5c18}
+  .reveal.open{background:var(--green-dim);border:1px solid var(--green);color:#eafff3}
+  .q{color:var(--orange);font-weight:600}
+  .good{color:var(--green)} .bad{color:var(--red)} .muted{color:var(--muted)}
+  .pill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:999px;
+    padding:2px 11px;font-size:.8rem;color:var(--muted);margin:2px 4px 2px 0}
+  /* nav */
+  .nav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,18,14,.92);backdrop-filter:blur(8px);
+    border-top:1px solid var(--line);display:flex;align-items:center;gap:12px;justify-content:center;
+    padding:10px;z-index:20}
+  button.btn{background:var(--green);color:#072014;border:none;border-radius:9px;padding:9px 18px;
+    font-weight:700;cursor:pointer;font-size:.95rem}
+  button.btn:disabled{opacity:.3;cursor:not-allowed}
+  button.ghost{background:transparent;color:var(--green);border:1px solid var(--green-dim)}
+  .dots{display:flex;gap:6px}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--line);transition:.25s;cursor:pointer}
+  .dot.on{background:var(--orange);transform:scale(1.3)}
+  .counter{color:var(--muted);font-size:.85rem;min-width:54px;text-align:center}
+  /* svg */
+  svg{display:block;max-width:100%}
+  .grid line{stroke:#1b3327;stroke-width:1}
+  .axis{stroke:#2f5340;stroke-width:1.5}
+  .vec{stroke-width:3.5;fill:none;stroke-linecap:round}
+  .vlabel{font-family:var(--mono);font-size:13px;font-weight:700}
+  /* sliders */
+  .ctrl{display:flex;align-items:center;gap:12px;margin:10px 0}
+  .ctrl label{width:130px;color:var(--muted);font-size:.86rem}
+  input[type=range]{flex:1;accent-color:var(--orange)}
+  .readout{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+  .ro{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+  .ro b{font-family:var(--mono);font-size:1.15rem;display:block}
+  .hint{font-size:.85rem;color:var(--muted);border-left:3px solid var(--orange-dim);padding-left:10px;margin:10px 0}
+  .fw{font-size:.85rem;color:var(--green);border-left:3px solid var(--green-dim);padding-left:10px;margin:10px 0}
+  table{border-collapse:collapse;width:100%;margin:8px 0;font-family:var(--mono);font-size:.88rem}
+  td,th{border:1px solid var(--line);padding:6px 9px;text-align:center}
+  th{color:var(--orange)}
+  .big{font-size:1.05rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Dot Product &amp; Cosine Similarity</h1>
+  <div class="sub">Predict-then-reveal lab &middot; Linear Algebra Foundations (hands-on, 2026-06-28).
+  At every step: <b>guess before you click.</b> The struggle to retrieve is what burns it into memory.</div>
+
+  <!-- STEP 0 -->
+  <div class="step active" data-t="How to use">
+    <div class="card">
+      <h2>How to drive this</h2>
+      <p>Each orange box is a <b>prediction gate</b>. Say the answer out loud (or to whoever you're teaching), <i>then</i> click to reveal:</p>
+      <p>Click this &rarr; <span class="reveal">the dot product of [1,0] and [0,1] is 0 (perpendicular)</span></p>
+      <p>Green = revealed/confirmed. Use the <b>Next</b> button or your <b>&larr; &rarr;</b> arrow keys.</p>
+      <div class="fw">The spine in one line: <b>direction vs magnitude</b> &rarr; dot product mixes them &rarr; cosine isolates direction. Everything below is that sentence, unpacked.</div>
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step" data-t="A vector = direction + magnitude">
+    <div class="card">
+      <h2>1 &middot; A vector has two separable properties</h2>
+      <p>An arrow carries <span class="q">direction</span> (which way it points) and <span class="q">magnitude</span> (how long it is). They're independent — you can change one without the other.</p>
+      <svg id="svg1" viewBox="0 0 360 240" height="240"></svg>
+      <p><b>Predict:</b> if I keep the arrow pointing the same way but make it twice as long, what changed — direction, magnitude, or both? <span class="reveal">Only magnitude. Same heading, longer arrow.</span></p>
+      <div class="fw">Firmware echo: a signal's <b>shape/heading</b> vs its <b>amplitude</b>. Same waveform, crank the gain → magnitude up, direction unchanged.</div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step" data-t="Magnitude = length">
+    <div class="card">
+      <h2>2 &middot; Magnitude = length of the arrow</h2>
+      <p>Square the parts, add, square-root. It's Pythagoras stretched to N numbers.</p>
+      <span class="num">|v| = sqrt(v1² + v2² + ... + vn²)        # np.linalg.norm(v)</span>
+      <svg id="svg2" viewBox="0 0 360 240" height="240"></svg>
+      <p>Walk <b>3 east, 4 north</b>. <b>Predict</b> the straight-line distance from start:
+        <span class="reveal">sqrt(3² + 4²) = sqrt(25) = 5</span></p>
+      <p class="muted">Same move everywhere: TV diagonal (3w×4h → 5), drone speed (6 + 8 → 10 m/s).</p>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step" data-t="Dot product">
+    <div class="card">
+      <h2>3 &middot; Dot product — alignment, but blind to size</h2>
+      <span class="num">A·B = a1·b1 + a2·b2 + ... + an·bn        # A @ B</span>
+      <p>One number measuring how much two vectors align — <b>but it's contaminated by magnitude.</b></p>
+      <p><b>Predict</b> for A=[5,4], B=[10,8]:
+        <span class="reveal">5×10 + 4×8 = 50 + 32 = 82</span></p>
+      <p class="q">The trap, in two faces:</p>
+      <ul>
+        <li>Same direction, different size → wildly different scores: <span class="reveal">[1,1]·[1,1]=2 but [10,10]·[10,10]=200 — same alignment, 100× score, purely louder</span></li>
+        <li>Different directions → can give the <i>same</i> score: <span class="reveal">[1,0]·[5,0]=5 (identical heading) and [5,5]·[1,0]=5 (45° apart) — dot can't tell them apart</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step" data-t="Cosine fixes it">
+    <div class="card">
+      <h2>4 &middot; Cosine similarity — chop off length, keep heading</h2>
+      <span class="num">cosine(A,B) = (A·B) / (|A| × |B|)        # divide out BOTH magnitudes</span>
+      <p>Divide the dot product by both lengths → the gain cancels, only direction survives. Range <b>−1 … +1</b>.</p>
+      <table>
+        <tr><th>angle</th><th>cosine</th><th>meaning</th></tr>
+        <tr><td>0°</td><td class="good">+1</td><td>same direction</td></tr>
+        <tr><td>90°</td><td>0</td><td>unrelated</td></tr>
+        <tr><td>180°</td><td class="bad">−1</td><td>opposite</td></tr>
+      </table>
+      <p><b>Predict:</b> two arrows pointing the exact same way (one just longer) — cosine = ?
+        <span class="reveal">1.0 — identical direction, length divided out</span></p>
+    </div>
+  </div>
+
+  <!-- STEP 5 — PLAYGROUND -->
+  <div class="step" data-t="Interactive playground">
+    <div class="card">
+      <h2>5 &middot; ⭐ Live playground — feel the difference</h2>
+      <p><b>A is fixed</b> at [5,4]. Drag B's <span style="color:var(--orange)">length</span> and <span style="color:var(--orange)">angle</span>. Watch the readouts.</p>
+      <svg id="svgP" viewBox="0 0 360 300" height="300"></svg>
+      <div class="ctrl"><label>B length |B|</label><input id="bMag" type="range" min="1" max="14" step="0.1" value="6.4"><span id="bMagV" class="mono">6.4</span></div>
+      <div class="ctrl"><label>B angle (°)</label><input id="bAng" type="range" min="0" max="180" step="1" value="39"><span id="bAngV" class="mono">39</span></div>
+      <div class="readout">
+        <div class="ro muted">A·B (dot)<b id="oDot" style="color:var(--orange)">—</b></div>
+        <div class="ro muted">cosine(A,B)<b id="oCos" style="color:var(--green)">—</b></div>
+        <div class="ro muted">|B|<b id="oMagB">—</b></div>
+        <div class="ro muted">angle between<b id="oAng">—</b></div>
+      </div>
+      <div class="hint"><b>Experiment 1:</b> freeze the angle slider, sweep <i>length</i> only → dot product swings wildly, cosine doesn't move. That's magnitude contamination, live.</div>
+      <div class="hint"><b>Experiment 2:</b> freeze length, sweep <i>angle</i> → now cosine moves. Cosine only ever responds to direction.</div>
+    </div>
+  </div>
+
+  <!-- STEP 6 — Walking A/D/C -->
+  <div class="step" data-t="Walking example A/D/C">
+    <div class="card">
+      <h2>6 &middot; Three walkers — where dot product gets fooled</h2>
+      <span class="num">A = [5, 4]    short stroll, east-northeast
+D = [50, 40]  SAME bearing as A — just hiked 10× farther
+C = [0, 120]  walked due NORTH — different bearing, but very far</span>
+      <svg id="svgW" viewBox="0 0 360 300" height="300"></svg>
+      <p class="muted">D copied A's heading; C went a totally different way. So <b>D is the true match.</b></p>
+      <p class="q">Dot product (predict each):</p>
+      <span class="num">A·D = (5×50)+(4×40) = <span class="reveal">410</span>
+A·C = (5×0)+(4×120) = <span class="reveal">480</span></span>
+      <p>So dot says <span class="reveal bad">A·C (480) &gt; A·D (410) → "C is the better match!" WRONG</span> — fooled because C walked so far.</p>
+      <p class="q">Cosine (predict each):</p>
+      <span class="num">|A|=6.40  |D|=64.0  |C|=120
+cos(A,D) = 410/(6.40×64.0) = <span class="reveal">1.00  ✓ same bearing</span>
+cos(A,C) = 480/(6.40×120)  = <span class="reveal">0.625 ✓ 51° apart</span></span>
+      <p>Cosine ranks <span class="reveal good">D (1.0) ≫ C (0.625) — correct. Threw away "how far", kept "which way".</span></p>
+      <p class="q">Watch the verdict flip (bars animate):</p>
+      <svg id="svgWV" viewBox="0 0 360 215" height="215"></svg>
+      <div class="fw">Cosine similarity <b>is</b> the cosine of the angle between headings. 0°→1, 51°→0.625, 90°→0, 180°→−1.</div>
+    </div>
+  </div>
+
+  <!-- STEP 7 — Netflix -->
+  <div class="step" data-t="Netflix A/D/C">
+    <div class="card">
+      <h2>7 &middot; Same lesson, recommendation flavor</h2>
+      <p>Genres <span class="mono">[Action, Comedy, Romance]</span>:</p>
+      <span class="num">A = [5, 4, 1]     casual rater, loves Action
+D = [10, 8, 2]    IDENTICAL taste (A doubled)
+C = [2, 8, 100]   OPPOSITE taste (Romance fanatic), heavy rater</span>
+      <p class="muted">Taste = the <b>shape</b> of the bars (each user scaled to their own max). A &amp; D = same shape; C is romance-spiked:</p>
+      <svg id="svgNF" viewBox="0 0 360 175" height="175"></svg>
+      <p><span class="pill" style="color:#3ddc84">Action</span><span class="pill" style="color:#ff9d3c">Comedy</span><span class="pill" style="color:#ff7ab6">Romance</span></p>
+      <p>Dot product: <span class="reveal bad">A·D=84, A·C=142 → says C more similar. WRONG (volume beat taste)</span></p>
+      <p>Cosine: <span class="reveal good">cos(A,D)=1.00, cos(A,C)=0.22 → D wins. Correct.</span></p>
+      <p class="q">The verdict flip, in bars:</p>
+      <svg id="svgNFV" viewBox="0 0 360 215" height="215"></svg>
+      <p class="muted">A binge-watcher rates everything, so they score high dot product against <i>everyone</i> — cosine strips that activity out.</p>
+    </div>
+  </div>
+
+  <!-- STEP 8 — decision -->
+  <div class="step" data-t="When to use what">
+    <div class="card">
+      <h2>8 &middot; The decision boundary</h2>
+      <p class="big">When is <b>dot product</b> enough? <span class="reveal">Only when all vectors are roughly the same length — then magnitude can't distort the ranking (and it's cheaper).</span></p>
+      <p class="big">When must you use <b>cosine</b>? <span class="reveal">The moment magnitudes vary — which in real data is always. Otherwise "rates a lot / walks far" masquerades as "similar".</span></p>
+      <div class="fw">Firmware echo: comparing two signals' raw correlation without normalizing — a high-amplitude noisy channel out-scores a clean low-amplitude match. Normalize first, <i>then</i> compare.</div>
+    </div>
+  </div>
+
+  <!-- STEP 9 — recap -->
+  <div class="step" data-t="Recall ladder + NumPy">
+    <div class="card">
+      <h2>9 &middot; The 9-rung recall ladder</h2>
+      <p class="muted">Try to expand each from memory before peeking at the doc.</p>
+      <ol class="mono" style="font-size:.86rem;line-height:1.9">
+        <li>vector = direction + magnitude</li>
+        <li>magnitude = sqrt(sum of squares) = norm</li>
+        <li>dot = Σ aᵢbᵢ — alignment, but size-contaminated</li>
+        <li>the trap: same-dir/diff-size, or diff-dir/same-score</li>
+        <li>cosine = dot / (|A||B|) — direction only</li>
+        <li>cosine = cos(angle): 0°→1, 90°→0, 180°→−1</li>
+        <li>far-but-wrong beats near-but-right on raw dot</li>
+        <li>dot ok if equal lengths; else cosine</li>
+        <li>NumPy below ↓</li>
+      </ol>
+      <span class="num">import numpy as np
+a = np.array([5, 4, 1]); b = np.array([10, 8, 2])
+a @ b                                         # dot product
+np.linalg.norm(a)                             # magnitude
+(a @ b) / (np.linalg.norm(a)*np.linalg.norm(b))   # cosine</span>
+      <div class="fw">You can now teach this to someone using only the playground (step 5) + the two A/D/C examples. That's the test that it's yours.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="nav">
+  <button class="btn ghost" id="prev">&larr; Prev</button>
+  <div class="dots" id="dots"></div>
+  <span class="counter" id="counter"></span>
+  <button class="btn" id="next">Next &rarr;</button>
+</div>
+
+<script>
+/* ---------- reveal mechanic ---------- */
+document.querySelectorAll('.reveal').forEach(el=>{
+  const full=el.textContent;
+  el.dataset.full=full;
+  el.textContent='● ● ● tap to reveal';
+  el.addEventListener('click',()=>{
+    if(el.classList.contains('open')){el.classList.remove('open');el.textContent='● ● ● tap to reveal';}
+    else{el.classList.add('open');el.textContent=el.dataset.full;}
+  });
+});
+
+/* ---------- step nav ---------- */
+const steps=[...document.querySelectorAll('.step')];
+const dotsBox=document.getElementById('dots');
+const counter=document.getElementById('counter');
+let cur=0;
+steps.forEach((s,i)=>{const d=document.createElement('div');d.className='dot';d.onclick=()=>go(i);dotsBox.appendChild(d);});
+const dots=[...document.querySelectorAll('.dot')];
+function go(i){
+  cur=Math.max(0,Math.min(steps.length-1,i));
+  steps.forEach((s,k)=>s.classList.toggle('active',k===cur));
+  dots.forEach((d,k)=>d.classList.toggle('on',k===cur));
+  counter.textContent=(cur+1)+' / '+steps.length;
+  document.getElementById('prev').disabled=cur===0;
+  document.getElementById('next').disabled=cur===steps.length-1;
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(steps[cur].dataset.t==='A vector = direction + magnitude')drawV1();
+  if(steps[cur].dataset.t==='Magnitude = length')drawV2();
+  if(steps[cur].dataset.t==='Interactive playground')drawPlay();
+  if(steps[cur].dataset.t==='Walking example A/D/C'){drawWalk();drawWalkVerdict();}
+  if(steps[cur].dataset.t==='Netflix A/D/C'){drawNetflix();drawNetflixVerdict();}
+}
+document.getElementById('next').onclick=()=>go(cur+1);
+document.getElementById('prev').onclick=()=>go(cur-1);
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(cur+1);if(e.key==='ArrowLeft')go(cur-1);});
+
+/* ---------- svg helpers (math coords → screen) ---------- */
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs){const n=document.createElementNS(NS,tag);for(const k in attrs)n.setAttribute(k,attrs[k]);return n;}
+function defsArrow(svg,id,color){
+  const defs=el('defs',{});
+  const m=el('marker',{id:id,markerWidth:9,markerHeight:9,refX:7,refY:3,orient:'auto',markerUnits:'strokeWidth'});
+  m.appendChild(el('path',{d:'M0,0 L7,3 L0,6 Z',fill:color}));
+  defs.appendChild(m);svg.appendChild(defs);
+}
+function grid(svg,ox,oy,scale,W,H){
+  const g=el('g',{class:'grid'});
+  for(let x=0;x<=W;x+=scale){g.appendChild(el('line',{x1:ox+x,y1:0,x2:ox+x,y2:H}));}
+  for(let y=0;y<=H;y+=scale){g.appendChild(el('line',{x1:0,y1:oy-y,x2:W,y2:oy-y}));}
+  svg.appendChild(g);
+  svg.appendChild(el('line',{class:'axis',x1:0,y1:oy,x2:W,y2:oy}));
+  svg.appendChild(el('line',{class:'axis',x1:ox,y1:0,x2:ox,y2:H}));
+}
+function arrow(svg,ox,oy,scale,vx,vy,color,marker,label,animate){
+  const x2=ox+vx*scale, y2=oy-vy*scale;
+  const ln=el('line',{x1:ox,y1:oy,x2:x2,y2:y2,class:'vec',stroke:color,'marker-end':'url(#'+marker+')'});
+  svg.appendChild(ln);
+  if(animate){
+    const len=Math.hypot(x2-ox,y2-oy);
+    ln.style.strokeDasharray=len; ln.style.strokeDashoffset=len;
+    ln.animate([{strokeDashoffset:len},{strokeDashoffset:0}],{duration:650,easing:'ease-out',fill:'forwards'});
+  }
+  if(label){const t=el('text',{x:x2+6,y:y2-4,class:'vlabel',fill:color});t.textContent=label;svg.appendChild(t);}
+  return ln;
+}
+function clear(svg){while(svg.firstChild)svg.removeChild(svg.firstChild);}
+
+/* ---------- step 1 ---------- */
+function drawV1(){
+  const svg=document.getElementById('svg1');clear(svg);
+  defsArrow(svg,'a1','#3ddc84');defsArrow(svg,'a1b','#ff9d3c');
+  const ox=30,oy=210,sc=34;
+  grid(svg,ox,oy,sc,360,240);
+  arrow(svg,ox,oy,sc,3,2,'#3ddc84','a1','short',true);
+  setTimeout(()=>arrow(svg,ox,oy,sc,4.5,3,'#ff9d3c','a1b','same direction, longer',true),350);
+}
+/* ---------- step 2 (3-4-5) ---------- */
+function drawV2(){
+  const svg=document.getElementById('svg2');clear(svg);
+  defsArrow(svg,'a2','#3ddc84');
+  const ox=40,oy=210,sc=40;
+  grid(svg,ox,oy,sc,360,240);
+  // legs
+  const east=el('line',{x1:ox,y1:oy,x2:ox+3*sc,y2:oy,stroke:'#ff9d3c','stroke-width':3});
+  const north=el('line',{x1:ox+3*sc,y1:oy,x2:ox+3*sc,y2:oy-4*sc,stroke:'#ff9d3c','stroke-width':3});
+  svg.appendChild(east);svg.appendChild(north);
+  const t1=el('text',{x:ox+sc,y:oy+18,fill:'#ff9d3c',class:'vlabel'});t1.textContent='3 east';svg.appendChild(t1);
+  const t2=el('text',{x:ox+3*sc+6,y:oy-2*sc,fill:'#ff9d3c',class:'vlabel'});t2.textContent='4 north';svg.appendChild(t2);
+  setTimeout(()=>{const a=arrow(svg,ox,oy,sc,3,4,'#3ddc84','a2','|v| = 5',true);},500);
+}
+/* ---------- step 5 playground ---------- */
+const A=[5,4], magA=Math.hypot(5,4), angA=Math.atan2(4,5);
+function drawPlay(){updatePlay();}
+function updatePlay(){
+  const svg=document.getElementById('svgP');clear(svg);
+  defsArrow(svg,'pa','#3ddc84');defsArrow(svg,'pb','#ff9d3c');
+  const ox=30,oy=270,sc=17;
+  grid(svg,ox,oy,sc,360,300);
+  const bMag=+document.getElementById('bMag').value;
+  const bAng=+document.getElementById('bAng').value*Math.PI/180;
+  const Bx=bMag*Math.cos(bAng), By=bMag*Math.sin(bAng);
+  arrow(svg,ox,oy,sc,A[0],A[1],'#3ddc84','pa','A [5,4]',false);
+  arrow(svg,ox,oy,sc,Bx,By,'#ff9d3c','pb','B',false);
+  const dot=A[0]*Bx+A[1]*By;
+  const cos=dot/(magA*bMag);
+  const angBetween=Math.acos(Math.max(-1,Math.min(1,cos)))*180/Math.PI;
+  document.getElementById('bMagV').textContent=bMag.toFixed(1);
+  document.getElementById('bAngV').textContent=Math.round(bAng*180/Math.PI);
+  document.getElementById('oDot').textContent=dot.toFixed(1);
+  const cosEl=document.getElementById('oCos');
+  cosEl.textContent=cos.toFixed(3);
+  cosEl.style.color = cos>0.85?'#3ddc84':cos>0.3?'#ff9d3c':'#ff6b6b';
+  document.getElementById('oMagB').textContent=bMag.toFixed(1);
+  document.getElementById('oAng').textContent=angBetween.toFixed(0)+'°';
+}
+['bMag','bAng'].forEach(id=>document.getElementById(id).addEventListener('input',updatePlay));
+/* ---------- step 6 walking ---------- */
+function drawWalk(){
+  const svg=document.getElementById('svgW');clear(svg);
+  defsArrow(svg,'wa','#3ddc84');defsArrow(svg,'wd','#5bc0ff');defsArrow(svg,'wc','#ff6b6b');
+  const ox=40,oy=280,sc=1.9;  // big magnitudes (up to 120)
+  grid(svg,ox,oy,sc*20,360,300); // gridline every 20 units
+  arrow(svg,ox,oy,sc,5,4,'#3ddc84','wa','A',true);
+  setTimeout(()=>arrow(svg,ox,oy,sc,50,40,'#5bc0ff','wd','D (same way)',true),300);
+  setTimeout(()=>arrow(svg,ox,oy,sc,0,120,'#ff6b6b','wc','C (north, far)',true),650);
+}
+
+/* ---------- animated bar panels (the verdict flip) ---------- */
+function panel(svg,x0,title,items,verdict,ok){
+  const baseY=160,maxH=110,bw=34,gap=20,pad=16;
+  const maxV=Math.max(...items.map(i=>i.val));
+  const t=el('text',{x:x0+pad,y:18,fill:'#8fae9d','font-size':12,'font-family':'monospace'});t.textContent=title;svg.appendChild(t);
+  items.forEach((it,idx)=>{
+    const h=Math.max(4,it.val/maxV*maxH);
+    const bx=x0+pad+idx*(bw+gap);
+    const r=el('rect',{x:bx,y:baseY-h,width:bw,height:h,rx:5,fill:it.color});
+    r.style.transformBox='fill-box';r.style.transformOrigin='bottom';r.style.transform='scaleY(0)';
+    r.style.transition='transform .6s ease '+(idx*0.15)+'s';
+    svg.appendChild(r);
+    requestAnimationFrame(()=>r.style.transform='scaleY(1)');
+    const nm=el('text',{x:bx+bw/2,y:baseY+16,fill:it.color,'font-size':12,'text-anchor':'middle','font-family':'monospace','font-weight':700});nm.textContent=it.name;svg.appendChild(nm);
+    const vl=el('text',{x:bx+bw/2,y:baseY-h-6,fill:'#dfeee6','font-size':11,'text-anchor':'middle','font-family':'monospace'});vl.textContent=it.disp;svg.appendChild(vl);
+  });
+  const v=el('text',{x:x0+pad,y:192,fill:ok?'#3ddc84':'#ff6b6b','font-size':13,'font-family':'monospace','font-weight':700});v.textContent=verdict;svg.appendChild(v);
+}
+function drawWalkVerdict(){
+  const svg=document.getElementById('svgWV');clear(svg);
+  svg.appendChild(el('line',{x1:180,y1:8,x2:180,y2:200,stroke:'#234234','stroke-width':1}));
+  panel(svg,0,'RAW DOT PRODUCT',[{name:'D',val:410,disp:'410',color:'#5bc0ff'},{name:'C',val:480,disp:'480',color:'#ff6b6b'}],'✗ ranks C first',false);
+  panel(svg,180,'COSINE',[{name:'D',val:1.0,disp:'1.00',color:'#5bc0ff'},{name:'C',val:0.625,disp:'0.625',color:'#ff6b6b'}],'✓ ranks D first',true);
+}
+function drawNetflixVerdict(){
+  const svg=document.getElementById('svgNFV');clear(svg);
+  svg.appendChild(el('line',{x1:180,y1:8,x2:180,y2:200,stroke:'#234234','stroke-width':1}));
+  panel(svg,0,'RAW DOT PRODUCT',[{name:'D',val:84,disp:'84',color:'#5bc0ff'},{name:'C',val:142,disp:'142',color:'#ff6b6b'}],'✗ ranks C first',false);
+  panel(svg,180,'COSINE',[{name:'D',val:1.0,disp:'1.00',color:'#5bc0ff'},{name:'C',val:0.22,disp:'0.22',color:'#ff6b6b'}],'✓ ranks D first',true);
+}
+/* ---------- netflix taste-pattern bars (normalized per user) ---------- */
+function drawNetflix(){
+  const svg=document.getElementById('svgNF');clear(svg);
+  const users=[{n:'A',v:[5,4,1]},{n:'D',v:[10,8,2]},{n:'C',v:[2,8,100]}];
+  const cols=['#3ddc84','#ff9d3c','#ff7ab6'];
+  const baseY=130,maxH=95,bw=16,gap=5,groupW=3*bw+2*gap,pad=22,span=(360-2*pad-groupW)/2;
+  users.forEach((u,g)=>{
+    const gx=pad+g*span;
+    const max=Math.max(...u.v);
+    u.v.forEach((val,j)=>{
+      const h=Math.max(3,val/max*maxH);
+      const bx=gx+j*(bw+gap);
+      const r=el('rect',{x:bx,y:baseY-h,width:bw,height:h,rx:3,fill:cols[j]});
+      r.style.transformBox='fill-box';r.style.transformOrigin='bottom';r.style.transform='scaleY(0)';
+      r.style.transition='transform .5s ease '+((g*3+j)*0.07)+'s';
+      svg.appendChild(r);
+      requestAnimationFrame(()=>r.style.transform='scaleY(1)');
+    });
+    const nm=el('text',{x:gx+groupW/2,y:baseY+18,fill:'#dfeee6','font-size':13,'text-anchor':'middle','font-family':'monospace','font-weight':700});
+    nm.textContent='User '+u.n;svg.appendChild(nm);
+  });
+  const note=el('text',{x:180,y:158,fill:'#8fae9d','font-size':11,'text-anchor':'middle','font-family':'monospace'});
+  note.textContent='A ≡ D shape   ·   C = romance spike';svg.appendChild(note);
+}
+go(0);
+</script>
+</body>
+</html>

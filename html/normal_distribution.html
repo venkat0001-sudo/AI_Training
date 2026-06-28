@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sage Mode: Normal Distribution — SSD Thermal Intelligence</title>
+    <style>
+        :root {
+            --sage-dark: #1a2e0d;
+            --sage-deep: #2d4a1e;
+            --sage-mid: #4a7a2e;
+            --sage-light: #7a9e5a;
+            --sage-pale: #a8c87a;
+            --earth-dark: #3d2b0d;
+            --earth-mid: #8b5e1a;
+            --earth-light: #c4902e;
+            --orange: #ff8c00;
+            --orange-glow: #ffb347;
+            --cream: #f5e6c8;
+            --cream-dark: #d4c09a;
+            --glow: rgba(255,140,0,0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: linear-gradient(135deg, #0d1a07 0%, #0d1f08 50%, #1a1a0a 100%);
+            color: var(--cream);
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Floating nature particles */
+        .particle {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: floatUp linear infinite;
+        }
+        @keyframes floatUp {
+            0%   { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10%  { opacity: 0.6; }
+            90%  { opacity: 0.4; }
+            100% { transform: translateY(-120px) rotate(720deg); opacity: 0; }
+        }
+
+        /* ── HEADER ── */
+        .header {
+            text-align: center;
+            padding: 50px 20px 25px;
+        }
+        .frog { font-size: 70px; display: block; animation: sagePulse 3s ease-in-out infinite; }
+        @keyframes sagePulse {
+            0%,100% { text-shadow: 0 0 20px #7a9e5a, 0 0 40px rgba(122,158,90,0.4); transform: scale(1); }
+            50%      { text-shadow: 0 0 40px var(--orange), 0 0 80px rgba(255,140,0,0.4); transform: scale(1.08); }
+        }
+        .title {
+            font-size: 2.4em;
+            color: var(--orange);
+            text-shadow: 0 0 25px var(--orange);
+            letter-spacing: 4px;
+            margin: 12px 0 6px;
+        }
+        .subtitle { color: var(--sage-pale); font-size: 0.9em; letter-spacing: 2px; }
+        .dojo-line { color: var(--sage-mid); font-size: 0.7em; letter-spacing: 4px; margin: 8px 0; }
+
+        /* ── CARD ── */
+        .card {
+            background: rgba(20,40,12,0.7);
+            border: 1px solid rgba(74,122,46,0.5);
+            border-radius: 14px;
+            padding: 28px;
+            margin: 20px auto;
+            max-width: 1050px;
+            backdrop-filter: blur(6px);
+            position: relative;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 10%; right: 10%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--orange), transparent);
+            border-radius: 2px;
+        }
+        .sec-title {
+            color: var(--orange);
+            font-size: 1.25em;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sec-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(74,122,46,0.6), transparent);
+        }
+
+        /* ── LEARNING PATH ── */
+        .path-scroll { overflow-x: auto; padding: 10px 0 20px; }
+        .path-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            min-width: max-content;
+        }
+        .path-node {
+            display: flex; flex-direction: column; align-items: center;
+            width: 110px; cursor: pointer;
+        }
+        .p-circle {
+            width: 52px; height: 52px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4em; transition: all 0.3s;
+        }
+        .p-circle.now   { background: var(--orange); box-shadow: 0 0 22px var(--orange); animation: nPulse 2s infinite; }
+        .p-circle.soon  { background: var(--sage-deep); border: 2px solid var(--sage-mid); }
+        .p-circle.far   { background: rgba(20,40,12,0.6); border: 2px dashed rgba(74,122,46,0.4); opacity:0.55; }
+        @keyframes nPulse {
+            0%,100% { box-shadow: 0 0 14px var(--orange); }
+            50%      { box-shadow: 0 0 34px var(--orange), 0 0 60px rgba(255,140,0,0.3); }
+        }
+        .path-node:hover .p-circle { transform: scale(1.18); box-shadow: 0 0 20px var(--orange); }
+        .p-label { font-size: 0.65em; text-align: center; color: var(--cream-dark); margin-top:7px; line-height:1.35; }
+        .p-date  { font-size: 0.55em; color: var(--sage-light); margin-top:3px; }
+        .p-arrow { color: var(--sage-mid); font-size: 1.4em; padding-bottom: 28px; flex-shrink:0; }
+        .p-arrow.lit { color: var(--orange); text-shadow: 0 0 8px var(--orange); }
+
+        .path-detail {
+            display: none;
+            margin-top: 14px;
+            padding: 14px 18px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 8px;
+            border-left: 3px solid var(--orange);
+            font-size: 0.85em;
+            line-height: 1.7;
+        }
+
+        /* ── QUOTE ── */
+        .quote {
+            border-left: 4px solid var(--orange);
+            padding: 10px 16px;
+            margin: 14px 0;
+            color: var(--sage-pale);
+            font-size: 0.88em;
+            line-height: 1.7;
+            font-style: italic;
+        }
+
+        /* ── CANVAS ── */
+        canvas { display: block; margin: 0 auto; border-radius: 8px; }
+
+        /* ── CONTROLS ── */
+        .controls {
+            display: flex; flex-wrap: wrap; gap: 18px;
+            justify-content: center; align-items: flex-end;
+            margin: 18px 0;
+        }
+        .ctrl-grp { display: flex; flex-direction: column; gap: 6px; min-width: 200px; }
+        .ctrl-grp label {
+            color: var(--sage-pale); font-size: 0.82em;
+            display: flex; justify-content: space-between;
+        }
+        .ctrl-grp label span { color: var(--orange); font-weight: bold; }
+        input[type=range] {
+            -webkit-appearance: none; width: 100%; height: 6px;
+            background: var(--sage-deep); border-radius: 3px; outline: none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 20px; height: 20px;
+            background: var(--orange); border-radius: 50%;
+            cursor: pointer; box-shadow: 0 0 8px var(--orange);
+        }
+        .btn {
+            background: linear-gradient(135deg, var(--sage-deep), #3a6020);
+            border: 1px solid var(--sage-mid);
+            color: var(--sage-pale);
+            padding: 9px 18px; border-radius: 7px;
+            cursor: pointer; font-family: 'Courier New', monospace;
+            font-size: 0.85em; transition: all 0.25s; letter-spacing: 0.5px;
+        }
+        .btn:hover { border-color: var(--orange); color: var(--orange); box-shadow: 0 0 12px rgba(255,140,0,0.3); }
+        .btn.on    { background: var(--orange); color: #0d1a07; border-color: var(--orange); box-shadow: 0 0 14px var(--orange); font-weight:bold; }
+
+        /* ── SIGMA BARS ── */
+        .sigma-section { display: none; margin-top: 14px; }
+        .s-bar { margin: 8px 0; }
+        .s-bar-head { display: flex; justify-content: space-between; font-size: 0.78em; color: var(--sage-pale); margin-bottom:4px; }
+        .s-bar-head span { color: var(--orange-glow); }
+        .s-fill {
+            height: 22px; border-radius: 4px;
+            display: flex; align-items: center;
+            padding-left: 10px; font-size: 0.75em; font-weight: bold; color: #0d1a07;
+            transition: width 0.5s;
+        }
+
+        /* ── TWO COL ── */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media(max-width:720px){ .two-col{ grid-template-columns:1fr; } .title{ font-size:1.5em; } }
+
+        /* ── FORMULA ── */
+        .formula-box {
+            background: rgba(0,0,0,0.45);
+            border: 1px solid var(--orange);
+            border-radius: 10px;
+            padding: 20px; text-align: center; margin: 14px 0;
+        }
+        .formula { font-size: 1.25em; color: var(--cream); letter-spacing: 1px; line-height: 2.2; }
+        .formula-parts { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 16px; }
+        .fp {
+            background: rgba(45,74,30,0.45);
+            border-radius: 7px; padding: 11px 15px;
+            border-left: 3px solid var(--orange);
+            max-width: 210px; font-size: 0.8em;
+        }
+        .fp .sym  { color: var(--orange); font-size: 1.05em; font-weight: bold; }
+        .fp .desc { color: var(--cream-dark); margin-top: 5px; line-height: 1.5; }
+
+        /* ── CODE ── */
+        .code-wrap { background: rgba(0,0,0,0.5); border: 1px solid rgba(74,122,46,0.4); border-radius: 8px; padding: 14px; font-size: 0.78em; overflow-x:auto; line-height:1.8; }
+        .kw  { color: var(--orange); }
+        .cm  { color: var(--sage-light); font-style: italic; }
+        .num { color: var(--orange-glow); }
+
+        /* ── LOG ── */
+        .log {
+            background: rgba(0,0,0,0.45);
+            border: 1px solid rgba(74,122,46,0.3);
+            border-radius: 8px; padding: 12px;
+            height: 160px; overflow-y: auto;
+            font-size: 0.78em; font-family: 'Courier New', monospace;
+        }
+        .le { padding: 3px 0; border-bottom: 1px solid rgba(74,122,46,0.15); }
+        .le.ok   { color: var(--sage-pale); }
+        .le.warn { color: var(--orange); }
+        .le.bad  { color: #ff5555; font-weight: bold; }
+
+        /* ── STATS ROW ── */
+        .stats-row { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin: 12px 0; }
+        .stat-box { background: rgba(0,0,0,0.35); border: 1px solid rgba(74,122,46,0.4); border-radius: 8px; padding: 12px 18px; text-align: center; min-width: 120px; }
+        .sv { font-size: 1.8em; color: var(--orange); font-weight: bold; }
+        .sl { font-size: 0.68em; color: var(--sage-pale); margin-top: 4px; }
+
+        /* ── SKILL TRACK ── */
+        .skill-row { display: flex; flex-direction: column; gap: 8px; font-size: 0.82em; }
+        .skill-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(74,122,46,0.2); }
+        .skill-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+        .skill-dot.now  { background: var(--orange); box-shadow: 0 0 8px var(--orange); }
+        .skill-dot.next { background: var(--sage-light); }
+        .skill-dot.far  { background: rgba(74,122,46,0.4); }
+        .skill-title  { color: var(--orange-glow); font-weight: bold; }
+        .skill-body   { color: var(--cream-dark); line-height: 1.5; }
+
+        /* ── END CARD ── */
+        .end-card {
+            background: linear-gradient(135deg, rgba(45,74,30,0.4), rgba(61,43,13,0.35));
+            border: 2px solid var(--orange);
+            border-radius: 14px;
+            padding: 28px; text-align: center; margin-top: 20px;
+        }
+        .end-card h2 { color: var(--orange); font-size: 1.4em; margin-bottom: 14px; }
+        .build-list { list-style: none; text-align: left; display: inline-block; }
+        .build-list li { padding: 7px 0; color: var(--cream); font-size: 0.88em; }
+        .build-list li::before { content: '⬡ '; color: var(--orange); }
+
+        .sim-info { text-align: center; font-size: 0.78em; color: var(--sage-pale); margin-top: 8px; }
+        .scroll-hint { text-align: center; color: rgba(74,122,46,0.6); font-size: 0.72em; animation: blink 2s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+        footer { text-align:center; padding: 40px 20px; color: var(--sage-mid); font-size: 0.72em; }
+    </style>
+</head>
+<body>
+
+<div id="particles-container"></div>
+
+<!-- ══ HEADER ══ -->
+<div class="header">
+    <span class="frog">🐸</span>
+    <div class="dojo-line">— MOUNT MYŌBOKU TRAINING GROUNDS —</div>
+    <div class="title">SAGE MODE: NORMAL DISTRIBUTION</div>
+    <div class="subtitle">🍃 Sensing the chakra of data — SSD Thermal Intelligence 🍃</div>
+</div>
+
+<!-- ══ SECTION 1: SHINOBI PATH ══ -->
+<div class="card">
+    <div class="sec-title">🗺️ Your Shinobi Path — From Stats to Smart SSD</div>
+
+    <div class="quote">
+        "I never go back on my word — that's my nindō, my ninja way!" — Naruto<br>
+        <strong style="color:var(--orange)">Your nindō:</strong>
+        every session you learn here feeds the next. Normal distribution isn't a standalone move —
+        it's the foundation jutsu everything else is built on. Don't skip it.
+    </div>
+
+    <div class="scroll-hint">⟵ scroll path ⟶</div>
+    <div class="path-scroll">
+        <div class="path-row" id="pathRow"></div>
+    </div>
+    <div class="path-detail" id="pathDetail"></div>
+</div>
+
+<!-- ══ SECTION 2: THE CONCEPT ══ -->
+<div class="card">
+    <div class="sec-title">📡 Mission Briefing — The Thermal Sensor Problem</div>
+
+    <div class="quote">
+        Your SSD controller is sitting at <strong style="color:var(--orange)">true temp = 80 °C</strong>.
+        You poll the sensor 1000 times. You don't get 1000 identical values —
+        you get a <strong style="color:var(--orange)">bell-shaped scatter</strong> around that truth.
+        That scatter IS the normal distribution. Understand it, and anomaly detection is free.
+    </div>
+
+    <canvas id="bellCanvas" width="960" height="340"></canvas>
+
+    <div class="controls">
+        <div class="ctrl-grp">
+            <label>True Temperature (μ — Mean) <span id="meanVal">80.0 °C</span></label>
+            <input type="range" id="meanSlider" min="60" max="100" value="80" step="0.5">
+        </div>
+        <div class="ctrl-grp">
+            <label>Sensor Noise (σ — Std Dev) <span id="sigmaVal">0.8 °C</span></label>
+            <input type="range" id="sigmaSlider" min="0.3" max="4.0" value="0.8" step="0.1">
+        </div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:10px 0;">
+        <button class="btn" id="btnBands"   onclick="toggleBands()">Show σ Bands</button>
+        <button class="btn" id="btnSim"     onclick="toggleSim()">▶ Drop Sensor Readings</button>
+        <button class="btn" id="btnAnomaly" onclick="toggleAnomalyLine()">🔴 Show Anomaly Threshold</button>
+        <button class="btn"                 onclick="resetBell()">↺ Reset</button>
+    </div>
+
+    <div class="sim-info" id="simInfo">Click "Drop Sensor Readings" to simulate 1000 sensor polls</div>
+
+    <div class="sigma-section" id="sigmaSection">
+        <div class="s-bar">
+            <div class="s-bar-head">± 1σ → 68.3% of readings <span id="r1"></span></div>
+            <div class="s-fill" style="background:rgba(122,158,90,0.65);width:68.3%;">68.3%</div>
+        </div>
+        <div class="s-bar">
+            <div class="s-bar-head">± 2σ → 95.4% of readings <span id="r2"></span></div>
+            <div class="s-fill" style="background:rgba(255,140,0,0.45);width:95.4%;">95.4%</div>
+        </div>
+        <div class="s-bar">
+            <div class="s-bar-head">± 3σ → 99.7% of readings <span id="r3"></span></div>
+            <div class="s-fill" style="background:rgba(255,68,68,0.3);width:99.7%;">99.7%</div>
+        </div>
+        <div style="font-size:0.78em;color:var(--sage-pale);margin-top:12px;">
+            ⚡ <strong style="color:var(--orange)">Firmware insight:</strong>
+            Anything beyond ±3σ happens &lt;0.3% of the time under normal conditions.
+            If it happens more often → your sensor baseline shifted, or there is a real thermal event.
+            That's your anomaly trigger — no ML needed yet, pure statistics does the job.
+        </div>
+    </div>
+</div>
+
+<!-- ══ SECTION 3: THE FORMULA ══ -->
+<div class="card">
+    <div class="sec-title">📜 The Jutsu Scroll — The Formula</div>
+
+    <div class="formula-box">
+        <div class="formula">
+            f(x) &nbsp;=&nbsp;
+            <span style="color:var(--orange)">1 / (σ √2π)</span>
+            &nbsp;×&nbsp;
+            e<sup style="color:var(--sage-pale)">−(x − μ)² / 2σ²</sup>
+        </div>
+        <div style="font-size:0.75em;color:var(--sage-mid);margin-top:8px;">
+            "The probability density at temperature x, given a sensor with mean μ and noise σ"
+        </div>
+    </div>
+
+    <div class="formula-parts">
+        <div class="fp">
+            <div class="sym">μ (mu) — Mean</div>
+            <div class="desc">The bell's center. The true temperature you're targeting. Most readings land here.</div>
+        </div>
+        <div class="fp">
+            <div class="sym">σ (sigma) — Std Dev</div>
+            <div class="desc">How spread the readings are. Tight σ = precise sensor. Wide σ = noisy/aging sensor.</div>
+        </div>
+        <div class="fp">
+            <div class="sym">σ² — Variance</div>
+            <div class="desc">σ squared. Raw spread before sqrt. Mean of squared deviations from μ.</div>
+        </div>
+        <div class="fp">
+            <div class="sym">e<sup>−(x−μ)²/2σ²</sup></div>
+            <div class="desc">Exponential decay away from center. This single term creates the bell shape.</div>
+        </div>
+        <div class="fp">
+            <div class="sym">1 / (σ√2π)</div>
+            <div class="desc">Normalizing constant. Ensures area under the full bell = 1.0 (100% probability).</div>
+        </div>
+        <div class="fp">
+            <div class="sym">z = (x − μ) / σ</div>
+            <div class="desc">The z-score: how many σ away is this reading? Your anomaly detector is just: |z| > 3.</div>
+        </div>
+    </div>
+
+    <div style="margin-top:22px;">
+        <div class="sec-title" style="font-size:0.95em;">⚙️ The C-Programmer's View</div>
+        <div class="two-col">
+            <div>
+                <div style="color:var(--sage-pale);font-size:0.78em;margin-bottom:7px;">Python / NumPy</div>
+                <div class="code-wrap">
+<span class="kw">import</span> numpy <span class="kw">as</span> np<br>
+<br>
+readings = np.random.normal(<span class="num">80.0</span>, <span class="num">0.8</span>, <span class="num">1000</span>)<br>
+mu    = np.mean(readings)   <span class="cm"># μ</span><br>
+sigma = np.std(readings)    <span class="cm"># σ</span><br>
+<br>
+<span class="cm"># z-score anomaly check</span><br>
+z = (readings - mu) / sigma<br>
+anomalies = readings[np.abs(z) > <span class="num">3</span>]
+                </div>
+            </div>
+            <div>
+                <div style="color:var(--sage-pale);font-size:0.78em;margin-bottom:7px;">C — how you'd write it in firmware</div>
+                <div class="code-wrap">
+<span class="cm">/* Compute μ and σ from N samples */</span><br>
+<span class="kw">float</span> mu = <span class="num">0.0f</span>, var = <span class="num">0.0f</span>;<br>
+<span class="kw">for</span>(<span class="kw">int</span> i=<span class="num">0</span>; i&lt;N; i++)<br>
+&nbsp;&nbsp;mu += samples[i] / N;<br>
+<span class="kw">for</span>(<span class="kw">int</span> i=<span class="num">0</span>; i&lt;N; i++) {<br>
+&nbsp;&nbsp;<span class="kw">float</span> d = samples[i] - mu;<br>
+&nbsp;&nbsp;var += (d*d) / N;<br>
+}<br>
+<span class="kw">float</span> sigma = sqrtf(var);<br>
+<br>
+<span class="cm">/* Anomaly gate */</span><br>
+<span class="kw">float</span> z = (x - mu) / sigma;<br>
+<span class="kw">if</span>(fabsf(z) > <span class="num">3.0f</span>) fire_throttle();
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ SECTION 4: ANOMALY DETECTION ══ -->
+<div class="card">
+    <div class="sec-title">🔴 Bijuu Detection System — Anomaly Detection in Action</div>
+
+    <div class="quote">
+        In Sage Mode, Naruto can <strong style="color:var(--orange)">sense chakra disturbances</strong>
+        before the enemy is visible — he doesn't wait to get hit.
+        Anomaly detection does the same: it uses the normal distribution as a baseline,
+        and flags any reading that deviates too far as a threat.
+        <strong style="color:var(--orange)">That's your proactive throttle trigger.</strong>
+    </div>
+
+    <div class="two-col">
+        <div>
+            <canvas id="aCanvas" width="430" height="270"></canvas>
+            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px;">
+                <button class="btn" onclick="fireNormal()">✅ Normal Read</button>
+                <button class="btn" onclick="fireWarning()">⚠️ 2–3σ Warning</button>
+                <button class="btn" onclick="fireAnomaly()">🔴 Inject Heat Spike</button>
+                <button class="btn" onclick="resetAnomaly()">↺ Reset</button>
+            </div>
+        </div>
+        <div>
+            <div style="color:var(--sage-pale);font-size:0.82em;margin-bottom:10px;">Decision rule (z-score gate):</div>
+            <div class="formula-box" style="padding:14px;">
+                <div class="formula" style="font-size:1em;">z = (x − μ) / σ</div>
+                <div style="font-size:0.78em;color:var(--cream-dark);margin-top:10px;line-height:2;">
+                    |z| &lt; 2 &nbsp;→ Normal ✅ &nbsp;(just noise)<br>
+                    2 ≤ |z| &lt; 3 → Warning ⚠️ &nbsp;(watch it)<br>
+                    |z| ≥ 3 &nbsp;&nbsp;→ ANOMALY 🔴 → Throttle!
+                </div>
+            </div>
+
+            <div style="color:var(--sage-pale);font-size:0.78em;margin:10px 0 6px;">Live Sensor Log:</div>
+            <div class="log" id="aLog">
+                <div class="le ok">[BOOT] Baseline established. μ=80.0°C  σ=0.8°C</div>
+                <div class="le ok">[INFO] Anomaly gate armed at ±3σ = ±2.4°C from mean</div>
+            </div>
+
+            <div class="stats-row" style="margin-top:12px;">
+                <div class="stat-box">
+                    <div class="sv" id="sTot">0</div>
+                    <div class="sl">Total Reads</div>
+                </div>
+                <div class="stat-box">
+                    <div class="sv" id="sAnom" style="color:#ff5555;">0</div>
+                    <div class="sl">Anomalies</div>
+                </div>
+                <div class="stat-box">
+                    <div class="sv" id="sWarn" style="color:var(--orange);">0</div>
+                    <div class="sl">Warnings</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ SECTION 5: ML EVOLUTION ══ -->
+<div class="card">
+    <div class="sec-title">🧠 Sage Mode: Complete — Where ML Takes Over</div>
+
+    <div class="quote">
+        Statistics detects spikes <strong style="color:var(--orange)">after they happen</strong>.
+        An ML model learns workload patterns and predicts spikes
+        <strong style="color:var(--orange)">2–5 seconds before they happen</strong>.
+        That's the upgrade from reactive throttle to predictive throttle —
+        and it's exactly what your course builds toward.
+    </div>
+
+    <div class="two-col">
+        <div>
+            <div style="color:var(--sage-pale);font-size:0.82em;margin-bottom:8px;">What you do TODAY (rule-based)</div>
+            <div class="code-wrap" style="font-size:0.76em;">
+<span class="cm">/* Reactive — fires AFTER the spike */</span><br>
+<span class="kw">if</span> (temp_c > <span class="num">85</span>) reduce_clock(<span class="num">20</span>);<br>
+<span class="kw">if</span> (temp_c > <span class="num">92</span>) reduce_clock(<span class="num">50</span>);<br>
+<span class="kw">if</span> (temp_c &lt; <span class="num">78</span>) restore_clock();<br>
+<span class="cm">/* Problem: spike happens → damage</span><br>
+<span class="cm">   → THEN you react. Already too late. */</span>
+            </div>
+
+            <div style="color:var(--sage-pale);font-size:0.82em;margin:18px 0 8px;">After your course (ML-based)</div>
+            <div class="code-wrap" style="font-size:0.76em;">
+<span class="cm">/* Predictive — fires BEFORE the spike */</span><br>
+features[] = {iops, power_mw,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ambient_c, gc_pending,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp_slope_5s};<br>
+<br>
+predicted = model_infer(features);<br>
+<span class="kw">if</span> (predicted > THRESH)<br>
+&nbsp;&nbsp;pre_throttle_now(); <span class="cm">// proactive!</span>
+            </div>
+        </div>
+        <div>
+            <div style="color:var(--sage-pale);font-size:0.82em;margin-bottom:10px;">Skills you'll gain — session by session:</div>
+            <div class="skill-row">
+                <div class="skill-item">
+                    <div class="skill-dot now"></div>
+                    <div>
+                        <div class="skill-title">Jun 7 — Normal Distribution (TODAY)</div>
+                        <div class="skill-body">Understand sensor noise baseline. Detect anomalies with z-score. Foundation for every ML model you'll build.</div>
+                    </div>
+                </div>
+                <div class="skill-item">
+                    <div class="skill-dot next"></div>
+                    <div>
+                        <div class="skill-title">Jun 20 — EDA & ML Workflow</div>
+                        <div class="skill-body">Plot telemetry histograms. Spot patterns. Build the full ML pipeline. Anomaly detection becomes visual.</div>
+                    </div>
+                </div>
+                <div class="skill-item">
+                    <div class="skill-dot next"></div>
+                    <div>
+                        <div class="skill-title">Jun 27 — Regression</div>
+                        <div class="skill-body">Predict temperature from IOPS + power draw. Your first trained predictor — a calibration curve, but learned from data.</div>
+                    </div>
+                </div>
+                <div class="skill-item">
+                    <div class="skill-dot far"></div>
+                    <div>
+                        <div class="skill-title">Jul 11 — Random Forests</div>
+                        <div class="skill-body">Ensemble of trees on telemetry → robust failure prediction. Like ECC majority-vote but for ML decisions.</div>
+                    </div>
+                </div>
+                <div class="skill-item">
+                    <div class="skill-dot far"></div>
+                    <div>
+                        <div class="skill-title">Aug 22 — Deployment (Edge AI!)</div>
+                        <div class="skill-body">Flash the trained model onto your controller. INT8 quantized. Real-time inference within power budget. <strong style="color:var(--orange)">This is the goal.</strong></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="end-card">
+        <h2>🎯 What You Will Build by Jan 2027</h2>
+        <p style="color:var(--cream-dark);font-size:0.85em;margin-bottom:16px;">
+            An <strong style="color:var(--orange)">on-device predictive throttle model</strong> running on your SSD controller:
+        </p>
+        <ul class="build-list">
+            <li>Collects IOPS, power draw, ambient temp, GC activity as input features</li>
+            <li>Learns the normal thermal signature of your specific drive (using TODAY's lesson)</li>
+            <li>Predicts thermal spikes 2–5 seconds before they occur</li>
+            <li>Pre-throttles smoothly instead of hard-clamping at a fixed threshold</li>
+            <li>Detects sensor drift / sensor failure using anomaly detection (this lesson!)</li>
+            <li>Runs inference in INT8 quantized form within the controller's power budget</li>
+        </ul>
+        <div style="margin-top:16px;color:var(--sage-pale);font-size:0.8em;">
+            🍃 Normal distribution is jutsu #1. Every session from here unlocks the next move.
+        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="dojo-line">— MOUNT MYŌBOKU TRAINING COMPLETE FOR TODAY —</div>
+    <div style="margin-top:10px;">🐸 "Believe it!" — The path is clear. Keep training.</div>
+</footer>
+
+<script>
+/* ═══════════════════════════════
+   PARTICLES
+═══════════════════════════════ */
+(function () {
+    const c = document.getElementById('particles-container');
+    c.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;';
+    for (let i = 0; i < 30; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const size = 2 + Math.random() * 4;
+        const isOrange = Math.random() > 0.75;
+        p.style.cssText = `
+            left:${Math.random()*100}vw;
+            width:${size}px; height:${size}px;
+            background:${isOrange ? 'rgba(255,140,0,0.7)' : 'rgba(122,158,90,0.5)'};
+            box-shadow:0 0 ${size*2}px ${isOrange ? 'rgba(255,140,0,0.8)' : 'rgba(122,158,90,0.6)'};
+            animation-duration:${9 + Math.random()*14}s;
+            animation-delay:${Math.random()*12}s;
+        `;
+        c.appendChild(p);
+    }
+})();
+
+/* ═══════════════════════════════
+   LEARNING PATH
+═══════════════════════════════ */
+const nodes = [
+    { e:'🍃', l:'Prob & Stats\n(You Are Here)', d:'Jun 7',  s:'now',
+      info:'TODAY — Normal distribution, mean, σ, 68-95-99.7 rule, z-score. This is the bedrock. Every ML model you build assumes data is (or can be treated as) Gaussian. Get this cold.' },
+    { e:'📐', l:'Linear\nAlgebra', d:'Jun 13', s:'soon',
+      info:'Vectors = SRAM buffers. Dot product = MAC instruction. Matrix multiply = what your NPU does. You need this to understand neural nets and PCA.' },
+    { e:'∂',  l:'Calculus\nFoundations', d:'Jun 14', s:'soon',
+      info:'Derivative = rate of temperature change (your thermal loop slope). Gradient descent = Vref calibration you already do in firmware. Calculus feeds every optimizer in ML.' },
+    { e:'🔍', l:'EDA & ML\nWorkflow', d:'Jun 20', s:'soon',
+      info:'Plot sensor histograms → visually see the bell. Build the ML pipeline end-to-end. Your z-score anomaly detector from TODAY becomes a proper ML step here.' },
+    { e:'📉', l:'Regression', d:'Jun 27', s:'soon',
+      info:'Predict temperature from IOPS + power draw. A linear equation trained from telemetry data. Your first real predictor — the ancestor of every neural net.' },
+    { e:'🌳', l:'Decision\nTrees + SVM', d:'Jul 4',  s:'far',
+      info:'Trees = nested if/else learned from data. SVM = maximum-margin decision boundary. Classify: real thermal spike vs sensor noise? This replaces your hand-tuned thresholds.' },
+    { e:'🌲', l:'Random\nForests', d:'Jul 11', s:'far',
+      info:'Ensemble of trees = more robust prediction. Like ECC majority-vote for ML decisions. Great for SSD telemetry — handles noisy, high-dimensional sensor data well.' },
+    { e:'🧠', l:'Neural\nNetworks', d:'Jul 25', s:'far',
+      info:'Stack many logistic regression units. Learns complex non-linear thermal patterns your rule-based code can\'t express. The engine behind everything in Modules 2–4.' },
+    { e:'🚀', l:'Deploy\n(Edge AI!)', d:'Aug 22', s:'far',
+      info:'Flash the trained model onto constrained silicon. INT8 quantized (your Q-format!). Real-time inference inside a control-loop period. THIS is your end goal.' },
+];
+
+(function buildPath() {
+    const row = document.getElementById('pathRow');
+    nodes.forEach((n, i) => {
+        const div = document.createElement('div');
+        div.className = 'path-node';
+        div.innerHTML = `
+            <div class="p-circle ${n.s}" onclick="showNode(${i})">${n.e}</div>
+            <div class="p-label">${n.l.replace('\n','<br>')}</div>
+            <div class="p-date">${n.d}</div>
+        `;
+        row.appendChild(div);
+        if (i < nodes.length - 1) {
+            const a = document.createElement('div');
+            a.className = 'p-arrow' + (i === 0 ? ' lit' : '');
+            a.textContent = '→';
+            row.appendChild(a);
+        }
+    });
+})();
+
+function showNode(i) {
+    const el = document.getElementById('pathDetail');
+    el.style.display = 'block';
+    el.innerHTML = `<strong style="color:var(--orange)">${nodes[i].l.replace('\n',' ')} — ${nodes[i].d}</strong><br><br>${nodes[i].info}`;
+}
+
+/* ═══════════════════════════════
+   SHARED MATH
+═══════════════════════════════ */
+let mu = 80, sig = 0.8;
+function gauss(x, m, s) {
+    return (1 / (s * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * ((x - m) / s) ** 2);
+}
+function boxMuller() {
+    let u, v;
+    do { u = Math.random(); } while (!u);
+    do { v = Math.random(); } while (!v);
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+/* ═══════════════════════════════
+   BELL CANVAS
+═══════════════════════════════ */
+const BC = document.getElementById('bellCanvas');
+const bx = BC.getContext('2d');
+let showBands = false, simOn = false, showALine = false;
+let simTimer = null, dots = [];
+
+function drawBell() {
+    const W = BC.width, H = BC.height, P = 55;
+    const span = 5 * sig;
+    const xMin = mu - span, xMax = mu + span;
+    const peak = gauss(mu, mu, sig);
+
+    function cx(x) { return P + (x - xMin) / (xMax - xMin) * (W - 2*P); }
+    function cy(y) { return H - P - (y / peak) * (H - 2*P - 20); }
+
+    bx.clearRect(0, 0, W, H);
+
+    // grid
+    bx.strokeStyle = 'rgba(74,122,46,0.15)'; bx.lineWidth = 1;
+    for (let i = 1; i < 8; i++) {
+        const yg = P + (H - 2*P) * i / 8;
+        bx.beginPath(); bx.moveTo(P, yg); bx.lineTo(W-P, yg); bx.stroke();
+    }
+
+    // sigma fills
+    if (showBands) {
+        const fills = [
+            { n:3, col:'rgba(255,68,68,0.10)' },
+            { n:2, col:'rgba(255,140,0,0.14)' },
+            { n:1, col:'rgba(122,158,90,0.22)' },
+        ];
+        fills.forEach(f => {
+            const lo = mu - f.n*sig, hi = mu + f.n*sig;
+            bx.beginPath();
+            let started = false;
+            for (let px = P; px <= W-P; px++) {
+                const xv = xMin + (px-P)/(W-2*P)*(xMax-xMin);
+                if (xv < lo || xv > hi) continue;
+                const ycv = cy(gauss(xv, mu, sig));
+                if (!started) { bx.moveTo(px, H-P); bx.lineTo(px, ycv); started = true; }
+                else bx.lineTo(px, ycv);
+            }
+            bx.lineTo(cx(Math.min(hi, xMax)), H-P);
+            bx.closePath();
+            bx.fillStyle = f.col; bx.fill();
+        });
+
+        // sigma dashed lines + labels
+        [-3,-2,-1,1,2,3].forEach(s => {
+            const xv = mu + s*sig;
+            const cxv = cx(xv);
+            const col = Math.abs(s)===3 ? 'rgba(255,68,68,0.7)' : Math.abs(s)===2 ? 'rgba(255,140,0,0.65)' : 'rgba(122,158,90,0.8)';
+            bx.beginPath(); bx.moveTo(cxv, cy(gauss(xv,mu,sig))); bx.lineTo(cxv, H-P);
+            bx.strokeStyle = col; bx.lineWidth = 1.5; bx.setLineDash([4,4]); bx.stroke(); bx.setLineDash([]);
+            bx.fillStyle = col; bx.font = '10px Courier New';
+            bx.fillText(s+'σ', cxv - 9, H-P+14);
+        });
+
+        // update range labels
+        document.getElementById('r1').textContent = `${(mu-sig).toFixed(1)}–${(mu+sig).toFixed(1)} °C`;
+        document.getElementById('r2').textContent = `${(mu-2*sig).toFixed(1)}–${(mu+2*sig).toFixed(1)} °C`;
+        document.getElementById('r3').textContent = `${(mu-3*sig).toFixed(1)}–${(mu+3*sig).toFixed(1)} °C`;
+    }
+
+    // anomaly threshold
+    if (showALine) {
+        const tx = cx(mu + 3*sig);
+        bx.beginPath(); bx.moveTo(tx, P); bx.lineTo(tx, H-P);
+        bx.strokeStyle = '#ff5555'; bx.lineWidth = 2.5; bx.setLineDash([6,4]); bx.stroke(); bx.setLineDash([]);
+        bx.fillStyle = '#ff5555'; bx.font = 'bold 11px Courier New';
+        bx.fillText('← THROTTLE ZONE', tx+4, P+18);
+    }
+
+    // dots (simulated readings)
+    dots.forEach(d => {
+        const z = Math.abs((d - mu) / sig);
+        const col = z>3 ? '#ff5555' : z>2 ? '#ff8c00' : 'rgba(168,200,122,0.55)';
+        bx.beginPath(); bx.arc(cx(d), H-P-4, 2.5, 0, Math.PI*2);
+        bx.fillStyle = col; bx.fill();
+    });
+
+    // bell curve
+    bx.beginPath();
+    let first = true;
+    for (let px = P; px <= W-P; px++) {
+        const xv = xMin + (px-P)/(W-2*P)*(xMax-xMin);
+        const ycv = cy(gauss(xv, mu, sig));
+        if (first) { bx.moveTo(px, ycv); first = false; } else bx.lineTo(px, ycv);
+    }
+    bx.strokeStyle = '#7a9e5a'; bx.lineWidth = 3;
+    bx.shadowColor = '#7a9e5a'; bx.shadowBlur = 8; bx.stroke(); bx.shadowBlur = 0;
+
+    // mean line
+    const mx = cx(mu);
+    bx.beginPath(); bx.moveTo(mx, P); bx.lineTo(mx, H-P);
+    bx.strokeStyle = 'rgba(255,140,0,0.85)'; bx.lineWidth = 2; bx.setLineDash([8,5]); bx.stroke(); bx.setLineDash([]);
+    bx.fillStyle = '#ff8c00'; bx.font = 'bold 12px Courier New';
+    bx.fillText('μ = '+mu.toFixed(1)+' °C', mx-10, P-6);
+    bx.fillStyle = '#a8c87a'; bx.font = '11px Courier New';
+    bx.fillText('σ = '+sig.toFixed(1)+' °C', mx+14, P+28);
+
+    // x-axis
+    bx.beginPath(); bx.moveTo(P, H-P); bx.lineTo(W-P, H-P);
+    bx.strokeStyle = 'rgba(122,158,90,0.35)'; bx.lineWidth = 1; bx.stroke();
+    bx.fillStyle = '#7a9e5a'; bx.font = '10px Courier New';
+    for (let s = -4; s <= 4; s+=2) {
+        const xv = mu + s*sig, cxv = cx(xv);
+        if (cxv < P || cxv > W-P) continue;
+        bx.fillText(xv.toFixed(1), cxv-14, H-P+16);
+    }
+    bx.fillStyle = '#a8c87a'; bx.font = '11px Courier New';
+    bx.fillText('Temperature (°C)', W/2-55, H-4);
+}
+
+document.getElementById('meanSlider').addEventListener('input', e => {
+    mu = parseFloat(e.target.value);
+    document.getElementById('meanVal').textContent = mu.toFixed(1)+' °C';
+    dots = []; drawBell(); drawAC();
+});
+document.getElementById('sigmaSlider').addEventListener('input', e => {
+    sig = parseFloat(e.target.value);
+    document.getElementById('sigmaVal').textContent = sig.toFixed(1)+' °C';
+    dots = []; drawBell(); drawAC();
+});
+
+function toggleBands() {
+    showBands = !showBands;
+    const b = document.getElementById('btnBands');
+    b.classList.toggle('on', showBands);
+    b.textContent = showBands ? 'Hide σ Bands' : 'Show σ Bands';
+    document.getElementById('sigmaSection').style.display = showBands ? 'block' : 'none';
+    drawBell();
+}
+
+function toggleSim() {
+    simOn = !simOn;
+    const b = document.getElementById('btnSim');
+    b.classList.toggle('on', simOn);
+    b.textContent = simOn ? '⏸ Pause' : '▶ Drop Sensor Readings';
+    if (simOn) {
+        simTimer = setInterval(() => {
+            for (let i=0; i<6; i++) dots.push(mu + sig * boxMuller());
+            if (dots.length > 1000) dots = dots.slice(-1000);
+            document.getElementById('simInfo').textContent = `Dropped ${dots.length} sensor readings`;
+            drawBell();
+        }, 60);
+    } else { clearInterval(simTimer); }
+}
+
+function toggleAnomalyLine() {
+    showALine = !showALine;
+    const b = document.getElementById('btnAnomaly');
+    b.classList.toggle('on', showALine);
+    b.textContent = showALine ? '✅ Threshold Visible' : '🔴 Show Anomaly Threshold';
+    drawBell();
+}
+
+function resetBell() {
+    simOn = false; clearInterval(simTimer);
+    dots = []; showBands = false; showALine = false;
+    document.getElementById('btnBands').classList.remove('on');
+    document.getElementById('btnSim').classList.remove('on');
+    document.getElementById('btnAnomaly').classList.remove('on');
+    document.getElementById('btnSim').textContent = '▶ Drop Sensor Readings';
+    document.getElementById('btnBands').textContent = 'Show σ Bands';
+    document.getElementById('btnAnomaly').textContent = '🔴 Show Anomaly Threshold';
+    document.getElementById('sigmaSection').style.display = 'none';
+    document.getElementById('simInfo').textContent = 'Click "Drop Sensor Readings" to simulate 1000 sensor polls';
+    drawBell(); drawAC();
+}
+
+/* ═══════════════════════════════
+   ANOMALY CANVAS
+═══════════════════════════════ */
+const AC = document.getElementById('aCanvas');
+const ax = AC.getContext('2d');
+let aPoints = [];
+let tot=0, anom=0, warn=0;
+
+function drawAC() {
+    const W=AC.width, H=AC.height, P=40;
+    const span=4.5*sig, xMin=mu-span, xMax=mu+span;
+    const peak=gauss(mu,mu,sig);
+    function cx(x){ return P+(x-xMin)/(xMax-xMin)*(W-2*P); }
+    function cy(y){ return H-P-(y/peak)*(H-2*P); }
+
+    ax.clearRect(0,0,W,H);
+
+    // zone fills
+    const zones=[
+        {lo:xMin, hi:mu-3*sig, col:'rgba(255,68,68,0.15)'},
+        {lo:mu-3*sig,hi:mu-2*sig,col:'rgba(255,140,0,0.12)'},
+        {lo:mu+2*sig,hi:mu+3*sig,col:'rgba(255,140,0,0.12)'},
+        {lo:mu+3*sig,hi:xMax,col:'rgba(255,68,68,0.15)'},
+    ];
+    zones.forEach(z=>{
+        ax.beginPath(); ax.moveTo(cx(z.lo),H-P);
+        for(let x=z.lo;x<=z.hi;x+=sig*0.04) ax.lineTo(cx(x),cy(gauss(x,mu,sig)));
+        ax.lineTo(cx(z.hi),H-P); ax.closePath();
+        ax.fillStyle=z.col; ax.fill();
+    });
+
+    // bell
+    ax.beginPath();
+    let first=true;
+    for(let px=P;px<=W-P;px++){
+        const xv=xMin+(px-P)/(W-2*P)*(xMax-xMin);
+        const ycv=cy(gauss(xv,mu,sig));
+        if(first){ax.moveTo(px,ycv);first=false;}else ax.lineTo(px,ycv);
+    }
+    ax.strokeStyle='#7a9e5a'; ax.lineWidth=2.5;
+    ax.shadowColor='#7a9e5a'; ax.shadowBlur=6; ax.stroke(); ax.shadowBlur=0;
+
+    // threshold lines
+    [-3,-2,2,3].forEach(s=>{
+        const xv=mu+s*sig, cxv=cx(xv);
+        const col=Math.abs(s)===3?'rgba(255,68,68,0.8)':'rgba(255,140,0,0.6)';
+        ax.beginPath(); ax.moveTo(cxv,P); ax.lineTo(cxv,H-P);
+        ax.strokeStyle=col; ax.lineWidth=1.5; ax.setLineDash([4,4]); ax.stroke(); ax.setLineDash([]);
+        ax.fillStyle=col; ax.font='9px Courier New';
+        ax.fillText(s+'σ', cxv-(s<0?16:2), H-P+13);
+    });
+
+    ax.beginPath(); ax.moveTo(P,H-P); ax.lineTo(W-P,H-P);
+    ax.strokeStyle='rgba(122,158,90,0.3)'; ax.lineWidth=1; ax.stroke();
+
+    ax.fillStyle='#a8c87a'; ax.font='9px Courier New';
+    ax.fillText('NORMAL', cx(mu)-18, P+14);
+    ax.fillStyle='rgba(255,68,68,0.8)';
+    ax.fillText('ANOMALY', cx(mu+3.8*sig)-20, H/2);
+
+    // points
+    aPoints.forEach(pt=>{
+        ax.beginPath(); ax.arc(cx(pt.x), H-P-8, 6, 0, Math.PI*2);
+        ax.fillStyle=pt.col; ax.shadowColor=pt.col; ax.shadowBlur=10; ax.fill(); ax.shadowBlur=0;
+    });
+}
+
+function logLine(msg, cls){
+    const l=document.getElementById('aLog');
+    const d=document.createElement('div');
+    d.className='le '+cls;
+    d.textContent=`[${new Date().toISOString().substr(11,8)}] ${msg}`;
+    l.appendChild(d); l.scrollTop=l.scrollHeight;
+}
+function updateStats(){ document.getElementById('sTot').textContent=tot; document.getElementById('sAnom').textContent=anom; document.getElementById('sWarn').textContent=warn; }
+
+function fireNormal(){
+    let x;
+    do { x=mu+sig*boxMuller(); } while(Math.abs((x-mu)/sig)>2);
+    const z=((x-mu)/sig).toFixed(2);
+    tot++;
+    aPoints.push({x,col:'rgba(168,200,122,0.85)'}); if(aPoints.length>40)aPoints.shift();
+    logLine(`T=${x.toFixed(2)}°C  z=${z}  ✅ NORMAL — just sensor noise`,'ok');
+    updateStats(); drawAC();
+}
+
+function fireWarning(){
+    const sign=Math.random()>0.5?1:-1;
+    const x=mu+sign*(2.1+Math.random()*0.85)*sig;
+    const z=((x-mu)/sig).toFixed(2);
+    tot++; warn++;
+    aPoints.push({x,col:'rgba(255,140,0,0.9)'}); if(aPoints.length>40)aPoints.shift();
+    logLine(`T=${x.toFixed(2)}°C  z=${z}  ⚠️  WARNING — watch this, not actionable yet`,'warn');
+    updateStats(); drawAC();
+}
+
+function fireAnomaly(){
+    const sign=Math.random()>0.5?1:-1;
+    const x=mu+sign*(3.15+Math.random()*2)*sig;
+    const z=((x-mu)/sig).toFixed(2);
+    tot++; anom++;
+    aPoints.push({x,col:'rgba(255,60,60,0.95)'}); if(aPoints.length>40)aPoints.shift();
+    logLine(`T=${x.toFixed(2)}°C  z=${z}  🔴 ANOMALY — throttle fired!`,'bad');
+    updateStats(); drawAC();
+}
+
+function resetAnomaly(){
+    aPoints=[]; tot=0; anom=0; warn=0;
+    updateStats();
+    const l=document.getElementById('aLog');
+    l.innerHTML='<div class="le ok">[RESET] Baseline re-established. μ='+mu.toFixed(1)+'°C  σ='+sig.toFixed(1)+'°C</div>';
+    drawAC();
+}
+
+/* ═══════════════════════════════
+   INIT
+═══════════════════════════════ */
+drawBell();
+drawAC();
+window.addEventListener('resize', ()=>{ drawBell(); drawAC(); });
+</script>
+</body>
+</html>

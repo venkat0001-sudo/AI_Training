@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cross-Validation — Sensei Notes (Session 1)</title>
+<style>
+  :root{
+    --green:#0b3d2e; --green2:#0f5137; --orange:#ff8c00; --orange2:#ffb347;
+    --ink:#e8f5e9; --muted:#9ec9b4; --card:#0e2a20; --line:#1d5c43;
+    --red:#e74c3c;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:radial-gradient(circle at 20% 10%,#0f4030,#06231a 60%);
+    color:var(--ink); line-height:1.6; padding:32px 18px 80px;
+    overflow-x:hidden;
+  }
+  .chakra{position:fixed; width:10px; height:10px; border-radius:50%;
+    background:var(--orange); opacity:.25; pointer-events:none;
+    animation:rise linear infinite;}
+  @keyframes rise{from{transform:translateY(100vh) scale(.5);opacity:.05}
+    50%{opacity:.35} to{transform:translateY(-10vh) scale(1.2);opacity:0}}
+  .wrap{max-width:880px;margin:0 auto}
+  h1{font-size:1.9rem;margin:0 0 4px}
+  h1 .frog{filter:drop-shadow(0 0 6px var(--orange))}
+  .sub{color:var(--muted);margin:0 0 28px;font-size:.95rem}
+  h2{color:var(--orange);border-bottom:2px solid var(--line);padding-bottom:6px;margin-top:40px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:20px 22px;margin:18px 0;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+  .bar{display:flex;height:54px;border-radius:10px;overflow:hidden;
+    border:2px solid var(--line);margin:14px 0;font-weight:700}
+  .seg{display:flex;align-items:center;justify-content:center;color:#06231a;
+    font-size:.95rem;letter-spacing:.3px}
+  .train{background:linear-gradient(180deg,#2ecc71,#27ae60);}
+  .val{background:linear-gradient(180deg,var(--orange2),var(--orange));}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:.88rem;color:var(--muted);margin-top:8px}
+  .dot{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:middle}
+  .flaw{border-left:4px solid var(--red);background:#2a1512}
+  .flaw h3{color:#ff6b5a;margin:0 0 6px}
+  .tag{display:inline-block;background:var(--green2);color:var(--orange2);
+    border-radius:6px;padding:2px 9px;font-size:.78rem;font-weight:700;margin-bottom:8px}
+  strong{color:var(--orange2)}
+  .frog{font-style:normal}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1><span class="frog">🐸</span> Cross-Validation — Sage Scrolls</h1>
+  <p class="sub">Session 1 · trusting a model before it goes into silicon · taught one beat at a time</p>
+
+  <h2>1 · Your single split (90 / 10)</h2>
+  <div class="card">
+    <span class="tag">YOUR CALL</span>
+    <p>You collected <strong>200 thermal cycles</strong>. You hold back the smallest honest pop-quiz you can —
+       10% — and pour the rest into training, because you want the model <em>smart</em>.</p>
+    <div class="bar">
+      <div class="seg train" style="width:90%">TRAIN — 180 cycles (90%)</div>
+      <div class="seg val" style="width:10%">QUIZ — 20 (10%)</div>
+    </div>
+    <div class="legend">
+      <span><span class="dot train"></span>Training set — the model learns its thresholds here</span>
+      <span><span class="dot val"></span>Validation set — hidden cycles, used ONLY to grade</span>
+    </div>
+    <p>The model never sees the orange 20 while learning. So its score on those 20 is an
+       <strong>honest</strong> estimate of field behaviour — no memorising the answer key.</p>
+  </div>
+
+  <h2>2 · …but the single split has two cracks</h2>
+
+  <div class="card flaw">
+    <h3>Crack 1 — the wasted 20</h3>
+    <p>Those 20 orange cycles are <strong>precious labelled field data</strong>, and they
+       <em>never</em> help the model learn. You paid for them; they sit on the bench as quiz paper.
+       You wanted a smarter model — yet you starved it of 10% of its lessons.</p>
+  </div>
+
+  <div class="card flaw">
+    <h3>Crack 2 — the lucky quiz</h3>
+    <p>20 cycles is a <strong>tiny exam</strong>. If those 20 happen to be easy ones, the model looks
+       great by luck. If they happen to be the nasty edge cases, it looks worse than it is.</p>
+    <p>The grade swings on <strong>which 20 you happened to pick</strong> — so the number you'd stake a
+       firmware flash on is <em>noisy</em>. One roll of the dice is not the rigour you said you needed.</p>
+  </div>
+
+  <h2>3 · The fix — K-fold (here K = 10)</h2>
+  <div class="card">
+    <span class="tag">THE TRICK</span>
+    <p>Stop thinking of <strong>one</strong> quiz. Think of <strong>10 small quizzes in rotation</strong>.
+       Chop the 200 cycles into 10 folds of 20. Each round, a <em>different</em> fold is the quiz; the
+       other nine train. The orange quiz-fold <strong>slides down</strong> one row per round.</p>
+    <div id="kfold"></div>
+    <div class="legend">
+      <span><span class="dot train"></span>Train fold</span>
+      <span><span class="dot val"></span>Validation (quiz) fold this round</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="color:var(--orange2);margin-top:0">Both cracks — sealed</h3>
+    <p><strong>Crack 1 gone:</strong> every fold trains the model in 9 of the 10 rounds. No data benched.</p>
+    <p><strong>Crack 2 gone:</strong> you get 10 grades, not 1. Average them — the luck of any single
+       slice washes out.</p>
+    <div class="bar" style="height:auto;flex-wrap:wrap;gap:6px;border:none;background:none">
+      <span style="background:var(--green2);padding:6px 10px;border-radius:6px">R1 → 93%</span>
+      <span style="background:var(--green2);padding:6px 10px;border-radius:6px">R2 → 90%</span>
+      <span style="background:var(--green2);padding:6px 10px;border-radius:6px">R3 → 91%</span>
+      <span style="background:var(--green2);padding:6px 10px;border-radius:6px">… </span>
+      <span style="background:var(--green2);padding:6px 10px;border-radius:6px">R10 → 95%</span>
+      <span style="background:var(--orange);color:#06231a;font-weight:700;padding:6px 10px;border-radius:6px">
+        Final = average(all 10)</span>
+    </div>
+    <p style="color:var(--muted);margin-bottom:0"><strong>K-fold accuracy = (R1 + R2 + … + R10) / 10</strong>
+       — one honest, stable number you can stake a flash on.</p>
+  </div>
+</div>
+
+<script>
+  // build the 10-round K-fold rotation grid
+  (function(){
+    const K=10, host=document.getElementById('kfold');
+    const grid=document.createElement('div');
+    grid.style.display='grid';
+    grid.style.gridTemplateColumns='70px repeat('+K+',1fr)';
+    grid.style.gap='4px'; grid.style.margin='14px 0';
+    // header row
+    grid.appendChild(cell('',true));
+    for(let f=1;f<=K;f++) grid.appendChild(cell('F'+f,true));
+    // one row per round; quiz fold slides down the diagonal
+    for(let r=1;r<=K;r++){
+      grid.appendChild(cell('Round '+r,true));
+      for(let f=1;f<=K;f++){
+        const isVal=(f===r);
+        const c=cell(isVal?'quiz':'',false);
+        c.style.background=isVal?'linear-gradient(180deg,var(--orange2),var(--orange))'
+                                :'linear-gradient(180deg,#2ecc71,#27ae60)';
+        c.style.color='#06231a'; c.style.fontSize='.62rem'; c.style.fontWeight='700';
+        grid.appendChild(c);
+      }
+    }
+    host.appendChild(grid);
+    function cell(t,head){
+      const d=document.createElement('div');
+      d.textContent=t;
+      d.style.padding='7px 2px'; d.style.textAlign='center';
+      d.style.borderRadius='5px'; d.style.fontSize='.68rem';
+      if(head){d.style.color='#9ec9b4';d.style.fontWeight='700';}
+      return d;
+    }
+  })();
+
+  for(let i=0;i<14;i++){
+    const c=document.createElement('div');c.className='chakra';
+    c.style.left=Math.random()*100+'vw';
+    c.style.animationDuration=(6+Math.random()*8)+'s';
+    c.style.animationDelay=(-Math.random()*10)+'s';
+    c.style.width=c.style.height=(6+Math.random()*10)+'px';
+    document.body.appendChild(c);
+  }
+</script>
+</body>
+</html>

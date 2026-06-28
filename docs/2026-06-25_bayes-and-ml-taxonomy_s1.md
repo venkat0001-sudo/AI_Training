@@ -296,6 +296,17 @@ inputs ──► [ MODEL ] ──► output
 
 Training a **weight-based** model = an optimization algorithm finds the weights that minimize the loss:
 - **Gradient descent** (iterative workhorse) — predict → loss → slope of loss → step downhill → repeat. The gradient *is* the derivative of the loss (calculus foundation). Scales to neural nets. Embedded anchor: **= Vref read-level calibration** (sweep voltage, measure BER, walk to the minimum).
+
+  **Worked example — regression loss (MSE) driving gradient descent.** Tiny model `ŷ = w·x`, one data point `x=2, actual y=10` (so the true answer is `w=5`). Loss = squared error `(w·x − y)²`; its slope is `dL/dw = 2·(w·x − y)·x`. Learning rate `λ = 0.05`. Watch the loss fall as the update rule `w ← w − λ·(dL/dw)` walks `w` toward 5:
+
+  ```
+  start w=3.0:  ŷ=6.0   error=−4.0   loss=16.0    slope=2·(−4.0)·2=−16.0   →  w ← 3.0 − 0.05·(−16.0) = 3.80
+  step  w=3.8:  ŷ=7.6   error=−2.4   loss= 5.76    slope=2·(−2.4)·2=−9.6    →  w ← 3.80 − 0.05·(−9.6) = 4.28
+  step  w=4.28: ŷ=8.56  error=−1.44  loss= 2.07    slope=2·(−1.44)·2=−5.76  →  w ← 4.28 − 0.05·(−5.76) = 4.57
+  ...converges toward w=5 (loss → 0)
+  ```
+
+  The loss (`16 → 5.76 → 2.07 → …`) is exactly the **magnitude of the error**, squared and averaged (MSE). Gradient descent reads the *slope* of that loss and steps the weight downhill until the error magnitude shrinks to ~0. Same loop a neural net runs, just with millions of weights instead of one. (= Vref calibration: each step measures "how wrong" and nudges the knob toward the minimum.)
 - **Closed-form / normal equations** (one-shot, analytic) — solve directly with linear algebra. Exact, but needs a matrix inverse → dies at huge feature counts. *(Jun-20 notebook implements BOTH for the same linear classifier to show this trade-off.)*
 - **Neither (trees)** — a decision tree has no weights; CART uses greedy split-search (best feature+threshold by information gain), not gradient descent.
 

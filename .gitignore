@@ -1,0 +1,8 @@
+# OS cruft
+.DS_Store
+
+# Private / personal docs (employer + personal schedule — repo is public)
+*.docx
+
+# Raw uploaded session resource bundles (kept locally, not published)
+*_resources/
