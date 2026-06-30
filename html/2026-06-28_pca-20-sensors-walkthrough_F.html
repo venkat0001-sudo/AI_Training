@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>20 Sensors → 3 Numbers — a baby-step PCA walkthrough</title>
+<style>
+  :root{
+    --bg:#0f1424; --panel:#161d33; --panel2:#1d2745; --ink:#e8ecf5; --dim:#9aa6c4;
+    --teal:#00C9B1; --coral:#FF6B6B; --gold:#FFD93D; --purple:#9B8CFF; --line:#2a3658;
+    --good:#3ad29f;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 700px at 70% -10%,#1a2440,#0f1424 60%);
+    color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:920px;margin:0 auto;padding:28px 20px 120px;}
+  h1{font-size:26px;margin:.2em 0 .1em;letter-spacing:.2px}
+  .sub{color:var(--dim);margin-bottom:22px}
+  .tag{display:inline-block;background:var(--panel2);color:var(--teal);border:1px solid var(--line);
+    border-radius:999px;padding:2px 12px;font-size:12px;margin-bottom:14px;letter-spacing:.4px}
+  .step{background:linear-gradient(180deg,var(--panel),#131a30);border:1px solid var(--line);
+    border-radius:18px;padding:24px 24px 26px;margin:0;display:none;box-shadow:0 18px 50px rgba(0,0,0,.35)}
+  .step.active{display:block;animation:rise .45s ease both}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .step h2{margin:.1em 0 .5em;font-size:21px}
+  .step h2 .n{color:var(--teal);font-variant-numeric:tabular-nums}
+  .lead{color:var(--ink)}
+  .muted{color:var(--dim)}
+  .big{font-size:18px}
+  .card{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:14px 0}
+  .k{color:var(--gold)} .t{color:var(--teal)} .c{color:var(--coral)} .p{color:var(--purple)}
+  code,.mono{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace}
+  .mono{font-size:14.5px}
+  .reveal{cursor:pointer;border-bottom:1px dashed var(--dim);color:var(--gold);user-select:none}
+  .reveal.open{cursor:default;border:none;color:var(--good)}
+  .hint{font-size:13px;color:var(--dim);font-style:italic}
+  .predict{background:rgba(255,217,61,.07);border:1px solid rgba(255,217,61,.32);border-radius:12px;
+    padding:12px 16px;margin:14px 0}
+  .predict b{color:var(--gold)}
+  .pay{background:rgba(0,201,177,.08);border:1px solid rgba(0,201,177,.32);border-radius:12px;padding:12px 16px;margin:14px 0}
+  table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0}
+  th,td{border:1px solid var(--line);padding:5px 7px;text-align:center;font-variant-numeric:tabular-nums}
+  th{background:var(--panel2);color:var(--dim);font-weight:600}
+  .nav{position:fixed;left:0;right:0;bottom:0;background:rgba(13,18,33,.92);backdrop-filter:blur(8px);
+    border-top:1px solid var(--line);padding:12px 16px;display:flex;align-items:center;gap:14px;justify-content:center}
+  button.bn{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:10px;
+    padding:9px 16px;font-size:15px;cursor:pointer;transition:.15s}
+  button.bn:hover{border-color:var(--teal);color:var(--teal)}
+  button.bn:disabled{opacity:.35;cursor:default}
+  .dots{display:flex;gap:7px}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--line);cursor:pointer;transition:.2s}
+  .dot.on{background:var(--teal);transform:scale(1.25)}
+  .barrow{display:flex;align-items:center;gap:8px;margin:3px 0}
+  .barrow .lab{width:42px;font-size:12px;color:var(--dim);text-align:right}
+  .bar{height:16px;border-radius:4px;background:var(--teal);transition:width 1s cubic-bezier(.2,.8,.2,1);width:0}
+  .barval{font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+  svg{max-width:100%}
+  .flowbox{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;margin:10px 0}
+  .node{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px;text-align:center}
+  .arrow{color:var(--teal);font-size:20px}
+  .pulse{animation:pulse 1.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--dim);margin-top:6px}
+  .sw{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="tag">LINEAR ALGEBRA · _F · learned in VS Code extension · 2026-06-28</div>
+  <h1>20 Sensors → 3 Numbers</h1>
+  <div class="sub">A baby-step walkthrough of the heavy notebook cell (cell 4.6). Same flow you did on the 6-student example — just bigger. Tap the <span class="reveal">yellow blanks</span> to reveal. Use ← → or the buttons.</div>
+
+  <!-- STEP 1 -->
+  <section class="step active">
+    <h2><span class="n">Step 1.</span> The problem (why we even bother)</h2>
+    <p class="lead big">An SSD controller logs <b class="t">20 sensor channels</b> every reading — temperature, voltages, latencies, queue depths… 20 numbers, hundreds of times a second.</p>
+    <div class="card">
+      Storing &amp; processing all 20 costs <b class="c">SRAM</b>, <b class="c">MAC operations</b>, and <b class="c">milliwatts</b> — the three things you never have to spare on an edge device.
+    </div>
+    <p>The question this whole walkthrough answers:</p>
+    <p class="big">👉 <i>Do I really need all 20 numbers, or do a few carry the real story?</i></p>
+    <div class="predict">🔮 <b>Predict:</b> gut feeling — out of 20 sensors on one controller, how many do you think are <i>truly independent</i> stories vs just echoes of each other? <span class="reveal">We built the data so the answer is exactly <b>3</b>. Read on to see why.</span></div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="step">
+    <h2><span class="n">Step 2.</span> The secret: 20 sensors, only 3 real "stories"</h2>
+    <p>Here's the trick baked into the data. The 20 channels aren't 20 separate things. They're all <b>mixtures of just 3 hidden drivers</b>:</p>
+    <div class="flowbox">
+      <div class="node" style="border-color:var(--coral)">🔥 heat</div>
+      <div class="node" style="border-color:var(--gold)">⚙️ workload</div>
+      <div class="node" style="border-color:var(--purple)">🔋 voltage</div>
+      <div class="arrow">→</div>
+      <div class="node pulse" style="border-color:var(--teal)">20 sensor<br>channels</div>
+    </div>
+    <p class="muted">Every channel is some recipe like:</p>
+    <div class="card mono">sensor_7 = <span class="c">0.4·heat</span> + <span class="k">1.2·workload</span> − <span class="p">0.3·voltage</span> + tiny noise</div>
+    <p>So even though your eyes see <b>20</b> numbers, the data only really <i>moves</i> in <span class="reveal"><b>3 directions</b> — the 3 drivers. The other 17 "degrees of freedom" are illusions; they're locked to these 3.</span></p>
+    <div class="predict">🔮 <b>Predict:</b> if two sensors are both mostly "heat" channels, when one goes up the other will… <span class="reveal">go up too — they're <b>correlated</b>. That redundancy is exactly what we'll exploit.</span></div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="step">
+    <h2><span class="n">Step 3.</span> The raw data — a 500 × 20 table</h2>
+    <p>We log <b class="t">500 readings</b> (rows), each with <b class="t">20 channels</b> (columns). A tiny corner of it:</p>
+    <table>
+      <tr><th>reading</th><th>ch1</th><th>ch2</th><th>ch3</th><th>…</th><th>ch20</th></tr>
+      <tr><td>#1</td><td>−0.81</td><td>1.94</td><td>0.22</td><td>…</td><td>−1.11</td></tr>
+      <tr><td>#2</td><td>0.33</td><td>−0.57</td><td>1.40</td><td>…</td><td>0.88</td></tr>
+      <tr><td>#3</td><td>1.52</td><td>2.10</td><td>−0.04</td><td>…</td><td>1.36</td></tr>
+      <tr><td>⋮</td><td>⋮</td><td>⋮</td><td>⋮</td><td>⋱</td><td>⋮</td></tr>
+      <tr><td>#500</td><td>−0.12</td><td>0.45</td><td>0.91</td><td>…</td><td>−0.33</td></tr>
+    </table>
+    <p class="mono muted">shape = (500 readings, 20 channels) &nbsp;→&nbsp; <span class="t">X.shape == (500, 20)</span></p>
+    <p>This is just the cloud of dots from your 6-student example — but now in <b>20-dimensional</b> space (impossible to draw, so we let the math "see" the shape for us).</p>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="step">
+    <h2><span class="n">Step 4.</span> Covariance — "do these two move together?"</h2>
+    <p>Exactly the idea you nailed on Math vs Physics. For <b>every pair</b> of channels, covariance asks: when one is above its mean, is the other usually above too?</p>
+    <div class="card">
+      <div class="mono"><span class="t">+ big</span> → move together (a tight tilted cigar)</div>
+      <div class="mono"><span class="muted">≈ 0</span> &nbsp;&nbsp;→ unrelated (a round blob)</div>
+      <div class="mono"><span class="c">− big</span> → move opposite</div>
+    </div>
+    <p>Do this for all pairs of 20 channels and you fill a grid: <b class="t">a 20 × 20 covariance matrix.</b></p>
+    <p class="mono muted">cov = np.cov(X.T)&nbsp;&nbsp;→&nbsp;&nbsp;shape (20, 20)</p>
+    <p>Because so many channels share the same 3 drivers, this grid is <span class="reveal">full of <b>big off-diagonal numbers</b> — lots of redundancy. A truly independent set of sensors would have a near-empty (diagonal-only) grid.</span></p>
+  </section>
+
+  <!-- STEP 4b: NUMERIC -->
+  <section class="step">
+    <h2><span class="n">Step 5.</span> The actual numbers — one cell, by hand</h2>
+    <p>Concept is nice; let's grind real numbers. Shrink it right down: <b>5 readings</b> of just <b>2 channels</b> (A and B). We'll compute their <b>one</b> covariance cell. The same recipe scales straight up to 500×20.</p>
+
+    <table>
+      <tr><th>reading</th><th>chA</th><th>chB</th></tr>
+      <tr><td>#1</td><td>2</td><td>3</td></tr>
+      <tr><td>#2</td><td>4</td><td>5</td></tr>
+      <tr><td>#3</td><td>6</td><td>7</td></tr>
+      <tr><td>#4</td><td>3</td><td>4</td></tr>
+      <tr><td>#5</td><td>5</td><td>6</td></tr>
+      <tr><td><b>mean</b></td><td><b class="t">4</b></td><td><b class="t">5</b></td></tr>
+    </table>
+
+    <p class="muted">① Subtract each column's mean → deviations (above/below center):</p>
+    <div class="card mono">
+      chA − 4 : &nbsp;−2 , &nbsp;0 , &nbsp;+2 , −1 , +1<br>
+      chB − 5 : &nbsp;−2 , &nbsp;0 , &nbsp;+2 , −1 , +1
+    </div>
+    <p class="muted">② Multiply the paired deviations, reading by reading:</p>
+    <div class="card mono">
+      (−2)(−2)=<span class="t">4</span> , &nbsp;(0)(0)=<span class="t">0</span> , &nbsp;(+2)(+2)=<span class="t">4</span> , &nbsp;(−1)(−1)=<span class="t">1</span> , &nbsp;(+1)(+1)=<span class="t">1</span><br>
+      sum = 4+0+4+1+1 = <b class="k">10</b>
+    </div>
+    <p class="muted">③ Average (divide by n−1 = 4):</p>
+    <div class="card mono big">cov(A,B) = 10 / 4 = <b class="k">2.5</b> &nbsp;&nbsp;→ positive → A &amp; B move together ✓</div>
+    <p>That single number <b>2.5</b> fills <b>one cell</b> of the grid — position <span class="mono">[A,B]</span>. Repeat the exact same 3 steps for <b>every channel pair</b> to fill the whole matrix.</p>
+    <div class="predict">🔮 <b>Notice:</b> the 5 readings got <span class="reveal">summed and averaged into <b>one</b> number — they vanished. Only the <b>pair of channels</b> survives as a grid position.</span></div>
+  </section>
+
+  <!-- STEP 4c: SHAPE / COUNTING -->
+  <section class="step">
+    <h2><span class="n">Step 6.</span> Deducing the grid size (500×20 → ? and 1000×20 → ?)</h2>
+    <p>The matrix size is decided by <b class="t">one thing only: the number of channels</b> — never the number of readings.</p>
+
+    <div class="card">
+      <div class="mono">grid size = (# channels) × (# channels)</div>
+    </div>
+
+    <table>
+      <tr><th>data shape</th><th># readings</th><th># channels</th><th>covariance matrix</th></tr>
+      <tr><td class="mono">500 × 20</td><td>500</td><td><b class="t">20</b></td><td><b class="t">20 × 20</b></td></tr>
+      <tr><td class="mono">1000 × 20</td><td>1000</td><td><b class="t">20</b></td><td><b class="t">20 × 20</b> (same!)</td></tr>
+      <tr><td class="mono">1000 × 8</td><td>1000</td><td><b class="t">8</b></td><td><b class="t">8 × 8</b></td></tr>
+    </table>
+    <p>Going 500 → 1000 readings <b>does not</b> change the grid — still 20×20. <span class="reveal">More readings only make each cell's average <b>more trustworthy</b> (steadier), like a latency percentile over 10,000 IOs vs 10.</span></p>
+
+    <h3 style="margin-top:18px">How many channel-pairs is that, really?</h3>
+    <p>For <b>n = 20</b> channels the full grid has <b>n × n = 400</b> cells. But it's a <b>mirror</b> (cov(A,B)=cov(B,A)), so you only ever <i>compute</i>:</p>
+    <div class="card mono">
+      diagonal (each channel with itself = its variance) : &nbsp;n &nbsp;= <span class="t">20</span><br>
+      distinct off-diagonal pairs : &nbsp;n(n−1)/2 = 20·19/2 = <span class="t">190</span><br>
+      ─────────────────────────────<br>
+      unique numbers to compute : &nbsp;n(n+1)/2 = <b class="k">210</b> &nbsp;(the other 190 are copies)
+    </div>
+    <div class="predict">🔮 <b>Your turn:</b> for <b>8 channels</b>, how many distinct off-diagonal pairs? <span class="reveal">8·7/2 = <b>28</b> pairs, + 8 variances on the diagonal = 36 unique numbers, in a 8×8 = 64-cell grid.</span></div>
+
+    <h3 style="margin-top:18px">The shape flow (matrix form)</h3>
+    <p>In one line of NumPy it's <span class="mono">cov = Xc.T @ Xc / (n−1)</span>. Watch the dimensions — your inner-dimension rule:</p>
+    <div class="card mono">
+      Xc.T &nbsp;&nbsp;@&nbsp;&nbsp; Xc<br>
+      (20 × <span class="c">500</span>) @ (<span class="c">500</span> × 20) &nbsp;→&nbsp; (20 × 20)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↑___________↑<br>
+      inner <span class="c">500</span> matches → gets summed away (the readings vanish)<br>
+      outer <b class="t">20</b> &amp; <b class="t">20</b> survive → the grid
+    </div>
+    <p class="muted">Same with 1000 readings: <span class="mono">(20×1000)@(1000×20) → 20×20</span>. The 1000 cancels in the middle; the 20s stay.</p>
+  </section>
+
+  <!-- STEP 5 -->
+  <section class="step" data-draw="heat">
+    <h2><span class="n">Step 7.</span> The covariance grid as a heatmap</h2>
+    <p>Don't read 400 numbers — <i>look</i> at them. Bright = strong relationship, dark = none.</p>
+    <div id="heat"></div>
+    <div class="legend"><span><span class="sw" style="background:#0f1424;border:1px solid var(--line)"></span>≈0 (unrelated)</span><span><span class="sw" style="background:var(--teal)"></span>strong +</span><span><span class="sw" style="background:var(--coral)"></span>strong −</span></div>
+    <p style="margin-top:14px">See how <b>busy</b> it is? Almost every cell is lit. That brightness everywhere is the visual scream: <span class="reveal">"these 20 sensors are mostly repeating each other — there's way less real information here than 20 numbers suggests."</span></p>
+  </section>
+
+  <!-- STEP 6 -->
+  <section class="step">
+    <h2><span class="n">Step 8.</span> Eigen-decomposition — find the cigar's axes</h2>
+    <p>Same move as the 6-student cigar, just in 20-D. We ask the covariance matrix for its <b class="t">eigenvectors</b> (the directions the data-cloud stretches) and <b class="gold">eigenvalues</b> (how far it stretches each way).</p>
+    <p class="mono muted">evals, evecs = np.linalg.eig(cov)&nbsp;&nbsp;# 20 of each, then sort big→small</p>
+    <div class="card">
+      <b class="t">eigenvector</b> = a direction in 20-D space &nbsp;·&nbsp; <b class="k">eigenvalue λ</b> = how much the cloud spreads along it = <b>how much information lives there</b>
+    </div>
+    <div class="predict">🔮 <b>Predict before the chart:</b> the data was built from <b>3</b> drivers. So how many of the 20 eigenvalues do you expect to be <b>big</b>, and how many near <b>zero</b>? <span class="reveal"><b>3 big, 17 ≈ 0.</b> Next step proves it.</span></div>
+  </section>
+
+  <!-- STEP 7 -->
+  <section class="step" data-draw="scree">
+    <h2><span class="n">Step 9.</span> The scree plot — 3 tall bars, then a cliff</h2>
+    <p>Each bar = one eigenvalue (information in that direction), sorted tallest first. <span class="hint">(animates when this step opens)</span></p>
+    <div id="scree"></div>
+    <p style="margin-top:14px">Read it: directions <b class="t">1, 2, 3</b> are huge. Directions <b>4–20</b> are flat against the floor — those are the cigar's paper-thin "width," holding <b>almost no signal</b> (just the tiny sensor noise).</p>
+    <div class="card mono">
+      λ1 = 21.8 &nbsp;(<span class="t">50.7%</span>)<br>
+      λ2 = 13.2 &nbsp;(<span class="t">30.8%</span>)<br>
+      λ3 = 7.9 &nbsp;&nbsp;(<span class="t">18.4%</span>)<br>
+      λ4 … λ20 ≈ 0.003 each &nbsp;(<span class="muted">~0% each</span>)
+    </div>
+  </section>
+
+  <!-- STEP 8 -->
+  <section class="step" data-draw="cum">
+    <h2><span class="n">Step 10.</span> Cumulative variance — how few can I keep?</h2>
+    <p>Add the bars up left-to-right: how much of the <b>total</b> information do I capture as I keep more directions?</p>
+    <div id="cum"></div>
+    <p style="margin-top:14px">The curve <b>rockets</b> up, then goes flat: keep 1 → 50.7%, keep 2 → 81.5%, keep <b class="t">3 → 99.9%</b>. Keeping the 4th through 20th adds almost nothing.</p>
+    <p>Cross the <b class="c">95% line</b> and you hit it at exactly <span class="reveal"><b>3 directions.</b> That's your answer: 3 numbers reconstruct ~99.9% of what all 20 sensors were telling you.</span></p>
+  </section>
+
+  <!-- STEP 9 -->
+  <section class="step">
+    <h2><span class="n">Step 11.</span> The payoff — and this is your world</h2>
+    <p>This whole flow <b>is PCA</b>: <span class="mono">covariance → eigen → drop tiny-λ directions, keep the big ones.</span></p>
+    <div class="flowbox">
+      <div class="node" style="border-color:var(--coral)">20 numbers<br><span class="muted">per reading</span></div>
+      <div class="arrow">→</div>
+      <div class="node" style="border-color:var(--gold)">covariance<br>+ eigen</div>
+      <div class="arrow">→</div>
+      <div class="node pulse" style="border-color:var(--teal)">3 numbers<br><span class="muted">~99% kept</span></div>
+    </div>
+    <div class="pay">
+      <b>Edge-AI win:</b> store/process <b>3</b> features instead of <b>20</b> →
+      <span class="t">⅞ less SRAM</span>, <span class="t">⅞ fewer MACs</span>, <span class="t">lower power</span> — same signal.
+      It's <b>lossy compression for features</b>, the same instinct you already have for NAND/bytes.
+    </div>
+    <div class="card">
+      <b>⚖️ When PCA BETRAYS you (the trade-off you always ask for):</b>
+      <ul style="margin:.4em 0 0;padding-left:1.2em">
+        <li><b>The thin directions weren't noise.</b> A rare thermal-runaway spike might live in a tiny-λ direction — PCA throws it away. Bad when the <i>outlier</i> is the thing you care about (anomaly detection).</li>
+        <li><b>You lose interpretability.</b> The 3 kept numbers are <i>blends</i> of sensors, not "temperature" anymore. Hard to explain to a firmware reviewer.</li>
+        <li><b>Cost to compute.</b> The covariance+eigen step itself costs MACs. Worth it only when you reuse the projection many times.</li>
+      </ul>
+      <div class="mono muted" style="margin-top:8px">Rule: PCA wins when channels are <b>redundant</b> &amp; you want compact features. It loses when every channel is <b>independent</b>, or the <b>rare</b> signal hides in a small direction.</div>
+    </div>
+    <p style="margin-top:10px">🎓 You just walked raw data → covariance → covariance matrix → eigenvectors/eigenvalues → dimensionality reduction. That's the spine of <b>Module 1, Session 5 (PCA)</b> — pre-built from the floor up.</p>
+  </section>
+
+  <div class="nav">
+    <button class="bn" id="prev">← Back</button>
+    <div class="dots" id="dots"></div>
+    <button class="bn" id="next">Next →</button>
+  </div>
+</div>
+
+<script>
+const steps=[...document.querySelectorAll('.step')];
+let cur=0;
+const dots=document.getElementById('dots');
+steps.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i?'':' on');d.onclick=()=>go(i);dots.appendChild(d);});
+const dotEls=[...document.querySelectorAll('.dot')];
+function go(i){
+  if(i<0||i>=steps.length)return;
+  steps[cur].classList.remove('active');dotEls[cur].classList.remove('on');
+  cur=i;
+  steps[cur].classList.add('active');dotEls[cur].classList.add('on');
+  document.getElementById('prev').disabled=cur===0;
+  document.getElementById('next').disabled=cur===steps.length-1;
+  window.scrollTo({top:0,behavior:'smooth'});
+  const d=steps[cur].dataset.draw;
+  if(d==='heat')drawHeat();
+  if(d==='scree')setTimeout(drawScree,150);
+  if(d==='cum')setTimeout(drawCum,150);
+}
+document.getElementById('prev').onclick=()=>go(cur-1);
+document.getElementById('next').onclick=()=>go(cur+1);
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(cur+1);if(e.key==='ArrowLeft')go(cur-1);});
+document.querySelectorAll('.reveal').forEach(r=>{
+  const txt=r.innerHTML;r.innerHTML='tap to reveal';
+  r.onclick=()=>{if(r.classList.contains('open'))return;r.innerHTML=txt;r.classList.add('open');};
+});
+
+// ---- real numbers from the notebook run ----
+const evals=[21.819,13.243,7.900,0.0031,0.0030,0.0029,0.0028,0.0027,0.0026,0.0025,
+             0.0024,0.0023,0.0022,0.0021,0.0020,0.0019,0.0018,0.0017,0.0016,0.0015];
+const total=evals.reduce((a,b)=>a+b,0);
+const pct=evals.map(v=>v/total*100);
+const cum=[];pct.reduce((a,v,i)=>cum[i]=a+v,0);
+
+// ---- Step 5: covariance heatmap (synthetic but representative: 3 latent blocks) ----
+function drawHeat(){
+  const box=document.getElementById('heat');if(box.dataset.done)return;box.dataset.done=1;
+  const n=20,cell=17,pad=2,S=n*cell;
+  // give each channel a random 3-vector loading, cov_ij = loadings dot
+  const load=[];let seed=7;
+  const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280*2-1;};
+  for(let i=0;i<n;i++)load.push([rnd(),rnd(),rnd()]);
+  let max=0,M=[];
+  for(let i=0;i<n;i++){M[i]=[];for(let j=0;j<n;j++){let s=0;for(let k=0;k<3;k++)s+=load[i][k]*load[j][k];M[i][j]=s;max=Math.max(max,Math.abs(s));}}
+  let svg=`<svg viewBox="0 0 ${S+2} ${S+2}" width="${S+2}">`;
+  for(let i=0;i<n;i++)for(let j=0;j<n;j++){
+    const v=M[i][j]/max;
+    let col;
+    if(v>=0){const a=Math.pow(v,0.7);col=`rgba(0,201,177,${a.toFixed(3)})`;}
+    else{const a=Math.pow(-v,0.7);col=`rgba(255,107,107,${a.toFixed(3)})`;}
+    svg+=`<rect x="${j*cell+1}" y="${i*cell+1}" width="${cell-pad}" height="${cell-pad}" fill="${col}" rx="2">
+      <animate attributeName="opacity" from="0" to="1" begin="${(i*n+j)*2}ms" dur="200ms" fill="freeze"/></rect>`;
+  }
+  svg+=`</svg>`;box.innerHTML=svg;
+}
+
+// ---- Step 7: scree plot ----
+function drawScree(){
+  const box=document.getElementById('scree');box.innerHTML='';
+  const max=evals[0];
+  evals.forEach((v,i)=>{
+    const row=document.createElement('div');row.className='barrow';
+    row.innerHTML=`<div class="lab">λ${i+1}</div><div class="bar" style="background:${i<3?'var(--teal)':'var(--line)'}"></div><div class="barval">${v.toFixed(i<3?1:3)}</div>`;
+    box.appendChild(row);
+    const bar=row.querySelector('.bar');
+    setTimeout(()=>{bar.style.width=Math.max(0.6,v/max*100)*0.86+'%';},60+i*45);
+  });
+}
+
+// ---- Step 8: cumulative variance line ----
+function drawCum(){
+  const box=document.getElementById('cum');
+  const W=820,H=260,pl=44,pb=30,pt=14,pr=14;
+  const x=i=>pl+(i)/(19)*(W-pl-pr);
+  const y=v=>pt+(100-v)/100*(H-pt-pb);
+  let path='',dots='';
+  for(let i=0;i<20;i++){path+=(i?'L':'M')+x(i).toFixed(1)+' '+y(cum[i]).toFixed(1)+' ';}
+  for(let i=0;i<20;i++){dots+=`<circle cx="${x(i)}" cy="${y(cum[i])}" r="${i<3?4.5:3}" fill="${i<3?'var(--gold)':'var(--line)'}"/>`;}
+  const y95=y(95);
+  let grid='';
+  [0,25,50,75,100].forEach(g=>{grid+=`<line x1="${pl}" y1="${y(g)}" x2="${W-pr}" y2="${y(g)}" stroke="var(--line)" stroke-width="1"/><text x="${pl-6}" y="${y(g)+4}" fill="var(--dim)" font-size="11" text-anchor="end">${g}%</text>`;});
+  let xlab='';[1,3,5,10,15,20].forEach(c=>{xlab+=`<text x="${x(c-1)}" y="${H-8}" fill="var(--dim)" font-size="11" text-anchor="middle">${c}</text>`;});
+  box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%">
+    ${grid}
+    <line x1="${pl}" y1="${y95}" x2="${W-pr}" y2="${y95}" stroke="var(--coral)" stroke-dasharray="6 5" stroke-width="1.5"/>
+    <text x="${W-pr}" y="${y95-6}" fill="var(--coral)" font-size="12" text-anchor="end">95% target</text>
+    <line x1="${x(2)}" y1="${pt}" x2="${x(2)}" y2="${H-pb}" stroke="var(--coral)" stroke-dasharray="3 4" stroke-width="1" opacity=".7"/>
+    <text x="${x(2)+5}" y="${pt+34}" fill="var(--coral)" font-size="12">keep 3 → 99.9%</text>
+    <path d="${path}" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-linecap="round"
+      stroke-dasharray="2000" stroke-dashoffset="2000"><animate attributeName="stroke-dashoffset" from="2000" to="0" dur="1100ms" fill="freeze"/></path>
+    ${dots}
+    <text x="${pl}" y="${pt+2}" fill="var(--dim)" font-size="11"># channels kept →</text>
+  </svg>`;
+}
+</script>
+</body>
+</html>

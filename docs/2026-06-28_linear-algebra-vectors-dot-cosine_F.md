@@ -170,7 +170,9 @@ np.linalg.eig(cov_matrix)  # eigenvalues, eigenvectors
 
 ---
 
-## 7. Variance & Covariance
+## 7. Variance & Covariance (the full walk — how we actually built it)
+
+> This section is the narrative, not just the formula. It captures the exact misconception → correction → "vote" intuition → 4 cases → matrix arc we walked, so a re-read reconstructs the *understanding*, not just the answer.
 
 **Variance** = how spread out a single variable is around its mean.
 **Std dev** = sqrt(variance) — same idea, back in original units (easier to read).
@@ -183,37 +185,193 @@ covariance(X,Y) = avg of (xi − x̄)(yi − ȳ)    # two variables, paired
 
 Covariance is variance's sibling — variance asks "how much does *one* thing spread?", covariance asks "do *two* things spread *together*?"
 
-**Sign tells the whole story:**
-- **Positive** → both rise together (temp ↑, latency ↑ due to throttling)
-- **Negative** → one rises, other falls (price ↑, sales ↓)
-- **≈ Zero** → no relationship (shoe size vs exam score)
+### 7a. The misconception that had to die first
 
-**Numeric example — controller temp vs read latency:**
+The trap I fell into: *"take the mean of each vector, multiply the two means together, then sum."* **WRONG.** Covariance never touches the product of the means.
 
-```
-Temp X:      40,  50,  60      mean X̄ = 50
-Latency Y:  100, 120, 140      mean Ȳ = 120
-
-X − X̄:   −10,   0,  +10
-Y − Ȳ:   −20,   0,  +20
-
-products: (−10)(−20)=+200,  (0)(0)=0,  (+10)(+20)=+200
-covariance = 400 / (3−1) = 200   → positive: both rise together ✓
-```
-
-**Covariance matrix** — when you have many features, store all pairwise covariances in a grid:
+The mean's ONLY job is to be a **reference line** — a zero-point you measure *against*. You never multiply the two means.
 
 ```
-           Temp   Latency
-Temp     [[ 1.0,   0.7 ],
-Latency   [ 0.7,   1.0 ]]
+WRONG:  product of (mean_X) and (mean_Y), then sum
+RIGHT:  for each point, how far it sits FROM its own mean,
+        multiply those two paired distances, THEN average
 ```
-Diagonal = each variable vs itself (= its own variance). Off-diagonal = pairwise covariance.
-`np.cov(data.T)` computes this for the whole dataset at once.
+
+### 7b. The "vote" intuition (this is the whole engine)
+
+Each data **row casts a vote**:
+- above/above or below/below → `(+)(+)` or `(−)(−)` → **positive vote** ("they move together")
+- above/below or below/above → `(+)(−)` → **negative vote** ("they move opposite")
+
+**Covariance = the average of all the votes.**
+- mostly positive votes win → covariance positive → rise & fall together
+- mostly negative votes win → covariance negative → one up, the other down
+- votes cancel → ≈ 0 → no relationship
+
+A single negative vote (one feature above its mean while the other is below) *drags the whole sum down* — that's the mechanism, not a rule to memorize.
+
+### 7c. ⭐ The four cases, side by side (the keystone table)
+
+Same machine every time. The ONLY thing that changes is the **sign-pairing of the deviation rows**.
+
+```
+ ┌──── POSITIVE ────┐  ┌──── NEGATIVE ────┐  ┌──── NEUTRAL (≈0) ────┐  ┌──── cov(X,X) = VARIANCE ────┐
+ Temp↑ → Latency↑      Temp↑ → Clock↓        Temp vs random            Temp paired with ITSELF
+
+ X:  40, 50, 60        X:  40, 50, 60        X:  40,  50,  60          X:  40, 50, 60
+ Y: 100,120,140        Y: 900,850,800        Y: 140,  80, 140          X:  40, 50, 60   (same col)
+ X̄=50  Ȳ=120           X̄=50  Ȳ=850           X̄=50   Ȳ=120              X̄=50
+
+ X−X̄: −10, 0,+10       X−X̄: −10, 0,+10       X−X̄: −10,  0, +10        X−X̄: −10,  0, +10
+ Y−Ȳ: −20, 0,+20       Y−Ȳ: +50, 0,−50       Y−Ȳ: +20,−40, +20        X−X̄: −10,  0, +10
+
+ votes:                votes:                votes:                   votes:
+  (−10)(−20)=+200       (−10)(+50)=−500       (−10)(+20)=−200          (−10)(−10)=+100
+  (  0)(  0)=  0        (  0)(  0)=  0        (  0)(−40)=   0          (  0)(  0)=   0
+  (+10)(+20)=+200       (+10)(−50)=−500       (+10)(+20)=+200          (+10)(+10)=+100
+ sum = +400            sum = −1000           sum =    0               sum = +200
+ cov = +200  ✓         cov = −500  ✓         cov =   0  ✓             cov = +100  ✓
+  "rise together"       "one up,one down"     "votes cancel"          "ALWAYS positive"
+```
+
+Read the **two deviation rows** in each column — that's where the whole story lives:
+- **Positive:** deviation rows share the same sign → votes pile up positive.
+- **Negative:** deviation rows are flipped → votes pile up negative.
+- **Neutral:** Y just *wiggles on its own* (`+20, −40, +20`) — ignores X completely → votes cancel → 0.
+- **cov(X,X):** X paired with its own column → every vote is a number **times itself** → can NEVER be negative. **This is variance.**
+
+| pairing | what it measures | sign possible |
+|---|---|---|
+| X with Y (related, same way) | covariance | **+** |
+| X with Y (related, opposite) | covariance | **−** |
+| X with Y (unrelated) | covariance | **≈ 0** |
+| X with X (itself) | **variance** | **+ only** |
+
+**The bridge unlocked here:** *variance is just covariance of a feature with itself.* That's exactly why variances sit on the **diagonal** of the covariance matrix.
+
+### 7d. The formula (now that the intuition is owned)
+
+```
+                1
+cov(X,Y) =  ─────── · Σ (xᵢ − X̄)(yᵢ − Ȳ)
+             n − 1
+```
+- `Σ (xᵢ − X̄)(yᵢ − Ȳ)` = add up all the **votes** (paired deviations)
+- `1/(n−1)` = **average** them. The `−1` is a sample-size correction (a sample is "shyer" than the full population, so we slightly inflate). Ignore it for intuition.
+
+No product-of-means anywhere. ✓
 
 ---
 
-## 8. Eigenvectors & Eigenvalues
+## 8. The Covariance Matrix (assembling the grid)
+
+With many features, store **every pairwise covariance** in a grid. For 2 features there are only 4 pairings → a 2×2:
+
+```
+              Temp            Latency
+         ┌─────────────┬─────────────┐
+  Temp   │  cov(T,T)   │  cov(T,L)   │   diagonal  = variance (always +)
+         ├─────────────┼─────────────┤
+ Latency │  cov(L,T)   │  cov(L,L)   │   off-diag  = covariance (signed)
+         └─────────────┴─────────────┘
+```
+
+**Two cells, two rules — burn this in:**
+- **Diagonal** = each feature with **itself** = variance → **always ≥ 0, never changes sign.** "How much does this feature wiggle on its own."
+- **Off-diagonal** = two features **with each other** = covariance → **can flip sign.** "Do they wiggle together (+) or against (−)."
+- **Symmetry:** `cov(T,L) = cov(L,T)` (order doesn't matter in multiplication) → the matrix is always a **mirror across the diagonal.** If it isn't, you computed wrong.
+
+Positive scenario → `var_T=100, var_L=400, cov=+200`:
+```
+        Temp   Latency
+Temp   [ 100  ,  200 ]
+Lat    [ 200  ,  400 ]
+```
+Throttling (negative) scenario → only the **off-diagonal** flips; diagonal stays positive:
+```
+        Temp   Clock
+Temp   [ 100  , −200 ]
+Clock  [ −200  , 400 ]
+```
+
+### 8a. ⭐ Full 3×3 worked read (Temp, Clock, Latency)
+
+```
+Temp  T:   40,  50,  60      T̄ = 50    dev: −10,  0, +10
+Clock C:  900, 850, 800      C̄ = 850   dev: +50,  0, −50   (throttles as it heats)
+Lat   L:  100, 120, 140      L̄ = 120   dev: −20,  0, +20   (slows as it heats)
+
+Diagonal (variance, always +):
+  var_T = (100+0+100)/2   = 100
+  var_C = (2500+0+2500)/2 = 2500
+  var_L = (400+0+400)/2   = 400
+
+Off-diagonal (signed):
+  cov(T,C): (−10·+50)+(+10·−50) = −1000 → /2 = −500    T↑ C↓  NEGATIVE
+  cov(T,L): (−10·−20)+(+10·+20) = +400  → /2 = +200    T↑ L↑  POSITIVE
+  cov(C,L): (+50·−20)+(−50·+20) = −2000 → /2 = −1000   C↑ L↓  NEGATIVE
+
+          Temp    Clock    Lat
+ Temp   [  100    −500    +200 ]
+ Clock  [ −500    2500   −1000 ]
+ Lat    [ +200   −1000    +400 ]
+```
+
+**The analysis checklist (how to READ any covariance matrix):**
+1. **Diagonal → who spreads most?** Clock (2500) is the wild one; Temp (100) barely moves. Magnitude of variance = how much that feature wiggles.
+2. **Off-diagonal signs → the relationships:** T–C = − (heat→throttle), T–L = + (heat→slower), C–L = − (faster clock→lower latency).
+3. **Symmetry check** → top-right triangle must mirror bottom-left.
+
+```python
+np.cov(data.T)   # spits out this whole grid in one call
+```
+
+---
+
+## 9. Why this matters in ML (the syllabus payoff — don't skip)
+
+This whole covariance-matrix → eigen machine is **not abstract math** — it's the literal engine of one upcoming class and a recurring tool everywhere after.
+
+```
+covariance matrix → eigenvectors/eigenvalues  ═══►  Module 1, Session 5 (18 Jul 2026): PCA
+```
+
+**PCA *is* "take the covariance matrix, find its eigenvectors/eigenvalues, keep the biggest ones."** That's the entire algorithm. We're pre-building that lecture from the floor up.
+
+| Where it shows up | What eigen-of-covariance does | Importance (Edge-AI goal) |
+|---|---|---|
+| **PCA / dim-reduction** (Sess 5, 18 Jul) | Squeeze 20 sensor channels → 2–3 that hold the real signal | ⭐⭐⭐ the edge compression trick — fewer features = less SRAM, fewer MACs, lower power |
+| **Embeddings / vector search** (Sess 24, RAG) | Same math shrinks a 768-dim embedding to fit on-device | ⭐⭐⭐ |
+| **Feature correlation** (Sess 1, 20 Jun) | Off-diagonal ≠ 0 → two features redundant → drop one | ⭐⭐ why log temp *and* clock if they're locked? |
+| **Multivariate Gaussian / anomaly detect** | Covariance matrix = the shape of the bell in N-D; eigenvectors = its axes | ⭐⭐ SSD acting "off-distribution" = anomaly |
+| **Whitening / normalization** | Use eigenvectors to de-correlate inputs before training | ⭐ |
+
+**One-line stake:** every feature fed to an edge model costs RAM, MACs, milliwatts. PCA uses eigen-of-covariance to throw away the directions where the data *doesn't move* (low eigenvalue = low variance = no info) and keep only where it does. **It's lossy compression for features — and you already think in lossy compression.**
+
+---
+
+## 10. Matrix as a machine (the door to eigenvectors)
+
+Step out of covariance. Forget what the numbers *mean*; watch what a matrix *does* mechanically.
+
+**Core picture:** a matrix is a machine that eats a vector and spits out a different vector. Generally it does TWO things to the arrow — **rotates it** (changes direction) and **stretches it** (changes length).
+
+```
+A = [ 2  0 ]
+    [ 0  3 ]
+
+Feed it a "random" arrow v = [1,1]  (clean 45°, x=y):
+A · [1,1] = [2, 3]        2 ≠ 3  → arrow TILTED steeper than 45° → ROTATED + stretched
+
+Feed it a "special" arrow v = [1,0]  (pure east, 0°):
+A · [1,0] = [2, 0]        same direction, just 2× longer → NOT rotated, only STRETCHED
+```
+
+That second arrow is the teaser for the next rung: some arrows a given matrix **cannot rotate** — it can only lengthen/shorten them. Those are **eigenvectors**, and the stretch factor is the **eigenvalue**. (continued in §11)
+
+---
+
+## 11. Eigenvectors & Eigenvalues (continues §10)
 
 **One-line definition:**
 > Apply a matrix to a vector. If the direction doesn't change — only the length — that vector is an **eigenvector.** The stretch factor is the **eigenvalue (λ, "lambda").**
@@ -258,3 +416,187 @@ Covariance matrix → eigenvalues: λ1=5 (direction [1,2]), λ2=0 (direction [2,
 eigenvalues, eigenvectors = np.linalg.eig(cov_matrix)
 # largest eigenvalue index → most important direction
 ```
+
+---
+
+## 12. 🧭 The learning flow — how we actually built this (the journey, wrong turns included)
+
+> **🖥️ Session environment:** this section was learned inside the **VS Code extension of Claude Code** (not the usual Claude Code desktop app) — which is why we could read & edit the Jupyter notebook live (added cell **4.1b**) and run cells in the project `.venv`.
+>
+> Written as a **journey, not a summary** — the struggles are the memory hooks. When future-me reopens this, *this* section is the one that replays "oh right, this is how it clicked." We did it by hand against the matrix `A = [[2,0],[0,3]]` (stretches EAST ×2, NORTH ×3 — **unequal**, which is the whole point). Live in notebook cell **4.1b**.
+
+**Step 1 — Reframe: a matrix is a machine that moves an arrow.**
+Arrow in → new arrow out. It can do two things: **rotate** (change heading) and/or **stretch** (change length). The only question we kept asking: *did the arrow's direction survive?*
+
+**Step 2 — Fed the axis arrows by hand:**
+```
+A · [1,0]:  (2×1)+(0×0)=2 ,  (0×1)+(3×0)=0  →  [2,0]   still EAST,  just ×2 longer
+A · [0,1]:  (2×0)+(0×1)=0 ,  (0×0)+(3×1)=3  →  [0,3]   still NORTH, just ×3 longer
+```
+Both **held heading** → both are **eigenvectors**. Stretch factor (×2, ×3) = **eigenvalue λ**.
+
+**Step 3 — 💭 The dimension snag (worth remembering).**
+I objected: "A has 2 columns but `[1,0]` has 1 row — multiplication needs *cols of first = rows of second*, so this shouldn't fit!"
+**Fix:** a vector is a **column**, standing up. `[1,0]` is really `[[1],[0]]` = **2×1** (two rows, one column), not a flat 1×2.
+```
+A (2×2) · v (2×1)  →  inner dims 2 = 2 ✅  →  result (2×1), another arrow
+```
+*My rule was right — I'd just drawn the arrow lying down instead of standing up.* (Same `.T` trick the notebook uses in `np.cov(X.T)` / `X @ X.T`: flip rows↔cols so inner dims line up.)
+
+**Step 4 — Fed the diagonal `[1,1]`, and hit the 💭 big misconception.**
+```
+A · [1,1]:  (2×1)+(0×1)=2 ,  (0×1)+(3×1)=3  →  [2,3]
+in:  [1,1] = 45°  (equal east & north)
+out: [2,3] ≈ 56°  (more north than east)   →  it ROTATED  →  NOT an eigenvector
+```
+**My wrong belief:** "`[1,1]` always grows along 45° and never rotates."
+**Why wrong:** rotation isn't about the *arrow* — it's about the *matrix*:
+```
+matrix pulls both legs EQUALLY (×2, ×2)  →  [1,1] HOLDS 45°  (eigenvector)
+matrix pulls legs UNEQUALLY    (×2, ×3)  →  [1,1] ROTATES toward the stronger leg
+```
+I was picturing an equal-stretch machine; *this* one is unequal, so the diagonal tips.
+
+**Step 5 — ✅ Corrected myself with my own rule.**
+I'd already said: *"whichever leg is pulled harder, the arrow rotates that way."* Apply to `[1,1]`: north ×3 beats east ×2 → arrow rotates **toward north** → `[2,3]`. My own two statements finally agreed.
+
+**The takeaway that locked it:**
+> **An eigenvector is an arrow the matrix can only STRETCH, never ROTATE.**
+> - **Axis arrows have one leg** → nothing to tip them → always eigenvectors; stretch = eigenvalue.
+> - **The diagonal `[1,1]` has two legs** → survives only if the matrix pulls both legs equally; unequal pull → it rotates.
+> - `np.linalg.eig(A)` just *finds* these survivor-arrows automatically (no guessing by hand).
+
+**Step 6 — Started the bridge to covariance (where we headed next).**
+A covariance matrix doesn't move arrows — it **describes the shape of a data cloud** (Math vs Physics dots = a tilted cigar). Diagonal = spread per axis; off-diagonal = how much it leans. Off-diagonal ≈ diagonal → tight tilted cigar → features strongly related. The cloud's **eigenvector** = its long axis (max-spread direction); its **eigenvalue** = how much variance lives there. Biggest eigenvalue = what **PCA keeps** → §9's ML payoff. *(continue here next session.)*
+
+---
+
+## 13. ⭐ Temp/Latency eigen — the full chain BY HAND (2×2, paper-ready)
+
+> The one example where *every* step is hand-computable (2×2 → eigenvalues are a quadratic, solvable without a computer). Raw values → covariance → eigenvalue → eigenvector → feature meaning → PCA. Verified against `np.linalg.eig`.
+
+**Data — 3 readings, 2 features (Temp & Latency rise together):**
+```
+reading   Temp T   Latency L
+  #1        40        100
+  #2        50        120
+  #3        60        140
+```
+2 features → covariance is **2×2** (features set the size, not the 3 readings).
+
+**Step 1 — means:** `T̄ = 50`, `L̄ = 120`
+
+**Step 2 — deviations:**
+```
+T − T̄ :  −10,  0, +10
+L − L̄ :  −20,  0, +20
+```
+
+**Step 3 — the three covariance numbers (÷ n−1 = 2):**
+```
+var(T)   = [100 + 0 + 100]/2 = 100
+var(L)   = [400 + 0 + 400]/2 = 400
+cov(T,L) = [(−10)(−20)+0+(10)(20)]/2 = [200+0+200]/2 = 200
+```
+
+**Step 4 — the 2×2 covariance matrix:**
+```
+        T      L
+   T [ 100    200 ]
+   L [ 200    400 ]
+```
+
+**Step 5 — eigenvalues via det(C − λI) = 0:**
+```
+det [ 100−λ   200  ]  = (100−λ)(400−λ) − 200·200 = 0
+    [  200  400−λ  ]
+  → λ² − 500λ = 0  →  λ(λ−500) = 0  →  λ₁ = 500 (100%),  λ₂ = 0 (0%)
+```
+All spread on ONE direction (data sits perfectly on L = 2T+20).
+
+**Step 6 — eigenvector v1 via (C − 500I)v = 0:**
+```
+[ −400   200 ] [x]        −400x + 200y = 0  →  y = 2x
+[  200  −100 ] [y] = 0  →  v1 = [1, 2]   (numpy normalizes → [0.447, 0.894])
+```
+
+**Step 7 — verify C·v1 = λ₁·v1:**
+```
+[100 200][1]   [500]        [1]
+[200 400][2] = [1000] = 500·[2]  ✓  stretched ×500, not rotated
+```
+
+**Step 8 — how v1 ties to the features (the key read):**
+```
+v1 = [1]  ← Temp weight
+     [2]  ← Latency weight
+```
+v1's components are **weights on each feature**: the main axis is "1 part Temp, 2 parts Latency" → Latency swings **2× per unit Temp** — exactly the built-in `L = 2T+20`. **The eigenvector recovered the feature relationship.** Both weights positive → features rise together (matches +200 cov).
+
+**Step 9 — PCA payoff:** λ₁ = 100% → keep only v1 → each reading becomes one number `1·T + 2·L` → 2 features → 1, zero loss.
+
+**Paper caveat:** real data is never *perfectly* collinear, so λ₂ would be small-but-nonzero; here it's a clean 0 only because the numbers are perfectly correlated (keeps the hand-math clean).
+
+---
+
+## 14. 🧭 Deep-dive journey — HOW eigenvectors are computed + every "wait, why?" (2026-06-29/30, VS Code session)
+
+> The flow, wrong turns and questions included. §12 built *what* an eigenvector is (stretch-not-rotate). This section is the next climb: *how you actually compute one*, the intuition under the formula, and the misconceptions cleared along the way. Destination: PCA (syllabus Module 1, Session 5, 18 Jul).
+
+### A. The recipe for finding eigenvectors (works at any size)
+```
+1. Eigenvalues:  solve  det(C − λI) = 0      ← "characteristic equation"
+2. Eigenvectors: for each λ, solve  (C − λI)v = 0
+```
+**Honest limit:** a 5×5 makes step 1 a degree-5 polynomial → no hand formula exists (nothing past degree 4 does). So 5×5 is *computer-solved* (`np.linalg.eig`, QR algorithm). We learn the mechanics on a **2×2** (hand-solvable), then trust the machine for big ones.
+
+### B. 💭 "Why subtract λI — why not just C − λ?"
+Because `C` is a **matrix** and `λ` is a **single number** — you can't subtract a scalar from a matrix (shapes clash, his own dimension-rule). So rewrite the scaling `λv` as `(λI)v` — `λI` is just **λ sitting down the diagonal**. Now it's matrix − matrix, legal:
+```
+Cv = λv  →  Cv − λv = 0  →  Cv − (λI)v = 0  →  (C − λI)v = 0
+```
+The `I` is the **adapter** that turns scalar λ into a matrix so it can be subtracted. That's its whole job.
+
+### C. 💭 "Why set the determinant to zero?"
+`(C − λI)v = 0` says: *a NONZERO arrow v gets crushed to the zero vector.* Only a **collapsing** matrix can crush a live arrow to nothing — and the fingerprint of a collapsing matrix is **det = 0**.
+- **det = area-scaling factor.** det=2 doubles areas; det=0 squashes the plane flat onto a line (kills a dimension).
+- Worked the singular beast `B = [[1,2],[2,4]]` (row2 = 2×row1): feeds *every* arrow onto the line y=2x. `det = 1·4 − 2·2 = 0`. And `B·[2,−1] = [0,0]` — a real arrow crushed to the origin (walked the row-by-column multiply by hand).
+```
+det(C − λI) = 0  ⟺  C − λI collapses  ⟺  some nonzero arrow → 0  ⟺  an eigenvector exists
+```
+So step 1 hunts the **λ values that MAKE C − λI collapse** — those λ are the eigenvalues. (Note: he had NOT seen the notebook §2.4 — taught the collapse idea from scratch.)
+
+### D. The 2×2 mechanics, fully by hand (the template)
+`C = [[4,1],[1,4]]`: `det([[4−λ,1],[1,4−λ]]) = (4−λ)²−1 = 0 → λ = 3, 5`. Then `(C−5I)v=0 → −x+y=0 → v=[1,1]`; λ=3 → `[1,−1]`. **Each matrix has its OWN eigenvectors** (see §12: the diagonal `[[2,0],[0,3]]` gave the *axes* [1,0],[0,1], NOT [1,1]).
+
+### E. The 5×5 covariance run (eigenvalue = importance, eigenvector = direction)
+5 SSD sensors (S1S2 linked, S3S4 linked, S5 a blend) → 5×5 covariance → `np.linalg.eig`:
+```
+λ1 = 2.70 (64.9%), λ2 = 1.44 (34.4%), λ3..λ5 ≈ 0   → data really lives in 2 directions
+top eigenvector v1 ≈ [−0.46,−0.46,−0.45,−0.45,−0.42]  (all ≈ equal → "all sensors rise together")
+C·v1 = 2.70·v1  ✓ (stretch-not-rotate, now in 5-D)
+```
+**The split he locked:** the **eigenVALUE (λ) = HOW important** a direction is (how much variance); the **eigenVECTOR (v) = WHICH direction** it is. Most-important direction = eigenvector of the **biggest λ** = PCA's 1st principal component.
+
+### F. ✅ Misconceptions cleared this session
+- 💭 *"Is v1 the most-frequent reading, picked out of the data matrix?"* → **No.** v1 is NOT a row/reading and NOT about frequency. It's a **direction = a recipe/blend of the features** (e.g. `1·Temp + 2·Latency`), the long axis of the data cloud. PCA is about **spread (variance)**, not how often a value appears. It's *distilled from* all readings (via covariance), not *lifted whole* from them.
+- 💭 *"Is the eigenvector always [1,1]?"* → **No.** `[1,1]` was special to ONE matrix. The matrix decides its own eigenvectors. Also: **length doesn't matter** — numpy normalizes to length 1, so `[1,1]` prints as `[0.707,0.707]`; `[1,1]`, `[2,2]`, `[0.46,0.46…]` are the *same direction*. Sign doesn't matter either (arrow can point either way).
+
+### G. 💭 "Where does 500/(500+0) = 100% come from?" — the pizza
+Total variance = **sum of ALL eigenvalues** (the whole pizza 🍕). Each direction's share = its λ ÷ the total:
+```
+λ1 share = 500/(500+0) = 100% ;  λ2 share = 0/500 = 0%
+```
+**Slick fact:** sum of eigenvalues = sum of the covariance diagonal (trace) = total variance. Eig just **re-slices the same total** along the cigar instead of the axes: `100+400 (axes) → 500+0 (eigen)`, same 500.
+
+### H. 💭 "Why square the deviations for variance?"
+Average the *raw* deviations and you always get **0** — the mean is the balance point, below cancels above (`−10+0+10 = 0`), every dataset, rigged. **Square first** → all positive → no cancellation → a real spread number. Bonus: squaring **punishes big deviations harder** (dev 10 → 100; dev 2 → 4) — the **L2 flavor** from the norms section (absolute-value would be L1: kills signs but treats all gaps evenly).
+
+### I. The PCA payoff + the size rules (the 20-sensor capstone)
+- **Flow:** raw `500×20` → `np.cov` → 20×20 → eig → scree shows **3 big λ, 17 ≈ 0** → cumulative hits 95% at **3** → keep 3 numbers, ~99% preserved. *That's PCA.* Edge-AI win: ⅞ less SRAM/MACs/power, same signal (lossy compression for features).
+- **Grid size = (#channels)², NEVER #readings.** `500×20 → 20×20`; `1000×20 → 20×20` (more readings only steady the averages); `1000×8 → 8×8`. Mechanism: each cell = one channel-PAIR averaged over all readings; `Xc.T @ Xc` → inner dim (readings) cancels, outer (channels) survives.
+- **Pair-counting:** n channels → n² cells, but symmetric mirror, so unique = `n(n+1)/2` (n variances on diagonal + `n(n−1)/2` distinct pairs). The `·` in `20·19` = "times", not a decimal point.
+- **⚖️ When PCA BETRAYS you:** (1) the rare signal hides in a tiny-λ direction (anomaly/thermal-runaway spike) → PCA throws it away; (2) you lose interpretability (kept numbers are blends, not "temperature"); (3) the eig step itself costs compute — only worth it if reused. **PCA wins when channels are redundant & you want compact features; loses when every channel is independent or the rare event is the point.**
+
+### J. Artifacts from this journey
+Notebook cells **4.1b** + **4.6**; interactive **PCA 20-sensor HTML** (`html/2026-06-28_pca-20-sensors-walkthrough_F.html`, 11 baby-steps); notes **§12** (eigen basics flow), **§13** (Temp/Latency by-hand), this **§14** (the deep-dive). numpy/matplotlib/sympy installed into the project `.venv` so the notebook actually runs.
