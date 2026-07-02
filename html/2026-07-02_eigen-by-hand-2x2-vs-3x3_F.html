@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eigen by hand — 2×2 vs 3×3 side by side | _F</title>
+<style>
+:root{
+  --bg:#0d1408; --card:rgba(20,40,12,.72); --line:rgba(74,122,46,.5);
+  --cream:#f5e6c8; --creamd:#cbbb95; --sage:#a8c87a; --sagem:#7a9e5a; --saged:#4a7a2e;
+  --orange:#ff8c00; --orangeg:#ffb347; --red:#d9534f;
+  --teal:#27c2a8; --gold:#ffce4a;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:linear-gradient(135deg,#0c1607,#0e1f0a 55%,#171708);color:var(--cream);
+  font-family:'Courier New',monospace;line-height:1.55;min-height:100vh;padding-bottom:140px}
+.wrap{max-width:1720px;margin:0 auto;padding:22px 24px}
+.header{text-align:center;padding:18px 8px 4px}
+.frog{font-size:50px;animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{text-shadow:0 0 18px var(--sagem);transform:scale(1)}50%{text-shadow:0 0 36px var(--orange);transform:scale(1.05)}}
+.title{font-size:1.9em;color:var(--orange);text-shadow:0 0 22px var(--orange);letter-spacing:1.5px;margin:6px 0 2px}
+.subtitle{color:var(--sage);font-size:.82em;letter-spacing:1.5px}
+.tag{display:inline-block;font-size:.62em;color:var(--orangeg);border:1px solid var(--saged);border-radius:20px;padding:2px 12px;letter-spacing:2px;margin-top:8px}
+.intro{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 22px;margin:14px auto;max-width:1100px}
+.intro h2{color:var(--orange);font-size:1.05em;margin-bottom:6px}
+.intro p{color:var(--creamd);font-size:.9em}
+
+.stage{margin-top:12px}
+.step{display:none;animation:rise .4s ease both}
+.step.on{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.stepHeader{background:rgba(255,140,0,.07);border:1px solid rgba(255,140,0,.35);border-radius:14px;padding:14px 22px;margin-bottom:14px}
+.sn{color:var(--orange);font-weight:bold;font-size:1.2em}
+.stepHeader h2{color:var(--orangeg);font-size:1.2em;display:inline;margin-left:8px}
+.stepHeader p{margin-top:6px;font-size:.9em;color:var(--cream)}
+
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pane{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 20px}
+.pane.two{border-color:rgba(39,194,168,.55)}
+.pane.three{border-color:rgba(255,206,74,.55)}
+.pane h3{font-size:.98em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.pane.two h3{color:var(--teal)}
+.pane.three h3{color:var(--gold)}
+.chip{font-size:.62em;border-radius:12px;padding:2px 9px;letter-spacing:1px}
+.pane.two .chip{background:rgba(39,194,168,.18);color:var(--teal);border:1px solid rgba(39,194,168,.5)}
+.pane.three .chip{background:rgba(255,206,74,.16);color:var(--gold);border:1px solid rgba(255,206,74,.5)}
+.eq{background:rgba(0,0,0,.4);border:1px solid var(--line);border-radius:8px;padding:9px 12px;margin:8px 0;font-size:.82em;color:var(--sage);white-space:pre;overflow-x:auto;font-family:'Courier New',monospace}
+.note{color:var(--creamd);font-size:.85em;margin:6px 0}
+.big{color:var(--orange);font-weight:bold}
+.ok{color:var(--sage)}
+.mat{display:inline-grid;gap:3px;margin:6px 0}
+.mat .c{border:1px solid var(--line);border-radius:4px;padding:6px 9px;min-width:44px;text-align:center;font-size:.82em;background:rgba(0,0,0,.25)}
+.mat .c.diag{border-color:var(--orange);color:var(--orange)}
+.mat .c.hi{background:rgba(255,140,0,.15);border-color:var(--orange)}
+.k{color:var(--gold)} .t{color:var(--teal)} .o{color:var(--orange)} .r{color:var(--red)}
+ul.rules{margin:6px 0 6px 18px;font-size:.85em;color:var(--cream)}
+ul.rules li{margin:3px 0}
+.callout{background:rgba(0,0,0,.28);border-left:3px solid var(--orange);border-radius:0 8px 8px 0;padding:8px 12px;margin:8px 0;font-size:.85em;color:var(--sage)}
+
+.nav{position:fixed;left:0;right:0;bottom:0;background:rgba(8,14,5,.94);backdrop-filter:blur(8px);
+  border-top:1px solid var(--line);padding:11px 16px;display:flex;align-items:center;gap:14px;justify-content:center;z-index:20}
+.bn{background:rgba(74,122,46,.2);color:var(--cream);border:1px solid var(--saged);border-radius:9px;padding:10px 18px;cursor:pointer;font-family:inherit;font-size:.9em;min-height:44px;transition:.15s}
+.bn:hover{background:var(--orange);color:#1a1a0a}
+.bn:disabled{opacity:.35;cursor:default}
+.dots{display:flex;gap:6px;flex-wrap:wrap;max-width:45%}
+.dot{width:11px;height:11px;border-radius:50%;background:var(--saged);cursor:pointer;transition:.2s}
+.dot.on{background:var(--orange);transform:scale(1.3)}
+.steplabel{color:var(--sage);font-size:.78em;min-width:170px;text-align:center}
+@media(max-width:900px){.split{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="frog">🐸</div>
+    <div class="title">EIGEN BY HAND — 2×2 vs 3×3</div>
+    <div class="subtitle">§13 and §19 walked step-for-step in parallel · ← → to move</div>
+    <div class="tag">FOUNDATION · 2026-07-02</div>
+  </div>
+
+  <div class="intro">
+    <h2>Why this page exists</h2>
+    <p>Same 8-step chain — <span class="t">2×2 (§13, Temp/Latency)</span> on the left, <span class="k">3×3 (§19, three linked sensors)</span> on the right. Watch how the mechanics stay identical; only the arithmetic grows. Two things get genuinely harder at 3×3: the eigenvalue step becomes a <b>cubic</b> (Step 3), and one λ <b>repeats</b> (Step 5 — a plane, not a line).</p>
+  </div>
+
+  <div class="stage" id="stage"></div>
+
+  <div class="nav">
+    <button class="bn" id="prev">← Back</button>
+    <div class="steplabel" id="slabel"></div>
+    <div class="dots" id="dots"></div>
+    <button class="bn" id="next">Next →</button>
+  </div>
+</div>
+
+<script>
+const T='var(--teal)', G='var(--gold)';
+
+// -------- STEPS: [title, subtitle, twoHTML, threeHTML] --------
+const steps = [
+  ['Setup — the covariance matrix',
+   'Left starts from RAW DATA and builds cov; right starts from the cov matrix directly. Same finish line either way.',
+   `<p class="note"><b class="t">3 readings, 2 features</b> (Temp T, Latency L):</p>
+    <div class="eq">reading   T     L
+  #1     40    100
+  #2     50    120
+  #3     60    140</div>
+    <p class="note">2 features → covariance is a <b>2×2</b>. Data → mean → deviations → cov (§13 Steps 1–3):</p>
+    <p class="note"><span class="o">T̄ = 50</span>, <span class="o">L̄ = 120</span> · devs T: −10, 0, +10 · devs L: −20, 0, +20</p>
+    <p class="note">var(T)=100, var(L)=400, cov(T,L)=200 →</p>
+    <div class="eq">      T     L
+  T [ 100   200 ]
+  L [ 200   400 ]</div>`,
+   `<p class="note"><b class="k">3 sensors, every pair equally linked</b> (diag = each sensor's own variance; off-diag = each pair's cov):</p>
+    <div class="eq">       S1  S2  S3
+  S1 [ 2   1   1 ]
+  S2 [ 1   2   1 ]
+  S3 [ 1   1   2 ]</div>
+    <p class="note">Story: whichever three sensors we're watching, they all move together the same amount. This is the <b>common-mode</b> matrix.</p>`],
+
+  ['The characteristic equation `det(C − λI) = 0`',
+   'Subtract λ down the diagonal — the setup is identical at every size.',
+   `<div class="eq">        [ 100−λ   200  ]
+C−λI =  [  200  400−λ  ]</div>
+    <p class="note">Two unknowns down the diagonal, off-diagonals untouched.</p>`,
+   `<div class="eq">        [ 2−λ   1     1  ]
+C−λI =  [  1   2−λ    1  ]
+        [  1    1    2−λ ]</div>
+    <p class="note">Same move, one bigger. Three unknowns down the diagonal now.</p>`],
+
+  ['Expand the determinant',
+   '2×2 gives a QUADRATIC. 3×3 gives a CUBIC — the real difficulty jump.',
+   `<div class="eq">det = (100−λ)(400−λ) − 200·200
+    = λ² − 500λ + 40000 − 40000
+    = λ² − 500λ</div>
+    <p class="note">Clean quadratic. Zero constant term means one root will be 0 (data sits on a line).</p>`,
+   `<p class="note">Cofactor along row 1. Let <span class="o">a = 2−λ</span> to keep it readable:</p>
+    <div class="eq">det = a(a²−1) − 1(a−1) + 1(1−a)
+    = a³ − a − a + 1 + 1 − a
+    = a³ − 3a + 2</div>
+    <p class="note">This <span class="r">cubic</span> is the wall past 2×2. Generic cubics have no clean hand-formula — but ours factors nicely.</p>`],
+
+  ['Solve → eigenvalues + sanity checks',
+   'Trace = Σλ · det(C) = Πλ. Do BOTH checks every time — they catch arithmetic slips for free.',
+   `<div class="eq">λ² − 500λ = 0
+λ(λ − 500) = 0
+→ λ₁ = 500,   λ₂ = 0</div>
+    <p class="note"><span class="ok">Sanity</span>: trace = 100+400 = 500 = Σλ ✓ · det(C) = 100·400 − 200·200 = 0 = Πλ ✓</p>
+    <p class="note">λ₂ = 0 means <b>zero spread in that direction</b> — data lies perfectly on a line.</p>`,
+   `<p class="note">Try a = 1: 1−3+2 = 0 ✓ so (a−1) is a factor. Divide:</p>
+    <div class="eq">a³ − 3a + 2 = (a−1)(a² + a − 2) = (a−1)(a−1)(a+2)
+                = (a−1)²(a+2)
+Roots: a = 1 (double), a = −2
+Undo λ = 2 − a:  λ = 4,  1,  1</div>
+    <p class="note"><span class="ok">Sanity</span>: trace = 6 = Σλ = 4+1+1 ✓ · det(C) = 4 = Πλ = 4·1·1 ✓</p>`],
+
+  ['Eigenvector for the biggest λ  →  PC1',
+   'The main axis. Solve (C − λ_max·I) v = 0 by row-reduction.',
+   `<div class="eq">(C − 500I) v = 0
+[ −400   200 ][x]        −400x + 200y = 0  →  y = 2x
+[  200  −100 ][y] = 0  →  v₁ = [1, 2]</div>
+    <p class="note">numpy normalizes → [0.447, 0.894]</p>`,
+   `<div class="eq">(C − 4I) v = 0
+[ −2   1   1 ][x]   [0]     Row1−Row2:  −3x + 3y = 0  → x = y
+[  1  −2   1 ][y] = [0]     Row2−Row3:  −3y + 3z = 0  → y = z
+[  1   1  −2 ][z]   [0]     → x = y = z
+                    v₁ = [1, 1, 1]</div>
+    <p class="note">numpy normalizes → [0.577, 0.577, 0.577]</p>`],
+
+  ['The REPEATED eigenvalue (the genuinely new bit)',
+   'Only appears at 3×3+. Repeated λ → a whole PLANE of eigenvectors, not a single line.',
+   `<div class="callout">2×2 with distinct λ has no repeat case — each λ gives one direction. Skip to Step 7 on the left.</div>
+    <p class="note">§13's other eigenvector is v₂ = [2, −1] with λ₂ = 0: perpendicular to v₁, no spread lives there.</p>`,
+   `<p class="note">Solve (C − 1·I) v = 0:</p>
+    <div class="eq">[ 1  1  1 ]         all THREE rows collapse to:
+[ 1  1  1 ]   ⇒     x + y + z = 0
+[ 1  1  1 ]</div>
+    <p class="note">One equation, three unknowns → a <b>2D solution plane</b> (2 degrees of freedom) → we get TWO eigenvectors:</p>
+    <div class="eq">v₂ = [ 1, −1,  0 ]     "S1 up, S2 down, S3 idle"
+v₃ = [ 1,  1, −2 ]     "S1 & S2 up, S3 twice down"</div>
+    <div class="callout">💡 Multiplicity = how many independent directions get stretched by the same λ. λ=1 twice → 2D "leftover" plane, all left alone. Only the common-mode direction gets amplified (×4).</div>`],
+
+  ['Verify each Cv = λv (must-do)',
+   'This is the anti-bug pass. Every eigenvector, direct substitution.',
+   `<div class="eq">Cv₁: [100 200][1]   [500]        [1]
+     [200 400][2] = [1000] = 500·[2]  ✓</div>
+    <p class="note">Stretched ×500, not rotated. Chain end-to-end verified.</p>`,
+   `<div class="eq">Cv₁: [2+1+1, 1+2+1, 1+1+2] = [4,4,4] = 4·[1,1,1]        ✓
+Cv₂: [2−1+0, 1−2+0, 1−1+0] = [1,−1,0] = 1·[1,−1,0]      ✓
+Cv₃: [2+1−2, 1+2−2, 1+1−4] = [1,1,−2] = 1·[1,1,−2]      ✓</div>
+    <p class="note">All three land on λv exactly. Matrix stretches, doesn't rotate.</p>`],
+
+  ['What v₁ means · PCA payoff',
+   'Read the eigenvector as WEIGHTS on the original features → then rank λ / Σλ for PCA.',
+   `<div class="eq">v₁ = [1]  ← Temp weight
+     [2]  ← Latency weight</div>
+    <p class="note">PC1 = "1 part T + 2 parts L" → Latency swings <b>2× per unit Temp</b> — exactly the built-in L = 2T+20. Eigenvector <b>recovered the feature relationship</b>.</p>
+    <div class="eq">λ₁ / Σλ = 500/500 = 100%
+Keep only v₁ → 2 features → 1 number.  Zero loss.</div>`,
+   `<div class="eq">v₁ = [1]  ← S1 weight
+     [1]  ← S2 weight
+     [1]  ← S3 weight</div>
+    <p class="note">Equal positive weights → PC1 = "<b>average of all three sensors</b>" — the common tide. SSD analog: bulk thermal drift vs differential rail jitter.</p>
+    <div class="eq">PC1 (λ=4):  4/6 = 66.7%   ← the shared tide
+PC2 (λ=1):  1/6 = 16.7%   \\_ differential
+PC3 (λ=1):  1/6 = 16.7%   /</div>
+    <p class="note">Keep just PC1 → 3 sensors → 1 number, ⅔ of variance saved. Keep any one from the leftover plane too → 2 numbers, 83.3%. That's PCA.</p>`],
+];
+
+const stage = document.getElementById('stage');
+const dotsBox = document.getElementById('dots');
+const label = document.getElementById('slabel');
+const prev = document.getElementById('prev');
+const next = document.getElementById('next');
+let cur = 0;
+
+function render(){
+  stage.innerHTML = steps.map((s,i)=>`
+    <div class="step ${i===cur?'on':''}">
+      <div class="stepHeader"><span class="sn">Step ${i+1}</span><h2>${s[0]}</h2><p>${s[1]}</p></div>
+      <div class="split">
+        <div class="pane two"><h3><span class="chip">2×2 · §13</span> Temp / Latency</h3>${s[2]}</div>
+        <div class="pane three"><h3><span class="chip">3×3 · §19</span> Three linked sensors</h3>${s[3]}</div>
+      </div>
+    </div>`).join('');
+  dotsBox.innerHTML = steps.map((_,i)=>`<span class="dot ${i===cur?'on':''}" data-i="${i}"></span>`).join('');
+  label.textContent = `Step ${cur+1} of ${steps.length}`;
+  prev.disabled = cur===0;
+  next.disabled = cur===steps.length-1;
+}
+function go(i){ cur = Math.max(0, Math.min(steps.length-1, i)); render(); window.scrollTo({top:0,behavior:'smooth'}); }
+prev.onclick = ()=>go(cur-1);
+next.onclick = ()=>go(cur+1);
+dotsBox.addEventListener('click', e => { const t=e.target.closest('.dot'); if(t) go(+t.dataset.i); });
+window.addEventListener('keydown', e => {
+  if(e.key==='ArrowLeft') go(cur-1);
+  if(e.key==='ArrowRight') go(cur+1);
+});
+render();
+</script>
+</body>
+</html>

@@ -751,35 +751,105 @@ For a thermal-throttle predictor, Sensor B (high variance) is gold; Sensor A is 
 
 ---
 
-## 19. Clean 3×3 eigen — FULLY by hand (`[[2,1,1],[1,2,1],[1,1,2]]`)
+## 19. ⭐ Clean 3×3 eigen — FULLY by hand (`[[2,1,1],[1,2,1],[1,1,2]]`)
 
-**Why the capstone's 3×3 was computer-solved (honest reasons):** (1) the eigenVALUE step for 3×3 is a **cubic** `det(C−λI)=0` — generic cubics have no clean hand formula (the real wall past 2×2); (2) the real-data covariance had **ugly decimals**. *But* the eigenVECTOR step (given λ) **is** hand-doable, and with a clean matrix the *whole* thing is.
+> §13 walked a 2×2 by hand in 8 steps. This is the 3×3 twin — same 8-step chain, same "verified, hand-doable, PCA-payoff-at-the-end" flow. Two genuinely new things at 3×3: the eigenvalue step is a **cubic** (harder in general — clean only when the matrix is designed nicely), and one eigenvalue **repeats** (`λ = 1, 1`) which forces a small side-story about "flat leftover" directions. Verified against `np.linalg.eig`.
 
-**Clean matrix — 3 sensors, every pair equally linked:**
+**Setup — 3 sensors, every pair equally linked (cov = 1):**
+Not raw data this time — we start straight from the covariance matrix (as if the data-→cov steps of §13 already ran). Each diagonal `2` = each sensor's own variance; each off-diagonal `1` = each pair's covariance. The story: *whatever three sensors we're watching, they all move together the same amount.*
 ```
-     [ 2  1  1 ]
-C =  [ 1  2  1 ]
-     [ 1  1  2 ]
+        S1  S2  S3
+   S1 [ 2   1   1 ]
+C = S2 [ 1   2   1 ]
+   S3 [ 1   1   2 ]
 ```
-**Step 1 — eigenvalues, det(C − λI) = 0.** Let `a = 2−λ`; expand:
+
+**Step 1 — the characteristic equation, `det(C − λI) = 0`:**
+Subtract λ down the diagonal, take the determinant, set it to zero.
 ```
-det = a(a²−1) − 1(a−1) + 1(1−a) = a³ − 3a + 2 = (a−1)²(a+2) = 0
-a = 1 (double) or a = −2   →   λ = 1, 1, 4
-(check: Σλ = 6 = trace ✓;  Πλ = 4 = det(C) ✓)
+       [ 2−λ   1     1  ]
+C−λI = [  1   2−λ    1  ]
+       [  1    1    2−λ ]
 ```
-**Step 2 — eigenvector for λ = 4: (C − 4I)v = 0**
+
+**Step 2 — expand the determinant (cofactor along row 1). Let `a = 2−λ` to keep it clean:**
 ```
-[ −2  1  1 ][x]   [0]      Row1 − Row2: −3x + 3y = 0 → x = y
-[  1 −2  1 ][y] = [0]      Row2 − Row3: −3y + 3z = 0 → y = z
-[  1  1 −2 ][z]   [0]      → x = y = z → v1 = [1, 1, 1]   ("all sensors together" = PC1)
+det = a·(a·a − 1·1) − 1·(1·a − 1·1) + 1·(1·1 − a·1)
+    = a(a²−1) − (a−1) + (1−a)
+    = a³ − a − a + 1 + 1 − a
+    = a³ − 3a + 2
 ```
-**Step 3 — eigenvector for λ = 1: (C − I)v = 0**
+That's the cubic. This is the *only* real wall past 2×2 — generic cubics have no clean formula. Ours factors.
+
+**Step 3 — factor the cubic → eigenvalues:**
+Try `a = 1`: `1 − 3 + 2 = 0` ✓ → `(a−1)` divides it. Long-divide:
 ```
-[ 1 1 1 ]            all three rows say:  x + y + z = 0
-[ 1 1 1 ]  → any cancelling arrow, e.g. v2 = [1,−1,0], v3 = [1,1,−2]  (the flat leftover directions)
-[ 1 1 1 ]
+a³ − 3a + 2 = (a − 1)(a² + a − 2) = (a − 1)(a − 1)(a + 2) = (a−1)²(a+2)
 ```
-So a 3×3 **can** be elaborated exactly like a 2×2 — the only genuine extra difficulty is the cubic, clean only when the matrix is designed nicely.
+Roots: `a = 1` (double) or `a = −2`. Undo the substitution `λ = 2 − a`:
+```
+λ₁ = 4      (the "common-mode" tide — all sensors together)
+λ₂ = 1      \_ the two "differential" leftovers
+λ₃ = 1      /
+```
+**Sanity checks (do these EVERY time — cheap catch for arithmetic slips):**
+- trace `= 2+2+2 = 6` should equal `Σλ = 4+1+1 = 6` ✓
+- `det(C) = 2(4−1) − 1(2−1) + 1(1−2) = 6−1−1 = 4` should equal `Πλ = 4·1·1 = 4` ✓
+
+**Step 4 — eigenvector for λ₁ = 4: solve `(C − 4I)v = 0`.**
+Subtract 4 from the diagonal, then row-reduce.
+```
+[ −2   1   1 ][x]   [0]     Row1 − Row2 :  −3x + 3y +  0 = 0  →  x = y
+[  1  −2   1 ][y] = [0]     Row2 − Row3 :    0 − 3y + 3z = 0  →  y = z
+[  1   1  −2 ][z]   [0]     →  x = y = z   →   v₁ = [1, 1, 1]
+```
+Meaning: PC1 points along "**all three sensors rising together**" — the shared tide. (numpy normalizes → `[0.577, 0.577, 0.577]`.)
+
+**Step 5 — eigenvectors for the REPEATED λ = 1 (the genuinely new bit): solve `(C − 1·I)v = 0`.**
+```
+[ 1  1  1 ]          all three rows collapse to ONE equation:
+[ 1  1  1 ]  ⇒       x + y + z = 0
+[ 1  1  1 ]
+```
+One equation in three unknowns → a **2-dimensional solution plane** (2 degrees of freedom), which is exactly why we get *two* eigenvectors here. Anything in that plane works; pick two independent arrows:
+```
+v₂ = [ 1, −1,  0 ]      "S1 up, S2 down, S3 idle"
+v₃ = [ 1,  1, −2 ]      "S1 & S2 up, S3 twice down"
+```
+Both cancel to sum-zero → both live in that plane → both are eigenvectors with λ = 1. Every direction that *doesn't* move all three sensors together sits here.
+
+> **💡 Why repeats give a plane, not a line (the intuition):** an eigenvalue's **multiplicity** = how many independent directions the matrix stretches by that same factor. λ = 1 appears twice → two independent directions get "stretched by 1" (i.e. left alone). A whole 2D plane of "leftover" is unchanged; only the common-mode direction is amplified (×4).
+
+**Step 6 — verify each `C·v = λ·v` (must-do, catches all algebra bugs):**
+```
+C·v₁: [2+1+1, 1+2+1, 1+1+2] = [4,4,4] = 4·[1,1,1]        ✓  λ=4
+C·v₂: [2−1+0, 1−2+0, 1−1+0] = [1,−1,0] = 1·[1,−1,0]      ✓  λ=1
+C·v₃: [2+1−2, 1+2−2, 1+1−4] = [1,1,−2] = 1·[1,1,−2]      ✓  λ=1
+```
+All three land on `λv` exactly — matrix stretches, doesn't rotate. Chain verified end-to-end.
+
+**Step 7 — how v₁ ties to the sensors (the key read):**
+```
+v₁ = [1]  ← S1 weight
+     [1]  ← S2 weight
+     [1]  ← S3 weight
+```
+Equal positive weights on all three sensors → PC1 is literally "**the average of the three sensors**" — the common tide.
+That mirrors §13's read: there `v₁ = [1, 2]` meant "1 part Temp + 2 parts Latency"; here `v₁ = [1, 1, 1]` means "1 part each of S1, S2, S3."
+The **SSD common-mode / differential-mode** analogy fits perfectly: PC1 = "all rails rise together" (bulk thermal drift); v₂ and v₃ = "one rail vs another" (differential jitter). Every good storage engineer already reasons this way about noise.
+
+**Step 8 — PCA payoff:**
+Fractions of total variance = `λ / Σλ`:
+```
+PC1 (v₁, λ=4):  4/6 = 66.7%   ← the shared tide
+PC2 (λ=1):      1/6 = 16.7%   \_ the leftover differential plane
+PC3 (λ=1):      1/6 = 16.7%   /
+```
+Keeping just PC1 compresses **3 sensors → 1 number** (the sum) and retains ⅔ of the variance. If we also cared about the differential jitter, we'd keep any *one* extra direction from the leftover plane and be at 83.3% with just 2 numbers. That's PCA: rank directions by λ, keep the top-K, drop the rest.
+
+**Paper caveat:** this all works cleanly because the matrix is symmetric with a nice-shaped cubic. Real 3×3 covariances from field data will have ugly decimals and won't factor by inspection — that's when we hand it to `np.linalg.eig`. But the **mechanics** are the same eight steps.
+
+**Side-by-side interactive twin:** `html/2026-07-02_eigen-by-hand-2x2-vs-3x3_F.html` walks both §13 (2×2) and §19 (3×3) in parallel, step-by-step, so you can see the exact same chain at two sizes.
 
 ---
 
