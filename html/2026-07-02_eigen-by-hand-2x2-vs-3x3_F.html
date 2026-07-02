@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Eigen by hand — 2×2 vs 3×3 side by side | _F</title>
+<title>Eigen by hand — 2×2 vs 3×3, fully visual | _F</title>
 <style>
 :root{
   --bg:#0d1408; --card:rgba(20,40,12,.72); --line:rgba(74,122,46,.5);
@@ -33,7 +33,9 @@ body{background:linear-gradient(135deg,#0c1607,#0e1f0a 55%,#171708);color:var(--
 .sn{color:var(--orange);font-weight:bold;font-size:1.2em}
 .stepHeader h2{color:var(--orangeg);font-size:1.2em;display:inline;margin-left:8px}
 .stepHeader p{margin-top:6px;font-size:.9em;color:var(--cream)}
+.joke{color:var(--gold);font-style:italic;font-size:.88em;margin-top:6px}
 
+.wide{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 20px;margin-bottom:14px}
 .split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .pane{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 20px}
 .pane.two{border-color:rgba(39,194,168,.55)}
@@ -44,18 +46,24 @@ body{background:linear-gradient(135deg,#0c1607,#0e1f0a 55%,#171708);color:var(--
 .chip{font-size:.62em;border-radius:12px;padding:2px 9px;letter-spacing:1px}
 .pane.two .chip{background:rgba(39,194,168,.18);color:var(--teal);border:1px solid rgba(39,194,168,.5)}
 .pane.three .chip{background:rgba(255,206,74,.16);color:var(--gold);border:1px solid rgba(255,206,74,.5)}
-.eq{background:rgba(0,0,0,.4);border:1px solid var(--line);border-radius:8px;padding:9px 12px;margin:8px 0;font-size:.82em;color:var(--sage);white-space:pre;overflow-x:auto;font-family:'Courier New',monospace}
-.note{color:var(--creamd);font-size:.85em;margin:6px 0}
-.big{color:var(--orange);font-weight:bold}
+.eq{background:rgba(0,0,0,.4);border:1px solid var(--line);border-radius:8px;padding:9px 12px;margin:8px 0;font-size:.82em;color:var(--sage);white-space:pre;overflow-x:auto}
+.note{color:var(--creamd);font-size:.86em;margin:6px 0}
 .ok{color:var(--sage)}
-.mat{display:inline-grid;gap:3px;margin:6px 0}
-.mat .c{border:1px solid var(--line);border-radius:4px;padding:6px 9px;min-width:44px;text-align:center;font-size:.82em;background:rgba(0,0,0,.25)}
-.mat .c.diag{border-color:var(--orange);color:var(--orange)}
-.mat .c.hi{background:rgba(255,140,0,.15);border-color:var(--orange)}
+.mat{display:inline-grid;gap:3px;margin:6px 4px;vertical-align:middle}
+.mat .c{border:1px solid var(--line);border-radius:4px;padding:6px 9px;min-width:46px;text-align:center;font-size:.8em;background:rgba(0,0,0,.25)}
+.mat .c.d{border-color:var(--orange);color:var(--orange)}
+.mat .c.r1{background:rgba(255,140,0,.15)}
 .k{color:var(--gold)} .t{color:var(--teal)} .o{color:var(--orange)} .r{color:var(--red)}
-ul.rules{margin:6px 0 6px 18px;font-size:.85em;color:var(--cream)}
-ul.rules li{margin:3px 0}
 .callout{background:rgba(0,0,0,.28);border-left:3px solid var(--orange);border-radius:0 8px 8px 0;padding:8px 12px;margin:8px 0;font-size:.85em;color:var(--sage)}
+.viz{background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:10px;padding:8px;margin:8px 0;text-align:center}
+.viz .cap{font-size:.74em;color:var(--creamd);margin-top:4px}
+.reveal{cursor:pointer;border-bottom:1px dashed var(--sagem);color:var(--gold)}
+.reveal .ans{display:none}
+.reveal.open .ans{display:inline;color:var(--sage)}
+.reveal.open .q{display:none}
+.bnn{background:rgba(74,122,46,.25);color:var(--cream);border:1px solid var(--saged);border-radius:8px;padding:8px 14px;cursor:pointer;font-family:inherit;font-size:.82em;min-height:40px;margin:4px 4px 0 0}
+.bnn:hover{background:var(--orange);color:#1a1a0a}
+svg{max-width:100%}
 
 .nav{position:fixed;left:0;right:0;bottom:0;background:rgba(8,14,5,.94);backdrop-filter:blur(8px);
   border-top:1px solid var(--line);padding:11px 16px;display:flex;align-items:center;gap:14px;justify-content:center;z-index:20}
@@ -66,21 +74,30 @@ ul.rules li{margin:3px 0}
 .dot{width:11px;height:11px;border-radius:50%;background:var(--saged);cursor:pointer;transition:.2s}
 .dot.on{background:var(--orange);transform:scale(1.3)}
 .steplabel{color:var(--sage);font-size:.78em;min-width:170px;text-align:center}
-@media(max-width:900px){.split{grid-template-columns:1fr}}
+@media(max-width:980px){.split{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
+<!-- document-wide arrowhead markers -->
+<svg width="0" height="0" style="position:absolute"><defs>
+<marker id="mO" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#ff8c00"/></marker>
+<marker id="mS" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#a8c87a"/></marker>
+<marker id="mT" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#27c2a8"/></marker>
+<marker id="mG" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#ffce4a"/></marker>
+<marker id="mR" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#d9534f"/></marker>
+</defs></svg>
+
 <div class="wrap">
   <div class="header">
     <div class="frog">🐸</div>
     <div class="title">EIGEN BY HAND — 2×2 vs 3×3</div>
-    <div class="subtitle">§13 and §19 walked step-for-step in parallel · ← → to move</div>
-    <div class="tag">FOUNDATION · 2026-07-02</div>
+    <div class="subtitle">§13 and §19, both sides FULLY worked &amp; drawn · ← → to move</div>
+    <div class="tag">FOUNDATION · 2026-07-02 · v2 fully visual</div>
   </div>
 
   <div class="intro">
-    <h2>Why this page exists</h2>
-    <p>Same 8-step chain — <span class="t">2×2 (§13, Temp/Latency)</span> on the left, <span class="k">3×3 (§19, three linked sensors)</span> on the right. Watch how the mechanics stay identical; only the arithmetic grows. Two things get genuinely harder at 3×3: the eigenvalue step becomes a <b>cubic</b> (Step 3), and one λ <b>repeats</b> (Step 5 — a plane, not a line).</p>
+    <h2>How to use this page</h2>
+    <p>Each side is a <b>complete lesson on its own</b> — read only the left and you've revised the whole 2×2 chain; read only the right and you've revised the whole 3×3 chain. Every vector is drawn, every polynomial is plotted, every C·v=λv is animated. Predict before you look. 🐸</p>
   </div>
 
   <div class="stage" id="stage"></div>
@@ -94,148 +111,319 @@ ul.rules li{margin:3px 0}
 </div>
 
 <script>
-const T='var(--teal)', G='var(--gold)';
+// ============ tiny plot library (numpy-plot style: axes, grid, ticks, arrows) ============
+function mapper(W,H,xr,yr){
+  return {W,H,
+    x:v=>40+(v-xr[0])/(xr[1]-xr[0])*(W-58),
+    y:v=>H-32-(v-yr[0])/(yr[1]-yr[0])*(H-56)};
+}
+function frame(p,xr,yr,inner,xl,yl){
+  // gridlines every quarter + zero axes
+  let g='';
+  for(let i=0;i<=4;i++){
+    const gx=p.x(xr[0]+i*(xr[1]-xr[0])/4), gy=p.y(yr[0]+i*(yr[1]-yr[0])/4);
+    g+=`<line x1="${gx}" y1="${p.y(yr[0])}" x2="${gx}" y2="${p.y(yr[1])}" stroke="rgba(74,122,46,.18)"/>`;
+    g+=`<line x1="${p.x(xr[0])}" y1="${gy}" x2="${p.x(xr[1])}" y2="${gy}" stroke="rgba(74,122,46,.18)"/>`;
+    g+=`<text x="${gx}" y="${p.H-14}" fill="#cbbb95" font-size="9" text-anchor="middle">${(xr[0]+i*(xr[1]-xr[0])/4).toFixed(0)}</text>`;
+    g+=`<text x="14" y="${gy+3}" fill="#cbbb95" font-size="9" text-anchor="middle">${(yr[0]+i*(yr[1]-yr[0])/4).toFixed(0)}</text>`;
+  }
+  const ax = (yr[0]<0&&yr[1]>0)?`<line x1="${p.x(xr[0])}" y1="${p.y(0)}" x2="${p.x(xr[1])}" y2="${p.y(0)}" stroke="#7a9e5a" stroke-width="1.3"/>`:'';
+  const ay = (xr[0]<0&&xr[1]>0)?`<line x1="${p.x(0)}" y1="${p.y(yr[0])}" x2="${p.x(0)}" y2="${p.y(yr[1])}" stroke="#7a9e5a" stroke-width="1.3"/>`:'';
+  return `<svg viewBox="0 0 ${p.W} ${p.H}" width="100%">${g}${ax}${ay}
+    ${xl?`<text x="${p.W-6}" y="${p.y(0)-6}" fill="#a8c87a" font-size="10" text-anchor="end">${xl}</text>`:''}
+    ${yl?`<text x="${p.x(0)+6}" y="14" fill="#a8c87a" font-size="10">${yl}</text>`:''}
+    ${inner}</svg>`;
+}
+const MK={'#ff8c00':'mO','#a8c87a':'mS','#27c2a8':'mT','#ffce4a':'mG','#d9534f':'mR'};
+function arr(p,vx,vy,color,label,id,dash){
+  return `<line ${id?`id="${id}" data-ox="${p.x(0)}" data-oy="${p.y(0)}"`:''} x1="${p.x(0)}" y1="${p.y(0)}" x2="${p.x(vx)}" y2="${p.y(vy)}" stroke="${color}" stroke-width="2.6" ${dash?'stroke-dasharray="5,4"':''} marker-end="url(#${MK[color]})"/>`+
+    (label?`<text x="${p.x(vx)+7}" y="${p.y(vy)-5}" fill="${color}" font-size="11" font-weight="bold">${label}</text>`:'');
+}
+function dot(p,x,y,color,label){
+  return `<circle cx="${p.x(x)}" cy="${p.y(y)}" r="5" fill="${color}"/>`+
+    (label?`<text x="${p.x(x)+8}" y="${p.y(y)-6}" fill="${color}" font-size="10">${label}</text>`:'');
+}
+function polyPlot(W,H,xr,yr,f,roots,capRoots){
+  const p=mapper(W,H,xr,yr); let path='';
+  for(let i=0;i<=160;i++){const X=xr[0]+i*(xr[1]-xr[0])/160, Y=Math.max(yr[0],Math.min(yr[1],f(X)));
+    path+=(i?'L':'M')+p.x(X).toFixed(1)+','+p.y(Y).toFixed(1);}
+  let r=roots.map((R,i)=>`<circle cx="${p.x(R)}" cy="${p.y(0)}" r="6" fill="#ff8c00"/><text x="${p.x(R)}" y="${p.y(0)-12}" fill="#ff8c00" font-size="11" font-weight="bold" text-anchor="middle">${capRoots[i]}</text>`).join('');
+  return frame(p,xr,yr,`<path d="${path}" fill="none" stroke="#27c2a8" stroke-width="2.4"/>${r}`,'λ','det(C−λI)');
+}
+// isometric 3D projection: X = (x−y)·cos30°, Y = (x+y)·sin30° − z  (screen y grows downward)
+function ISO(x,y,z,S,cx,cy){const c=0.866,s=0.5; return [cx + (x-y)*c*S, cy + (x+y)*s*S - z*S];}
+function isoArr(v,S,cx,cy,color,label,id,dash){
+  const [x2,y2]=ISO(v[0],v[1],v[2],S,cx,cy);
+  return `<line ${id?`id="${id}" data-ox="${cx}" data-oy="${cy}"`:''} x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="2.6" ${dash?'stroke-dasharray="5,4"':''} marker-end="url(#${MK[color]})"/>`+
+    (label?`<text x="${x2+7}" y="${y2-5}" fill="${color}" font-size="11" font-weight="bold">${label}</text>`:'');
+}
+function isoAxes(W,H,S,cx,cy){
+  const ax=[[2.6,0,0,'S1'],[0,2.6,0,'S2'],[0,0,2.6,'S3']];
+  return ax.map(a=>{const [x2,y2]=ISO(a[0],a[1],a[2],S,cx,cy);
+    return `<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="#7a9e5a" stroke-width="1.2"/><text x="${x2+4}" y="${y2}" fill="#7a9e5a" font-size="10">${a[3]}</text>`;}).join('');
+}
+function isoSvg(W,H,inner){return `<svg viewBox="0 0 ${W} ${H}" width="100%">${inner}</svg>`;}
+function matG(rows,cls){
+  return `<span class="mat" style="grid-template-columns:repeat(${rows[0].length},auto)">`+
+    rows.map((r,i)=>r.map((c,j)=>`<span class="c ${cls?cls(i,j):''}">${c}</span>`).join('')).join('')+`</span>`;
+}
+function shareBars(items){ // [label,pct,color]
+  return items.map(it=>`<div style="display:flex;align-items:center;gap:8px;margin:4px 0">
+    <span style="width:96px;font-size:.74em;color:#cbbb95;text-align:right">${it[0]}</span>
+    <div style="flex:1;background:rgba(0,0,0,.35);border-radius:5px;height:16px"><div style="width:${it[1]}%;height:16px;border-radius:5px;background:${it[2]};transition:width .9s"></div></div>
+    <span style="font-size:.76em;color:${it[2]};min-width:52px">${it[1]}%</span></div>`).join('');
+}
 
-// -------- STEPS: [title, subtitle, twoHTML, threeHTML] --------
-const steps = [
-  ['Setup — the covariance matrix',
-   'Left starts from RAW DATA and builds cov; right starts from the cov matrix directly. Same finish line either way.',
-   `<p class="note"><b class="t">3 readings, 2 features</b> (Temp T, Latency L):</p>
-    <div class="eq">reading   T     L
-  #1     40    100
-  #2     50    120
+// ============ shared plot instances (needed for animations) ============
+const P7L = mapper(320,270,[-1,4],[-1,7]);      // 2x2 verify plot
+const S3=34, CX=150, CY=170;                     // iso params for 3x3 verify
+
+// ============ STEP CONTENT ============
+const steps=[
+
+// ---------- STEP 1 ----------
+{t:'Setup — what each covariance matrix is SAYING', s:'Diagonal = each feature\'s own variance ("how much do I wiggle"). Off-diagonal = each pair\'s covariance ("do we wiggle together"). Read the matrix as a story before touching any algebra.',
+ joke:'😄 A covariance matrix is a gossip table: the diagonal is how dramatic each person is on their own; the off-diagonal is which pairs always show up to the party together.',
+ L:`<p class="note"><b>Where this matrix came from</b> — 3 readings, 2 features, Temp &amp; Latency rising in lockstep:</p>
+<div class="eq">reading   T     L          T̄ = 50   L̄ = 120
+  #1     40    100         devs T: −10,  0, +10
+  #2     50    120         devs L: −20,  0, +20
   #3     60    140</div>
-    <p class="note">2 features → covariance is a <b>2×2</b>. Data → mean → deviations → cov (§13 Steps 1–3):</p>
-    <p class="note"><span class="o">T̄ = 50</span>, <span class="o">L̄ = 120</span> · devs T: −10, 0, +10 · devs L: −20, 0, +20</p>
-    <p class="note">var(T)=100, var(L)=400, cov(T,L)=200 →</p>
-    <div class="eq">      T     L
-  T [ 100   200 ]
-  L [ 200   400 ]</div>`,
-   `<p class="note"><b class="k">3 sensors, every pair equally linked</b> (diag = each sensor's own variance; off-diag = each pair's cov):</p>
-    <div class="eq">       S1  S2  S3
-  S1 [ 2   1   1 ]
-  S2 [ 1   2   1 ]
-  S3 [ 1   1   2 ]</div>
-    <p class="note">Story: whichever three sensors we're watching, they all move together the same amount. This is the <b>common-mode</b> matrix.</p>`],
+<p class="note">Covariance numbers (÷ n−1 = 2): var(T) = (100+0+100)/2 = <b class="o">100</b> · var(L) = (400+0+400)/2 = <b class="o">400</b> · cov(T,L) = (200+0+200)/2 = <b class="o">200</b></p>
+<div style="text-align:center">${matG([['100','200'],['200','400']],(i,j)=>i===j?'d':'')}</div>
+<div class="viz">${(()=>{const p=mapper(320,240,[-14,14],[-28,28]);
+  return frame(p,[-14,14],[-28,28],
+    dot(p,-10,-20,'#27c2a8','#1')+dot(p,0,0,'#27c2a8','#2')+dot(p,10,20,'#27c2a8','#3')+
+    `<line x1="${p.x(-12)}" y1="${p.y(-24)}" x2="${p.x(12)}" y2="${p.y(24)}" stroke="rgba(255,140,0,.5)" stroke-width="1.6" stroke-dasharray="6,5"/>`,
+    'T−T̄','L−L̄');})()}
+<div class="cap">The 3 readings in deviation space — they sit EXACTLY on one line (L-dev = 2 × T-dev). Hold that line in mind: the eigen chain is about to rediscover it.</div></div>
+<p class="note">🔧 SSD read: a hot controller and a slow read queue, moving as one — perfectly correlated telemetry.</p>`,
+ R:`<p class="note"><b>Where this matrix came from</b> — no raw data this time; we start from a designed covariance matrix (imagine §13's data→cov steps already ran). Three sensors, and <b>every pair is equally linked</b>:</p>
+<p class="note">diagonal <span class="o">2</span> = each sensor's own variance · every off-diagonal <span class="k">1</span> = every pair's covariance (all positive → all rise together).</p>
+<div style="text-align:center">${matG([['2','1','1'],['1','2','1'],['1','1','2']],(i,j)=>i===j?'d':'')}</div>
+<div class="viz"><svg viewBox="0 0 320 220" width="100%">
+  <circle cx="160" cy="50" r="24" fill="rgba(255,206,74,.15)" stroke="#ffce4a"/><text x="160" y="55" fill="#ffce4a" font-size="12" text-anchor="middle">S1</text>
+  <circle cx="70" cy="180" r="24" fill="rgba(255,206,74,.15)" stroke="#ffce4a"/><text x="70" y="185" fill="#ffce4a" font-size="12" text-anchor="middle">S2</text>
+  <circle cx="250" cy="180" r="24" fill="rgba(255,206,74,.15)" stroke="#ffce4a"/><text x="250" y="185" fill="#ffce4a" font-size="12" text-anchor="middle">S3</text>
+  <line x1="145" y1="70" x2="85" y2="160" stroke="#27c2a8" stroke-width="2"/><text x="98" y="110" fill="#27c2a8" font-size="10">cov 1</text>
+  <line x1="175" y1="70" x2="235" y2="160" stroke="#27c2a8" stroke-width="2"/><text x="196" y="110" fill="#27c2a8" font-size="10">cov 1</text>
+  <line x1="94" y1="180" x2="226" y2="180" stroke="#27c2a8" stroke-width="2"/><text x="160" y="172" fill="#27c2a8" font-size="10">cov 1</text>
+  <text x="160" y="24" fill="#cbbb95" font-size="10" text-anchor="middle">var 2 on every node · cov 1 on every edge</text>
+</svg><div class="cap">The sensor triangle: perfectly symmetric — no sensor is special, no pair is special. Remember this symmetry; it will EXPLAIN the repeated eigenvalue in Step 4.</div></div>
+<p class="note">🔧 SSD read: three thermal sensors on one controller die — all riding the same package temperature, plus their own local jitter.</p>`},
 
-  ['The characteristic equation `det(C − λI) = 0`',
-   'Subtract λ down the diagonal — the setup is identical at every size.',
-   `<div class="eq">        [ 100−λ   200  ]
-C−λI =  [  200  400−λ  ]</div>
-    <p class="note">Two unknowns down the diagonal, off-diagonals untouched.</p>`,
-   `<div class="eq">        [ 2−λ   1     1  ]
-C−λI =  [  1   2−λ    1  ]
-        [  1    1    2−λ ]</div>
-    <p class="note">Same move, one bigger. Three unknowns down the diagonal now.</p>`],
+// ---------- STEP 2 ----------
+{t:'The characteristic equation — det(C − λI) = 0', s:'We hunt directions v where the matrix acts like a pure NUMBER: C·v = λ·v. Rearranged: (C − λI)·v = 0. A nonzero v can only survive that equation if the matrix (C − λI) is "flattened" — i.e. its determinant is zero. That single demand IS the characteristic equation.',
+ joke:'😄 λI is the polite way to subtract a number from a matrix — you can\'t subtract a scalar from a grid, so the scalar puts on a matrix costume (λ on the diagonal, 0 elsewhere) and THEN joins the fight.',
+ L:`<p class="note">Subtract λ down the diagonal — off-diagonals untouched:</p>
+<div style="text-align:center">${matG([['100','200'],['200','400']],(i,j)=>i===j?'d':'')} <span class="o" style="font-size:1.2em">−</span> ${matG([['λ','0'],['0','λ']],(i,j)=>i===j?'d':'')} <span class="o" style="font-size:1.2em">=</span> ${matG([['100−λ','200'],['200','400−λ']],(i,j)=>i===j?'d':'')}</div>
+<p class="note">Why the diagonal only? Because λI has λ on the diagonal and 0 everywhere else — the identity in a λ-costume. The covariances (200) don't move; only the variances get challenged by λ.</p>
+<div class="callout">The question this matrix asks: <i>for which λ does (C−λI) squash some direction to zero?</i> Those λ are the eigenvalues; those squashed directions are the eigenvectors.</div>`,
+ R:`<p class="note">The identical move, one size up — three diagonal cells get the λ:</p>
+<div style="text-align:center">${matG([['2','1','1'],['1','2','1'],['1','1','2']],(i,j)=>i===j?'d':'')} <span class="o" style="font-size:1.2em">−</span> ${matG([['λ','0','0'],['0','λ','0'],['0','0','λ']],(i,j)=>i===j?'d':'')} <span class="o" style="font-size:1.2em">=</span> ${matG([['2−λ','1','1'],['1','2−λ','1'],['1','1','2−λ']],(i,j)=>i===j?'d':'')}</div>
+<p class="note">Same logic, restated fresh: we want directions v where C only <b>stretches</b> — C·v = λ·v. Move everything left: (C − λI)·v = 0. For a nonzero v to satisfy that, (C−λI) must collapse space along v → its determinant must be 0.</p>
+<div class="callout">Notice ALL the λ-action lives on the diagonal, at every size. The off-diagonal 1s (the pair-links) sit still and wait.</div>`},
 
-  ['Expand the determinant',
-   '2×2 gives a QUADRATIC. 3×3 gives a CUBIC — the real difficulty jump.',
-   `<div class="eq">det = (100−λ)(400−λ) − 200·200
-    = λ² − 500λ + 40000 − 40000
+// ---------- STEP 3 ----------
+{t:'Expand the determinant', s:'2×2 → a quadratic (school formula territory). 3×3 → a CUBIC via cofactor expansion. This is the one real difficulty jump between the sizes.',
+ joke:'😄 The 2×2 determinant is a pocket calculator job. The 3×3 is the same job after the calculator unionized — three sub-jobs with alternating +/− attitude.',
+ L:`<p class="note">2×2 rule: <b>ad − bc</b> (main diagonal product minus anti-diagonal product):</p>
+<div style="text-align:center">${matG([['100−λ','200'],['200','400−λ']],(i,j)=>i===j?'d':'')}</div>
+<div class="eq">det = (100−λ)(400−λ) − 200·200
+    = 40000 − 100λ − 400λ + λ² − 40000
     = λ² − 500λ</div>
-    <p class="note">Clean quadratic. Zero constant term means one root will be 0 (data sits on a line).</p>`,
-   `<p class="note">Cofactor along row 1. Let <span class="o">a = 2−λ</span> to keep it readable:</p>
-    <div class="eq">det = a(a²−1) − 1(a−1) + 1(1−a)
+<p class="note">Every algebra move shown: the 40000s cancel, the λ terms merge. The constant term vanishing is a spoiler — it means λ = 0 will be a root (a direction with ZERO spread → the data is a perfect line).</p>
+<div class="viz">${polyPlot(330,220,[-80,580],[-70000,30000],x=>x*x-500*x,[0,500],['λ=0','λ=500'])}
+<div class="cap">det(C−λI) as a CURVE. The eigenvalues are simply where it crosses zero — see it cross at 0 and at 500.</div></div>`,
+ R:`<p class="note">Cofactor expansion along row 1 — walk the top row, alternate signs + − +, each cell times the 2×2 determinant left after deleting its row &amp; column:</p>
+<div style="text-align:center">${matG([['2−λ','1','1'],['1','2−λ','1'],['1','1','2−λ']],(i,j)=>i===0?'r1':(i===j?'d':''))}</div>
+<p class="note">Substitution to keep symbols small: let <span class="o">a = 2−λ</span>. Then:</p>
+<div class="eq">det = a·det[a 1; 1 a] − 1·det[1 1; 1 a] + 1·det[1 a; 1 1]
+    = a(a² − 1)  −  (a − 1)  +  (1 − a)
     = a³ − a − a + 1 + 1 − a
     = a³ − 3a + 2</div>
-    <p class="note">This <span class="r">cubic</span> is the wall past 2×2. Generic cubics have no clean hand-formula — but ours factors nicely.</p>`],
+<p class="note">A <span class="r">cubic</span> — the honest wall past 2×2 (no clean general formula). Ours will factor because the matrix was designed kindly.</p>
+<div class="viz">${polyPlot(330,220,[-0.8,5],[-18,18],x=>{const q=(1-x);return q*q*(4-x);},[1,4],['λ=1 (double)','λ=4'])}
+<div class="cap">The SAME curve idea, in λ directly: det = (1−λ)²(4−λ). Watch it <b>KISS zero at λ=1</b> without crossing — that kiss IS what a repeated eigenvalue looks like — then cross properly at λ=4.</div></div>`},
 
-  ['Solve → eigenvalues + sanity checks',
-   'Trace = Σλ · det(C) = Πλ. Do BOTH checks every time — they catch arithmetic slips for free.',
-   `<div class="eq">λ² − 500λ = 0
+// ---------- STEP 4 ----------
+{t:'Solve → eigenvalues, then SANITY-CHECK', s:'Two free checks after any eigen solve: trace(C) must equal Σλ, and det(C) must equal Πλ. They catch arithmetic slips instantly — never skip them.',
+ joke:'😄 Trace &amp; determinant checks are the CRC of eigen math: two cheap bytes that tell you if the whole payload is corrupt.',
+ L:`<div class="eq">λ² − 500λ = 0
 λ(λ − 500) = 0
-→ λ₁ = 500,   λ₂ = 0</div>
-    <p class="note"><span class="ok">Sanity</span>: trace = 100+400 = 500 = Σλ ✓ · det(C) = 100·400 − 200·200 = 0 = Πλ ✓</p>
-    <p class="note">λ₂ = 0 means <b>zero spread in that direction</b> — data lies perfectly on a line.</p>`,
-   `<p class="note">Try a = 1: 1−3+2 = 0 ✓ so (a−1) is a factor. Divide:</p>
-    <div class="eq">a³ − 3a + 2 = (a−1)(a² + a − 2) = (a−1)(a−1)(a+2)
-                = (a−1)²(a+2)
-Roots: a = 1 (double), a = −2
-Undo λ = 2 − a:  λ = 4,  1,  1</div>
-    <p class="note"><span class="ok">Sanity</span>: trace = 6 = Σλ = 4+1+1 ✓ · det(C) = 4 = Πλ = 4·1·1 ✓</p>`],
+→ λ₁ = 500      λ₂ = 0</div>
+<p class="note"><span class="ok">✔ trace</span>: 100 + 400 = 500 = 500 + 0 ✓<br><span class="ok">✔ det</span>: 100·400 − 200·200 = 0 = 500 · 0 ✓</p>
+<p class="note"><b>What λ₂ = 0 means physically:</b> there is a direction with literally zero variance — no data spreads there. That matches the Step-1 scatter: all three points on one line, nothing off the line.</p>
+<div class="viz">${shareBars([['λ₁ = 500',100,'#27c2a8'],['λ₂ = 0',0,'#d9534f']])}
+<div class="cap">Share of total variance per eigen-direction (λ / Σλ). One direction owns everything.</div></div>`,
+ R:`<p class="note">Factor the cubic. Try a = 1: 1 − 3 + 2 = 0 ✓, so (a−1) divides. Long-divide, then factor the leftover quadratic:</p>
+<div class="eq">a³ − 3a + 2 = (a−1)(a² + a − 2)
+            = (a−1)(a−1)(a+2)
+            = (a−1)²(a+2)
+roots: a = 1 (DOUBLE), a = −2
+undo a = 2−λ  →  λ = 2−a:
+→ λ₁ = 4      λ₂ = 1      λ₃ = 1</div>
+<p class="note"><span class="ok">✔ trace</span>: 2+2+2 = 6 = 4+1+1 ✓<br><span class="ok">✔ det</span>: 2(4−1) − 1(2−1) + 1(1−2) = 6−1−1 = 4 = 4·1·1 ✓</p>
+<p class="note"><b>Why a repeat was inevitable:</b> the Step-1 triangle was perfectly symmetric — no sensor special, no pair special. Once "all together" (λ=4) is taken, every remaining direction is equally unspecial → they must share one λ.</p>
+<div class="viz">${shareBars([['λ₁ = 4',66.7,'#ffce4a'],['λ₂ = 1',16.7,'#7a9e5a'],['λ₃ = 1',16.7,'#7a9e5a']])}
+<div class="cap">Share of total variance (λ / 6). The common tide owns ⅔; the two leftovers split the rest evenly.</div></div>`},
 
-  ['Eigenvector for the biggest λ  →  PC1',
-   'The main axis. Solve (C − λ_max·I) v = 0 by row-reduction.',
-   `<div class="eq">(C − 500I) v = 0
-[ −400   200 ][x]        −400x + 200y = 0  →  y = 2x
-[  200  −100 ][y] = 0  →  v₁ = [1, 2]</div>
-    <p class="note">numpy normalizes → [0.447, 0.894]</p>`,
-   `<div class="eq">(C − 4I) v = 0
-[ −2   1   1 ][x]   [0]     Row1−Row2:  −3x + 3y = 0  → x = y
-[  1  −2   1 ][y] = [0]     Row2−Row3:  −3y + 3z = 0  → y = z
-[  1   1  −2 ][z]   [0]     → x = y = z
-                    v₁ = [1, 1, 1]</div>
-    <p class="note">numpy normalizes → [0.577, 0.577, 0.577]</p>`],
+// ---------- STEP 5 ----------
+{t:'Eigenvector for the BIGGEST λ → PC1', s:'Plug λ_max back in and solve (C − λI)v = 0 by row-reduction. The surviving direction is PC1 — the axis where the data actually lives.',
+ joke:'😄 Row-reduction is interrogation: subtract the rows\' stories from each other until the only suspect left standing is the eigenvector.',
+ L:`<div class="eq">(C − 500I) v = 0
+[ −400   200 ][x]   [0]
+[  200  −100 ][y] = [0]
+row 1:  −400x + 200y = 0  →  y = 2x
+row 2:  200x − 100y = 0   →  y = 2x   (same line — as it must be)
+→ v₁ = [1, 2]     (numpy-normalized: [0.447, 0.894])</div>
+<p class="note">Both rows collapsing to the SAME equation is the det=0 promise being kept: the matrix lost a dimension, leaving a line of solutions.</p>
+<div class="viz">${(()=>{const p=mapper(320,250,[-14,14],[-28,28]);
+  return frame(p,[-14,14],[-28,28],
+    dot(p,-10,-20,'#27c2a8','')+dot(p,0,0,'#27c2a8','')+dot(p,10,20,'#27c2a8','')+
+    arr(p,5,10,'#ff8c00','v₁=[1,2] (scaled ×5)'),
+    'T−T̄','L−L̄');})()}
+<div class="cap">v₁ drawn THROUGH the deviation cloud — PC1 threads the data exactly. The eigenvector rediscovered the line from Step 1.</div></div>`,
+ R:`<div class="eq">(C − 4I) v = 0
+[ −2   1   1 ][x]   [0]
+[  1  −2   1 ][y] = [0]
+[  1   1  −2 ][z]   [0]
+Row1 − Row2 :  −3x + 3y = 0   →  x = y
+Row2 − Row3 :  −3y + 3z = 0   →  y = z
+→ x = y = z  →  v₁ = [1, 1, 1]   (normalized: [0.577, 0.577, 0.577])</div>
+<p class="note">Three rows, but subtraction kills the clutter in two moves. Equal components = "all sensors, equal parts" — the common tide.</p>
+<div class="viz">${isoSvg(320,250, isoAxes(320,250,S3,CX,CY)+isoArr([1.6,1.6,1.6],S3,CX,CY,'#ff8c00','v₁=[1,1,1]'))}
+<div class="cap">3D vector on isometric axes: v₁ is the CUBE DIAGONAL — equally away from all three sensor axes. That symmetry is the picture of "everyone together."</div></div>`},
 
-  ['The REPEATED eigenvalue (the genuinely new bit)',
-   'Only appears at 3×3+. Repeated λ → a whole PLANE of eigenvectors, not a single line.',
-   `<div class="callout">2×2 with distinct λ has no repeat case — each λ gives one direction. Skip to Step 7 on the left.</div>
-    <p class="note">§13's other eigenvector is v₂ = [2, −1] with λ₂ = 0: perpendicular to v₁, no spread lives there.</p>`,
-   `<p class="note">Solve (C − 1·I) v = 0:</p>
-    <div class="eq">[ 1  1  1 ]         all THREE rows collapse to:
-[ 1  1  1 ]   ⇒     x + y + z = 0
-[ 1  1  1 ]</div>
-    <p class="note">One equation, three unknowns → a <b>2D solution plane</b> (2 degrees of freedom) → we get TWO eigenvectors:</p>
-    <div class="eq">v₂ = [ 1, −1,  0 ]     "S1 up, S2 down, S3 idle"
-v₃ = [ 1,  1, −2 ]     "S1 & S2 up, S3 twice down"</div>
-    <div class="callout">💡 Multiplicity = how many independent directions get stretched by the same λ. λ=1 twice → 2D "leftover" plane, all left alone. Only the common-mode direction gets amplified (×4).</div>`],
+// ---------- STEP 6 ----------
+{t:'The OTHER eigenvalue(s) — a line vs a PLANE', s:'Left: the 2×2\'s second eigenvalue (λ=0) gives one more LINE. Right: the 3×3\'s repeated λ=1 gives a whole PLANE — the genuinely new phenomenon at 3×3.',
+ joke:'😄 λ=0 is the direction the matrix ghosts completely. Repeated λ=1 is worse: a whole dance floor of directions the matrix just... leaves on read.',
+ L:`<p class="note">Full derivation for λ₂ = 0 (no shortcuts): (C − 0·I)v = C·v = 0:</p>
+<div class="eq">[ 100  200 ][x]   [0]
+[ 200  400 ][y] = [0]
+row 1: 100x + 200y = 0  →  y = −x/2
+row 2: 200x + 400y = 0  →  y = −x/2   (same line again)
+→ v₂ = [2, −1]
+quick verify: C·[2,−1] = [200−200, 400−400] = [0, 0] = 0·v₂ ✓</div>
+<p class="note">v₂ is <b>perpendicular</b> to v₁ (dot check: [1,2]·[2,−1] = 2−2 = 0 ✓ — your §2 dot product doing real work). λ=0 on v₂ says: measure the data along v₂ and you find NOTHING — zero spread.</p>
+<div class="viz">${(()=>{const p=mapper(320,250,[-14,14],[-28,28]);
+  return frame(p,[-14,14],[-28,28],
+    dot(p,-10,-20,'#27c2a8','')+dot(p,0,0,'#27c2a8','')+dot(p,10,20,'#27c2a8','')+
+    arr(p,5,10,'#ff8c00','v₁ (λ=500)')+arr(p,8,-4,'#d9534f','v₂ (λ=0)'),
+    'T−T̄','L−L̄');})()}
+<div class="cap">v₂ points ACROSS the data line — and indeed not a single point strays in that direction. Zero eigenvalue = zero story.</div></div>`,
+ R:`<p class="note">Repeated λ = 1: solve (C − I)v = 0:</p>
+<div class="eq">[ 1 1 1 ][x]   [0]        all THREE rows say the SAME thing:
+[ 1 1 1 ][y] = [0]   ⇒    x + y + z = 0
+[ 1 1 1 ][z]   [0]</div>
+<p class="note">One equation, three unknowns → a <b>2-dimensional plane</b> of solutions (2 degrees of freedom) → that's WHY a doubled λ yields TWO eigenvectors. Pick any two independent arrows in the plane:</p>
+<div class="eq">v₂ = [ 1, −1,  0 ]   "S1 up, S2 down, S3 idle"
+v₃ = [ 1,  1, −2 ]   "S1 &amp; S2 up, S3 double-down"</div>
+<div class="viz">${(()=>{
+  const c1=[2.2,-0.2,-2.0], c2=[-0.2,2.2,-2.0], c3=[-2.2,0.2,2.0], c4=[0.2,-2.2,2.0];
+  const pts=[c1,c2,c3,c4].map(v=>ISO(v[0],v[1],v[2],S3,CX,CY).map(n=>n.toFixed(1)).join(','));
+  return isoSvg(320,260, isoAxes(320,260,S3,CX,CY)+
+   `<polygon points="${pts.join(' ')}" fill="rgba(39,194,168,.13)" stroke="rgba(39,194,168,.5)" stroke-dasharray="4,4"/>`+
+   isoArr([1.3,-1.3,0],S3,CX,CY,'#27c2a8','v₂')+isoArr([0.9,0.9,-1.8],S3,CX,CY,'#27c2a8','v₃')+
+   isoArr([1.5,1.5,1.5],S3,CX,CY,'#ff8c00','v₁ ⊥ plane'));})()}
+<div class="cap">The teal patch is the plane x+y+z=0: EVERY arrow inside it is an eigenvector with λ=1. And look — v₁ pokes out exactly perpendicular to it (the common tide vs the differential floor).</div></div>
+<p class="note">🎯 <span class="reveal" onclick="this.classList.add('open')"><span class="q">Predict, then tap: is [3, 0, −3] ALSO an eigenvector here?</span><span class="ans">YES — 3+0−3 = 0, so it lies in the plane → eigenvector with λ=1. ANY sum-zero arrow qualifies.</span></span></p>`},
 
-  ['Verify each Cv = λv (must-do)',
-   'This is the anti-bug pass. Every eigenvector, direct substitution.',
-   `<div class="eq">Cv₁: [100 200][1]   [500]        [1]
-     [200 400][2] = [1000] = 500·[2]  ✓</div>
-    <p class="note">Stretched ×500, not rotated. Chain end-to-end verified.</p>`,
-   `<div class="eq">Cv₁: [2+1+1, 1+2+1, 1+1+2] = [4,4,4] = 4·[1,1,1]        ✓
-Cv₂: [2−1+0, 1−2+0, 1−1+0] = [1,−1,0] = 1·[1,−1,0]      ✓
-Cv₃: [2+1−2, 1+2−2, 1+1−4] = [1,1,−2] = 1·[1,1,−2]      ✓</div>
-    <p class="note">All three land on λv exactly. Matrix stretches, doesn't rotate.</p>`],
+// ---------- STEP 7 ----------
+{t:'Verify C·v = λ·v — and WATCH the stretch (interactive)', s:'The anti-bug pass: substitute every eigenvector back. Then press the buttons — the orange arrow is C·v. If the chain is right, it lands exactly on λ × v: same direction, scaled length.',
+ joke:'😄 λ=500 is your gym bro on a stack of pre-workout. λ=1 is the guy who "went to the gym" and came back identical. λ=0 got deleted by the trainer.',
+ L:`<div class="eq">C·v₁: [100·1+200·2, 200·1+400·2] = [500, 1000] = 500·[1,2]  ✓
+C·v₂: [100·2−200·1, 200·2−400·1] = [0, 0]     = 0·[2,−1]  ✓</div>
+<div class="viz">${(()=>{const p=P7L;
+  return frame(p,[-1,4],[-1,7],
+    arr(p,1,2,'#a8c87a','v₁=[1,2]')+
+    arr(p,1,2,'#ff8c00','C·v₁','anim2L',true),
+    'T-axis','L-axis');})()}
+<div class="cap">Press ▶ — the orange C·v₁ arrow stretches along v₁'s OWN line (drawn ×3; true stretch ×500 — too big to draw honestly). Direction never budges: that's the definition of an eigenvector.</div>
+<button class="bnn" onclick="animLine('anim2L', P7Lx(3), P7Ly(6), 900)">▶ stretch ×500 (drawn ×3)</button>
+<button class="bnn" onclick="animLine('anim2L', P7Lx(1), P7Ly(2), 500)">⟲ reset</button>
+<button class="bnn" onclick="animLine('anim2L', P7Lx(0.02), P7Ly(0.04), 900)">▶ crush v₂'s fate (λ=0)</button></div>`,
+ R:`<div class="eq">C·v₁: [2+1+1, 1+2+1, 1+1+2] = [4,4,4]  = 4·[1,1,1]   ✓
+C·v₂: [2−1+0, 1−2+0, 1−1+0] = [1,−1,0] = 1·[1,−1,0]  ✓
+C·v₃: [2+1−2, 1+2−2, 1+1−4] = [1,1,−2] = 1·[1,1,−2]  ✓</div>
+<div class="viz">${isoSvg(320,260, isoAxes(320,260,S3,CX,CY)+
+  isoArr([0.55,0.55,0.55],S3,CX,CY,'#a8c87a','v₁')+
+  isoArr([0.55,0.55,0.55],S3,CX,CY,'#ff8c00','C·v₁','anim3R',true)+
+  isoArr([1.3,-1.3,0],S3,CX,CY,'#27c2a8','v₂ (λ=1)'))}
+<div class="cap">Press ▶ — C·v₁ glides to ×4 along the cube diagonal. Then try v₂'s button: <b>nothing moves</b>. That non-event IS λ=1: the matrix returns it untouched.</div>
+<button class="bnn" onclick="isoAnim('anim3R',[2.2,2.2,2.2],900)">▶ stretch v₁ ×4</button>
+<button class="bnn" onclick="isoAnim('anim3R',[0.55,0.55,0.55],500)">⟲ reset</button>
+<button class="bnn" onclick="flashNote(this)">▶ stretch v₂ ×1</button><span class="note" style="display:none;color:var(--gold)"> ← it didn't move. Exactly. λ=1. 🎬</span></div>`},
 
-  ['What v₁ means · PCA payoff',
-   'Read the eigenvector as WEIGHTS on the original features → then rank λ / Σλ for PCA.',
-   `<div class="eq">v₁ = [1]  ← Temp weight
+// ---------- STEP 8 ----------
+{t:'Read v₁ as WEIGHTS → the PCA payoff', s:'An eigenvector\'s components are weights on your original features. Rank directions by λ/Σλ, keep the top ones, drop the rest — that is the entire PCA algorithm you\'ll meet formally on 18 Jul (Session 5).',
+ joke:'😄 PCA is Marie Kondo for features: hold each direction up, ask "how much variance do you spark?", keep the joyful ones, thank λ=0 for its service and bin it.',
+ wide:`<div class="viz"><svg viewBox="0 0 900 150" width="100%">
+  <path d="M20,90 Q130,40 250,90 T480,90 T710,90 T900,90" fill="none" stroke="#27c2a8" stroke-width="2.5"/>
+  <circle cx="130" cy="63" r="12" fill="#ffce4a"/><circle cx="365" cy="66" r="12" fill="#ffce4a"/><circle cx="595" cy="66" r="12" fill="#ffce4a"/>
+  <line x1="130" y1="45" x2="130" y2="18" stroke="#ff8c00" stroke-width="3" marker-end="url(#mO)"/>
+  <line x1="365" y1="48" x2="365" y2="21" stroke="#ff8c00" stroke-width="3" marker-end="url(#mO)"/>
+  <line x1="595" y1="48" x2="595" y2="21" stroke="#ff8c00" stroke-width="3" marker-end="url(#mO)"/>
+  <text x="740" y="30" fill="#ff8c00" font-size="12">the TIDE lifts all three → PC1 = [1,1,1], λ big</text>
+  <text x="740" y="50" fill="#7a9e5a" font-size="11">each float's own bobbing vs the others</text>
+  <text x="740" y="66" fill="#7a9e5a" font-size="11">→ the leftover plane, λ small</text>
+  <text x="20" y="140" fill="#cbbb95" font-size="11">🖼️ Pictorial: three floats on one tide. The shared rise is the eigen-story worth keeping; the relative bobbing is the leftover.</text>
+</svg></div>`,
+ L:`<div class="eq">v₁ = [1]  ← Temp weight
      [2]  ← Latency weight</div>
-    <p class="note">PC1 = "1 part T + 2 parts L" → Latency swings <b>2× per unit Temp</b> — exactly the built-in L = 2T+20. Eigenvector <b>recovered the feature relationship</b>.</p>
-    <div class="eq">λ₁ / Σλ = 500/500 = 100%
-Keep only v₁ → 2 features → 1 number.  Zero loss.</div>`,
-   `<div class="eq">v₁ = [1]  ← S1 weight
+<p class="note">PC1 = "1 part Temp + 2 parts Latency" → Latency swings <b>2× per unit of Temp</b> — the eigenvector recovered the built-in law L = 2T + 20 from nothing but the covariance grid.</p>
+<div class="viz">${shareBars([['PC1 (λ=500)',100,'#27c2a8'],['PC2 (λ=0)',0,'#d9534f']])}
+<div class="cap">Keep PC1 only → each reading becomes ONE number (1·T + 2·L). 2 features → 1, <b>zero</b> information lost.</div></div>
+<p class="note">⚠️ Paper caveat: real data is never perfectly collinear — a field λ₂ would be small-but-nonzero, and you'd keep or drop it by looking at exactly this bar chart (the scree).</p>`,
+ R:`<div class="eq">v₁ = [1]  ← S1 weight
      [1]  ← S2 weight
      [1]  ← S3 weight</div>
-    <p class="note">Equal positive weights → PC1 = "<b>average of all three sensors</b>" — the common tide. SSD analog: bulk thermal drift vs differential rail jitter.</p>
-    <div class="eq">PC1 (λ=4):  4/6 = 66.7%   ← the shared tide
-PC2 (λ=1):  1/6 = 16.7%   \\_ differential
-PC3 (λ=1):  1/6 = 16.7%   /</div>
-    <p class="note">Keep just PC1 → 3 sensors → 1 number, ⅔ of variance saved. Keep any one from the leftover plane too → 2 numbers, 83.3%. That's PCA.</p>`],
+<p class="note">Equal weights → PC1 is literally the <b>average of the three sensors</b> — the common tide. 🔧 SSD read: PC1 = bulk package-thermal drift (common mode); the λ=1 plane = sensor-to-sensor differential jitter. You already debug in exactly these two vocabularies.</p>
+<div class="viz">${shareBars([['PC1 (λ=4)',66.7,'#ffce4a'],['PC2 (λ=1)',16.7,'#7a9e5a'],['PC3 (λ=1)',16.7,'#7a9e5a']])}
+<div class="cap">Keep PC1 → 3 sensors → 1 number at 66.7% variance kept. Add ANY one arrow from the leftover plane → 2 numbers, 83.3%. Rank by λ, cut the tail: that IS PCA.</div></div>
+<p class="note">⚠️ Same caveat, one louder: field 3×3 covariances have ugly decimals and unfactorable cubics — mechanics identical, but you hand Step 3 to <code>np.linalg.eig</code>.</p>`},
 ];
 
-const stage = document.getElementById('stage');
-const dotsBox = document.getElementById('dots');
-const label = document.getElementById('slabel');
-const prev = document.getElementById('prev');
-const next = document.getElementById('next');
-let cur = 0;
+// coordinate helpers exposed for animations
+function P7Lx(v){return P7L.x(v);} function P7Ly(v){return P7L.y(v);}
 
+// ============ render machinery ============
+const stage=document.getElementById('stage'), dotsBox=document.getElementById('dots'),
+      label=document.getElementById('slabel'), prev=document.getElementById('prev'), next=document.getElementById('next');
+let cur=0;
 function render(){
-  stage.innerHTML = steps.map((s,i)=>`
+  stage.innerHTML=steps.map((s,i)=>`
     <div class="step ${i===cur?'on':''}">
-      <div class="stepHeader"><span class="sn">Step ${i+1}</span><h2>${s[0]}</h2><p>${s[1]}</p></div>
+      <div class="stepHeader"><span class="sn">Step ${i+1}</span><h2>${s.t}</h2><p>${s.s}</p>${s.joke?`<p class="joke">${s.joke}</p>`:''}</div>
+      ${s.wide||''}
       <div class="split">
-        <div class="pane two"><h3><span class="chip">2×2 · §13</span> Temp / Latency</h3>${s[2]}</div>
-        <div class="pane three"><h3><span class="chip">3×3 · §19</span> Three linked sensors</h3>${s[3]}</div>
+        <div class="pane two"><h3><span class="chip">2×2 · §13</span> Temp / Latency — complete on its own</h3>${s.L}</div>
+        <div class="pane three"><h3><span class="chip">3×3 · §19</span> Three linked sensors — complete on its own</h3>${s.R}</div>
       </div>
     </div>`).join('');
-  dotsBox.innerHTML = steps.map((_,i)=>`<span class="dot ${i===cur?'on':''}" data-i="${i}"></span>`).join('');
-  label.textContent = `Step ${cur+1} of ${steps.length}`;
-  prev.disabled = cur===0;
-  next.disabled = cur===steps.length-1;
+  dotsBox.innerHTML=steps.map((_,i)=>`<span class="dot ${i===cur?'on':''}" data-i="${i}"></span>`).join('');
+  label.textContent=`Step ${cur+1} of ${steps.length}`;
+  prev.disabled=cur===0; next.disabled=cur===steps.length-1;
 }
-function go(i){ cur = Math.max(0, Math.min(steps.length-1, i)); render(); window.scrollTo({top:0,behavior:'smooth'}); }
-prev.onclick = ()=>go(cur-1);
-next.onclick = ()=>go(cur+1);
-dotsBox.addEventListener('click', e => { const t=e.target.closest('.dot'); if(t) go(+t.dataset.i); });
-window.addEventListener('keydown', e => {
-  if(e.key==='ArrowLeft') go(cur-1);
-  if(e.key==='ArrowRight') go(cur+1);
-});
+function go(i){cur=Math.max(0,Math.min(steps.length-1,i));render();window.scrollTo({top:0,behavior:'smooth'});}
+prev.onclick=()=>go(cur-1); next.onclick=()=>go(cur+1);
+dotsBox.addEventListener('click',e=>{const t=e.target.closest('.dot'); if(t)go(+t.dataset.i);});
+window.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')go(cur-1); if(e.key==='ArrowRight')go(cur+1);});
+
+// ============ animations (eased rAF) ============
+function animLine(id,tx,ty,ms){
+  const el=document.getElementById(id); if(!el)return;
+  const x0=+el.getAttribute('x2'), y0=+el.getAttribute('y2'), t0=performance.now();
+  function f(t){let k=Math.min(1,(t-t0)/ms); k=1-Math.pow(1-k,3);
+    el.setAttribute('x2',x0+(tx-x0)*k); el.setAttribute('y2',y0+(ty-y0)*k);
+    if(k<1)requestAnimationFrame(f);}
+  requestAnimationFrame(f);
+}
+function isoAnim(id,v,ms){
+  const [tx,ty]=ISO(v[0],v[1],v[2],S3,CX,CY);
+  animLine(id,tx,ty,ms);
+}
+function flashNote(btn){const n=btn.nextElementSibling; if(n){n.style.display='inline';}}
 render();
 </script>
 </body>
