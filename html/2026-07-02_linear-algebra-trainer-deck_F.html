@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linear Algebra Fundamentals — Trainer Deck | _F</title>
+<style>
+:root{
+  --card:rgba(20,40,12,.72); --line:rgba(74,122,46,.5);
+  --cream:#f5e6c8; --creamd:#cbbb95; --sage:#a8c87a; --sagem:#7a9e5a; --saged:#4a7a2e;
+  --orange:#ff8c00; --orangeg:#ffb347; --red:#d9534f; --teal:#27c2a8; --gold:#ffce4a;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:linear-gradient(135deg,#0c1607,#0e1f0a 55%,#171708);color:var(--cream);
+  font-family:'Courier New',monospace;line-height:1.55;min-height:100vh;padding-bottom:140px}
+.wrap{max-width:1500px;margin:0 auto;padding:22px 24px}
+.header{text-align:center;padding:18px 8px 4px}
+.frog{font-size:50px;animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{text-shadow:0 0 18px var(--sagem);transform:scale(1)}50%{text-shadow:0 0 36px var(--orange);transform:scale(1.05)}}
+.title{font-size:1.9em;color:var(--orange);text-shadow:0 0 22px var(--orange);letter-spacing:1.5px;margin:6px 0 2px}
+.subtitle{color:var(--sage);font-size:.82em;letter-spacing:1.5px}
+.tag{display:inline-block;font-size:.62em;color:var(--orangeg);border:1px solid var(--saged);border-radius:20px;padding:2px 12px;letter-spacing:2px;margin-top:8px}
+
+.step{display:none;animation:rise .4s ease both}
+.step.on{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.stepHeader{background:rgba(255,140,0,.07);border:1px solid rgba(255,140,0,.35);border-radius:14px;padding:14px 22px;margin-bottom:14px}
+.sn{color:var(--orange);font-weight:bold;font-size:1.15em}
+.stepHeader h2{color:var(--orangeg);font-size:1.2em;display:inline;margin-left:8px}
+.stepHeader p{margin-top:6px;font-size:.9em;color:var(--cream)}
+.ana{color:var(--gold);font-style:italic;font-size:.9em;margin-top:6px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin-bottom:14px}
+.card h3{color:var(--teal);font-size:1em;margin-bottom:8px}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.eq{background:rgba(0,0,0,.4);border:1px solid var(--line);border-radius:8px;padding:9px 12px;margin:8px 0;font-size:.84em;color:var(--sage);white-space:pre;overflow-x:auto}
+.note{color:var(--creamd);font-size:.88em;margin:6px 0}
+.o{color:var(--orange)} .t{color:var(--teal)} .k{color:var(--gold)} .r{color:var(--red)} .ok{color:var(--sage)}
+.callout{background:rgba(0,0,0,.28);border-left:3px solid var(--orange);border-radius:0 8px 8px 0;padding:8px 12px;margin:8px 0;font-size:.87em;color:var(--sage)}
+.boundary{background:rgba(0,0,0,.28);border:1px solid rgba(217,83,79,.4);border-radius:10px;padding:10px 14px;margin:8px 0;font-size:.86em}
+.viz{background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:10px;padding:8px;margin:8px 0;text-align:center}
+.viz .cap{font-size:.76em;color:var(--creamd);margin-top:4px}
+.mat{display:inline-grid;gap:3px;margin:6px 4px;vertical-align:middle}
+.mat .c{border:1px solid var(--line);border-radius:4px;padding:6px 9px;min-width:46px;text-align:center;font-size:.8em;background:rgba(0,0,0,.25)}
+.mat .c.d{border-color:var(--orange);color:var(--orange)}
+.mat .c.neg{color:var(--red)} .mat .c.pos{color:var(--teal)}
+table.tt{width:100%;border-collapse:collapse;font-size:.82em;margin:8px 0}
+table.tt th,table.tt td{border:1px solid var(--line);padding:5px 8px;text-align:center}
+table.tt th{background:rgba(74,122,46,.22);color:var(--orangeg)}
+.bnn{background:rgba(74,122,46,.25);color:var(--cream);border:1px solid var(--saged);border-radius:8px;padding:8px 14px;cursor:pointer;font-family:inherit;font-size:.82em;min-height:40px;margin:4px 4px 0 0}
+.bnn:hover{background:var(--orange);color:#1a1a0a}
+input[type=range]{width:70%;accent-color:var(--orange)}
+svg{max-width:100%}
+iframe.embed{width:100%;height:78vh;border:1px solid var(--line);border-radius:12px;background:#0c1607}
+
+.nav{position:fixed;left:0;right:0;bottom:0;background:rgba(8,14,5,.94);backdrop-filter:blur(8px);
+  border-top:1px solid var(--line);padding:11px 16px;display:flex;align-items:center;gap:14px;justify-content:center;z-index:20}
+.bn{background:rgba(74,122,46,.2);color:var(--cream);border:1px solid var(--saged);border-radius:9px;padding:10px 18px;cursor:pointer;font-family:inherit;font-size:.9em;min-height:44px;transition:.15s}
+.bn:hover{background:var(--orange);color:#1a1a0a}
+.bn:disabled{opacity:.35;cursor:default}
+.dots{display:flex;gap:6px;flex-wrap:wrap;max-width:45%}
+.dot{width:11px;height:11px;border-radius:50%;background:var(--saged);cursor:pointer;transition:.2s}
+.dot.on{background:var(--orange);transform:scale(1.3)}
+.steplabel{color:var(--sage);font-size:.78em;min-width:150px;text-align:center}
+@media(max-width:980px){.duo{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+<marker id="mO" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#ff8c00"/></marker>
+<marker id="mS" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#a8c87a"/></marker>
+<marker id="mT" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#27c2a8"/></marker>
+<marker id="mG" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#ffce4a"/></marker>
+<marker id="mR" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#d9534f"/></marker>
+</defs></svg>
+
+<div class="wrap">
+  <div class="header">
+    <div class="frog">🐸</div>
+    <div class="title">LINEAR ALGEBRA FUNDAMENTALS</div>
+    <div class="subtitle">Trainer deck · every concept drawn · every numeric fully stepped · ← → to move</div>
+    <div class="tag">TRAINER EDITION · 2026-07-02</div>
+  </div>
+  <div class="stage" id="stage"></div>
+  <div class="nav">
+    <button class="bn" id="prev">← Back</button>
+    <div class="steplabel" id="slabel"></div>
+    <div class="dots" id="dots"></div>
+    <button class="bn" id="next">Next →</button>
+  </div>
+</div>
+
+<script>
+// ---------- plot library ----------
+function mapper(W,H,xr,yr){return {W,H,
+  x:v=>42+(v-xr[0])/(xr[1]-xr[0])*(W-60),
+  y:v=>H-32-(v-yr[0])/(yr[1]-yr[0])*(H-56)};}
+function frame(p,xr,yr,inner,xl,yl){
+  let g='';
+  for(let i=0;i<=4;i++){
+    const xv=xr[0]+i*(xr[1]-xr[0])/4, yv=yr[0]+i*(yr[1]-yr[0])/4;
+    const gx=p.x(xv), gy=p.y(yv);
+    g+=`<line x1="${gx}" y1="${p.y(yr[0])}" x2="${gx}" y2="${p.y(yr[1])}" stroke="rgba(74,122,46,.18)"/>`;
+    g+=`<line x1="${p.x(xr[0])}" y1="${gy}" x2="${p.x(xr[1])}" y2="${gy}" stroke="rgba(74,122,46,.18)"/>`;
+    g+=`<text x="${gx}" y="${p.H-14}" fill="#cbbb95" font-size="9" text-anchor="middle">${+xv.toFixed(1)}</text>`;
+    g+=`<text x="16" y="${gy+3}" fill="#cbbb95" font-size="9" text-anchor="middle">${+yv.toFixed(1)}</text>`;
+  }
+  const ax=(yr[0]<=0&&yr[1]>=0)?`<line x1="${p.x(xr[0])}" y1="${p.y(0)}" x2="${p.x(xr[1])}" y2="${p.y(0)}" stroke="#7a9e5a" stroke-width="1.3"/>`:'';
+  const ay=(xr[0]<=0&&xr[1]>=0)?`<line x1="${p.x(0)}" y1="${p.y(yr[0])}" x2="${p.x(0)}" y2="${p.y(yr[1])}" stroke="#7a9e5a" stroke-width="1.3"/>`:'';
+  return `<svg viewBox="0 0 ${p.W} ${p.H}" width="100%">${g}${ax}${ay}
+    ${xl?`<text x="${p.W-6}" y="${p.H-14}" fill="#a8c87a" font-size="10" text-anchor="end">${xl}</text>`:''}
+    ${yl?`<text x="6" y="14" fill="#a8c87a" font-size="10">${yl}</text>`:''}${inner}</svg>`;
+}
+const MK={'#ff8c00':'mO','#a8c87a':'mS','#27c2a8':'mT','#ffce4a':'mG','#d9534f':'mR'};
+function arr(p,vx,vy,color,label,id){
+  return `<line ${id?`id="${id}"`:''} x1="${p.x(0)}" y1="${p.y(0)}" x2="${p.x(vx)}" y2="${p.y(vy)}" stroke="${color}" stroke-width="2.6" marker-end="url(#${MK[color]})"/>`+
+    (label?`<text x="${p.x(vx)+7}" y="${p.y(vy)-5}" fill="${color}" font-size="11" font-weight="bold">${label}</text>`:'');
+}
+function dt(p,x,y,color,label){return `<circle cx="${p.x(x)}" cy="${p.y(y)}" r="5" fill="${color}"/>`+
+  (label?`<text x="${p.x(x)+8}" y="${p.y(y)-6}" fill="${color}" font-size="10">${label}</text>`:'');}
+function matG(rows,cls){return `<span class="mat" style="grid-template-columns:repeat(${rows[0].length},auto)">`+
+  rows.map((r,i)=>r.map((c,j)=>`<span class="c ${cls?cls(i,j,c):''}">${c}</span>`).join('')).join('')+`</span>`;}
+function bars(items){return items.map(it=>`<div style="display:flex;align-items:center;gap:8px;margin:4px 0">
+  <span style="width:110px;font-size:.74em;color:#cbbb95;text-align:right">${it[0]}</span>
+  <div style="flex:1;background:rgba(0,0,0,.35);border-radius:5px;height:16px"><div style="width:${Math.min(100,it[1])}%;height:16px;border-radius:5px;background:${it[2]};transition:width .9s"></div></div>
+  <span style="font-size:.76em;color:${it[2]};min-width:56px">${it[3]!==undefined?it[3]:it[1]+'%'}</span></div>`).join('');}
+function curve(p,f,color){let d='';for(let i=0;i<=140;i++){const X=p._xr[0]+i*(p._xr[1]-p._xr[0])/140;d+=(i?'L':'M')+p.x(X).toFixed(1)+','+p.y(f(X)).toFixed(1);}return `<path d="${d}" fill="none" stroke="${color}" stroke-width="2.2"/>`;}
+function M(W,H,xr,yr){const p=mapper(W,H,xr,yr);p._xr=xr;p._yr=yr;return p;}
+
+// ---------- STEPS ----------
+const steps=[
+
+// 1 — WHY / data as vectors
+{t:'Why vectors? Data IS vectors',s:'Machine learning cannot see tables, text, or images — everything must become an ordered list of numbers first. That list is a vector. Master vectors and every later topic (similarity, covariance, PCA, neural networks) is just operations on them.',
+ ana:'🖼️ Analogy that closes the topic: a vector is a LUGGAGE TAG for a data point — the point itself may be a student, a movie taste, or a sensor snapshot, but the tag carries only numbers, in a fixed order. Same tag format for everything → one math for everything.',
+ b:`<div class="duo"><div class="card"><h3>From table row → vector</h3>
+<div class="eq">Student:   Maths  Science  English
+             80      90       70
+as a vector:   [80, 90, 70]
+
+DB record:  Age  Salary  Experience
+            25   50000   2
+as a vector:   [25, 50000, 2]</div>
+<p class="note">Every ROW of a dataset = one vector. Order matters: slot 1 is always the same feature.</p></div>
+<div class="card"><h3>Vectors as movement</h3>
+<div class="viz">${(()=>{const p=M(320,240,[-1,6],[-1,6]);return frame(p,[-1,6],[-1,6],
+  arr(p,3,4,'#ff8c00','[3,4]')+
+  `<line x1="${p.x(0)}" y1="${p.y(0)}" x2="${p.x(3)}" y2="${p.y(0)}" stroke="#27c2a8" stroke-width="2" stroke-dasharray="4,4"/><text x="${p.x(1.4)}" y="${p.y(0)-6}" fill="#27c2a8" font-size="10">3 east</text>`+
+  `<line x1="${p.x(3)}" y1="${p.y(0)}" x2="${p.x(3)}" y2="${p.y(4)}" stroke="#ffce4a" stroke-width="2" stroke-dasharray="4,4"/><text x="${p.x(3)+6}" y="${p.y(2)}" fill="#ffce4a" font-size="10">4 north</text>`,'east','north');})()}
+<div class="cap">The same object seen two ways: a list of numbers AND an arrow. Walk 3 east + 4 north = the arrow [3,4]. Both views are always available — use whichever makes the current question easy.</div></div></div></div>`},
+
+// 2 — magnitude
+{t:'Magnitude — "how big", stripped of direction',s:'A vector has exactly two separable properties: DIRECTION (which way it points) and MAGNITUDE (how long it is). Magnitude answers "how far / how strong / how loud" while ignoring "which way".',
+ ana:'🖼️ Closing analogy: a TV is sold by its DIAGONAL. Width 3, height 4 — the shop sells you a "5". The diagonal is the magnitude of [3,4]: one number that summarizes total size, direction thrown away.',
+ b:`<div class="duo"><div class="card"><h3>The formula — every step shown</h3>
+<div class="eq">|v| = √(v₁² + v₂² + … + vₙ²)
+
+walk [3, 4]:
+  step 1 — square each part:  3² = 9,   4² = 16
+  step 2 — add:               9 + 16 = 25
+  step 3 — square-root:       √25 = 5
+
+drone [6, 8] (6 m/s east, 8 m/s up):
+  6² = 36    8² = 64    36+64 = 100    √100 = 10 m/s true speed</div>
+<p class="note">NumPy: <code>np.linalg.norm(v)</code> — the same three moves in one call.</p></div>
+<div class="card"><h3>See it: magnitude is the hypotenuse</h3>
+<div class="viz">${(()=>{const p=M(320,240,[-1,6],[-1,6]);return frame(p,[-1,6],[-1,6],
+  arr(p,3,4,'#ff8c00','|v| = 5')+
+  `<line x1="${p.x(0)}" y1="${p.y(0)}" x2="${p.x(3)}" y2="${p.y(0)}" stroke="#27c2a8" stroke-width="2"/><text x="${p.x(1.3)}" y="${p.y(0)+16}" fill="#27c2a8" font-size="11">3</text>`+
+  `<line x1="${p.x(3)}" y1="${p.y(0)}" x2="${p.x(3)}" y2="${p.y(4)}" stroke="#ffce4a" stroke-width="2"/><text x="${p.x(3)+8}" y="${p.y(2)}" fill="#ffce4a" font-size="11">4</text>`+
+  `<path d="M ${p.x(0.6)} ${p.y(0)} A 30 30 0 0 0 ${p.x(0.48)} ${p.y(0.64)}" fill="none" stroke="#cbbb95"/>`,'','');})()}
+<div class="cap">Pythagoras IS the norm: the legs are the components, the arrow is the answer. Any dimension count works — 3D, 20D — same square-add-root.</div></div></div>
+<div class="card"><h3>Where magnitude is actively used (all four are the same three moves)</h3>
+<table class="tt"><tr><th>Use</th><th>What happens</th><th>One-line numeric</th></tr>
+<tr><td>Normalization</td><td>v / |v| → unit vector (length 1, pure direction)</td><td>[3,4]/5 = [0.6, 0.8], and √(0.36+0.64)=1 ✓</td></tr>
+<tr><td>Distance / error</td><td>|A−B| = Euclidean (L2) distance; squared &amp; averaged = MSE loss</td><td>A=[3,4], B=[0,0] → dist 5</td></tr>
+<tr><td>Gradient descent</td><td>gradient's magnitude = step size; "clipping" = cap it</td><td>|[6,8]|=10 → clip at 5 → ×0.5</td></tr>
+<tr><td>Edge-AI INT8</td><td>quantization scale set by max |weight| in a tensor</td><td>max |w|=10 → scale 10/127</td></tr></table></div>`},
+
+// 3 — dot product
+{t:'Dot product — an alignment score (with a hidden flaw)',s:'Multiply matching slots, add everything: one number that measures how much two vectors point the same way. It is THE workhorse — every neuron, every similarity engine computes it.',
+ ana:'🖼️ Closing analogy: the dot product is APPLAUSE IN A STADIUM — how aligned the crowd is AND how many people are clapping, mixed into one loudness number. You cannot tell a small crowd perfectly in sync from a huge crowd half in sync. Remember: applause = alignment × size, inseparably.',
+ b:`<div class="duo"><div class="card"><h3>Mechanics — nothing skipped</h3>
+<div class="eq">A·B = a₁·b₁ + a₂·b₂ + … + aₙ·bₙ
+
+A=[5,4,1] · B=[10,8,2]:
+  slot 1:  5 × 10 = 50
+  slot 2:  4 ×  8 = 32
+  slot 3:  1 ×  2 =  2
+  add:     50 + 32 + 2 = 84</div>
+<p class="note">NumPy: <code>A @ B</code>. In C this is the classic multiply-accumulate (MAC) loop — one multiply, one add per slot.</p></div>
+<div class="card"><h3>See it: alignment = shadow</h3>
+<div class="viz">${(()=>{const p=M(320,240,[-1,6],[-1,5]);
+  // B=[4,1]; A=[2,3]; projection of A onto B: (A·B/|B|^2) B = (8+3)/17 *[4,1]=[2.59,0.65]
+  return frame(p,[-1,6],[-1,5],
+  arr(p,4,1,'#27c2a8','B')+arr(p,2,3,'#ff8c00','A')+
+  `<line x1="${p.x(2)}" y1="${p.y(3)}" x2="${p.x(2.59)}" y2="${p.y(0.65)}" stroke="#cbbb95" stroke-dasharray="4,4"/>`+
+  arr(p,2.59,0.65,'#ffce4a','shadow of A'),'','');})()}
+<div class="cap">Geometrically: drop A's shadow onto B. Dot product = (shadow length) × (B's length). Long shadow = aligned; zero shadow (perpendicular) = dot 0; backwards shadow = negative.</div></div></div>
+<div class="card"><h3>⚠️ The two lies of the raw dot product — full numbers</h3>
+<div class="duo"><div>
+<div class="eq">LIE 1 — same direction, different volume:
+[1,1]·[1,1]     = 1+1     = 2
+[10,10]·[10,10] = 100+100 = 200</div>
+<p class="note">Identical alignment (perfect), 100× the score — purely from loudness.</p></div><div>
+<div class="eq">LIE 2 — different directions, same score:
+[1,0]·[5,0] = 5+0 = 5   (identical heading)
+[5,5]·[1,0] = 5+0 = 5   (45° apart!)</div>
+<p class="note">Two totally different geometries → one number. Dot alone cannot tell direction from size.</p></div></div>
+<div class="viz">${(()=>{const p=M(430,210,[-0.5,6],[-0.5,6]);return frame(p,[-0.5,6],[-0.5,6],
+  arr(p,5,0,'#27c2a8','[5,0]')+arr(p,1,0,'#a8c87a','[1,0]')+arr(p,5,5,'#d9534f','[5,5]'),'','');})()}
+<div class="cap">LIE 2 drawn: the green pair points identically; the red one veers 45° — yet both pairs score dot = 5.</div></div></div>`},
+
+// 4 — cosine
+{t:'Cosine similarity — divide the loudness OUT',s:'Take the dot product, then divide by BOTH magnitudes. What survives is pure direction agreement: the cosine of the angle between the two arrows. Range −1 … +1, size-proof.',
+ ana:'🖼️ Closing analogy: cosine is the SOUND ENGINEER\'s fix — normalize both microphones to the same volume BEFORE comparing the melodies. After that, a whisper and a shout singing the same tune score identical. Volume can never fake harmony again.',
+ b:`<div class="duo"><div class="card"><h3>The formula, decoded</h3>
+<div class="eq">cosine(A,B) = (A·B) / (|A| × |B|)
+                 ↑           ↑
+        alignment×size    ÷ size of A ÷ size of B
+                = pure alignment</div>
+<div class="eq">value   angle    meaning
++1       0°     same direction
+ 0      90°     unrelated (perpendicular)
+−1     180°     exact opposites</div>
+<p class="note">NumPy: <code>(A@B)/(np.linalg.norm(A)*np.linalg.norm(B))</code></p></div>
+<div class="card"><h3>🎬 What-if: drag the angle, watch the cosine</h3>
+<div class="viz"><svg viewBox="0 0 320 230" width="100%" id="cosSvg">
+  <line x1="40" y1="190" x2="300" y2="190" stroke="#7a9e5a"/>
+  <line x1="40" y1="190" x2="200" y2="190" stroke="#27c2a8" stroke-width="2.6" marker-end="url(#mT)"/>
+  <text x="205" y="185" fill="#27c2a8" font-size="11">A (fixed)</text>
+  <line id="cosB" x1="40" y1="190" x2="200" y2="190" stroke="#ff8c00" stroke-width="2.6" marker-end="url(#mO)"/>
+  <text id="cosBt" x="205" y="170" fill="#ff8c00" font-size="11">B</text>
+</svg>
+<input type="range" id="cosR" min="0" max="180" value="40" oninput="cosMove(+this.value)">
+<div class="cap">θ = <b id="cosAng" class="o">40°</b> → cos θ = <b id="cosVal" class="k">0.766</b> · <span id="cosMsg" class="ok">strongly similar</span></div></div></div></div>
+<div class="callout">Reading rule for trainees: dot product answers "how loud is the agreement?"; cosine answers "how pure is the agreement?" — same numerator, magnitudes divided away.</div>`},
+
+// 5 — Netflix worked example
+{t:'Worked example 1 — Netflix users (dot GETS IT WRONG, cosine fixes it)',s:'Three users rate genres [Action, Comedy, Romance]. D has IDENTICAL taste to A (every rating exactly doubled). C is A\'s opposite — a Romance fanatic — but rates heavily. Question: who is most similar to A?',
+ ana:'🖼️ Closing analogy: C is the guy at karaoke singing the WRONG song at MAXIMUM volume. Raw dot product hands him the trophy for loudness. Cosine listens to the melody.',
+ b:`<div class="card"><h3>The data + taste profiles drawn</h3>
+<div class="eq">A = [5, 4, 1]      reference (casual rater, loves Action)
+D = [10, 8, 2]     A doubled — SAME heading, twice the volume
+C = [2, 8, 100]    opposite taste, very heavy rater</div>
+<div class="viz">${(()=>{
+  const rows=[['A',[5,4,1],'#27c2a8'],['D',[10,8,2],'#a8c87a'],['C',[2,8,100],'#d9534f']];
+  return rows.map(r=>`<div style="display:flex;align-items:center;gap:6px;margin:3px 0">
+    <span style="width:20px;color:${r[2]};font-weight:bold">${r[0]}</span>`+
+    ['Action','Comedy','Romance'].map((g,i)=>`<span style="font-size:.68em;color:#cbbb95">${g}</span>
+      <div style="width:${r[1][i]}px;max-width:180px;height:12px;background:${r[2]};border-radius:3px"></div><span style="font-size:.7em;color:${r[2]}">${r[1][i]}</span>`).join('')+
+    `</div>`).join('');})()}
+<div class="cap">Profiles as bars: A and D have the SAME SHAPE (2:1 scale). C's shape is completely different — one giant Romance bar.</div></div></div>
+<div class="duo"><div class="card"><h3>Dot product — every multiplication</h3>
+<div class="eq">A·D = (5×10) + (4×8) + (1×2)
+    =   50   +  32   +   2    =  84
+A·C = (5×2)  + (4×8) + (1×100)
+    =   10   +  32   +  100   = 142</div>
+<p class="note"><span class="r">Verdict: C (142) beats the perfect twin D (84).</span> The ×100 Romance rating bulldozed the score — volume beat taste.</p></div>
+<div class="card"><h3>Cosine — every step</h3>
+<div class="eq">|A| = √(25+16+1)    = √42    ≈ 6.48
+|D| = √(100+64+4)   = √168   ≈ 12.96
+|C| = √(4+64+10000) = √10068 ≈ 100.3
+
+cos(A,D) = 84  / (6.48 × 12.96) = 84/84   = 1.00
+cos(A,C) = 142 / (6.48 × 100.3) = 142/650 = 0.22</div>
+<p class="note"><span class="ok">Verdict: D (1.00) ≫ C (0.22)</span> — cosine stripped the heavy-rater volume and read the actual taste.</p></div></div>
+<div class="viz">${bars([['dot: A·D',84/142*100,'#a8c87a','84'],['dot: A·C',100,'#d9534f','142  ← wrong winner'],['cos: A,D',100,'#a8c87a','1.00 ← right winner'],['cos: A,C',22,'#d9534f','0.22']])}
+<div class="cap">The verdict FLIP, drawn: dot crowns C; cosine crowns D. Same data, one division.</div></div>`},
+
+// 6 — walking example
+{t:'Worked example 2 — three walkers (cosine IS the angle)',s:'Same trap, now visible on a map. Three people leave the same spot. D copies A\'s bearing but hikes 10× farther. C walks due north — a different bearing — but a very long way.',
+ ana:'🖼️ Closing analogy: dot product judges "who walked most LIKE me" partly by odometer. C\'s odometer bribes it. Cosine confiscates the odometer and reads only the compass.',
+ b:`<div class="duo"><div class="card"><h3>The map — vectors to scale</h3>
+<div class="viz">${(()=>{const p=M(340,300,[-10,60],[-10,130]);return frame(p,[-10,60],[-10,130],
+  arr(p,50,40,'#a8c87a','D [50,40]')+arr(p,0,120,'#d9534f','C [0,120]')+arr(p,5,4,'#27c2a8','A [5,4]'),'east','north');})()}
+<div class="cap">A short stroll ENE; D the SAME bearing, 10× farther; C due north, very far. Eyeball it: whose direction matches A? Obviously D.</div></div></div>
+<div class="card"><h3>Both scores, no skipped steps</h3>
+<div class="duo"><div>
+<div class="eq">DOT (fooled):
+A·D = (5×50)+(4×40) = 250+160 = 410
+A·C = (5×0) +(4×120)=   0+480 = 480
+→ says C (480) &gt; D (410)  ✗</div></div><div>
+<div class="eq">COSINE (correct):
+|A| = √(25+16)     = √41   ≈ 6.40
+|D| = √(2500+1600) = √4100 ≈ 64.0
+|C| = √(0+14400)   = 120
+
+cos(A,D) = 410/(6.40×64.0) = 410/410 = 1.00
+cos(A,C) = 480/(6.40×120)  = 480/768 = 0.625
+→ D (1.00) ≫ C (0.625)  ✓  (0.625 = cos 51°)</div></div></div>
+<div class="eq">why "cosine": it IS the cosine of the angle between headings
+   0° → 1.00      51° → 0.625      90° → 0      180° → −1</div></div>`},
+
+// 7 — decision boundary
+{t:'Decision boundary — when dot is enough, when you MUST use cosine',s:'Every tool has a failure mode. Give trainees the rule, not just the tools.',
+ ana:'🖼️ Closing analogy: dot product is a bathroom scale — perfectly fine when everyone wears the same clothes. Cosine is the scale that makes everyone change into the same gown first. If outfits (magnitudes) differ, only the gown-scale is fair.',
+ b:`<div class="boundary"><b class="ok">✅ Dot product is enough</b> when all vectors are roughly the SAME LENGTH — then magnitude cannot distort the ranking (and you save two norms + a division: cheaper on silicon).<br><br>
+<b class="r">❌ Use cosine the moment magnitudes vary</b> — and in real data they always do (one user rates 5 items, another 5,000; one signal is loud, another quiet). Raw dot will confuse "rates a lot" with "similar taste" and rank the wrong item first.</div>
+<div class="viz">${(()=>{const p=M(430,230,[-0.5,11],[-0.5,11]);return frame(p,[-0.5,11],[-0.5,11],
+  arr(p,2,1.6,'#27c2a8','a')+arr(p,2.2,1.4,'#27c2a8','b')+arr(p,1.6,2.1,'#27c2a8','c')+
+  arr(p,10,8,'#d9534f','the whale'),'','');})()}
+<div class="cap">The failure picture: three same-size vectors compare fairly by dot alone — until a "whale" (huge magnitude) enters and dominates every dot score regardless of its direction. That whale is why cosine exists.</div></div>
+<div class="callout">Engineering echo: comparing two signals' raw correlation without normalizing — a high-amplitude noisy channel out-scores a clean low-amplitude match. Normalize first, then compare.</div>`},
+
+// 8 — variance & std
+{t:'Variance &amp; standard deviation — measuring "spread"',s:'Before covariance can compare two features, we need the spread of ONE feature. Two drives can share the same AVERAGE latency and behave completely differently — the mean is blind to consistency. Variance is the number that sees it.',
+ ana:'🖼️ Closing analogy: two archers both average a bullseye. Archer A\'s arrows cluster inside a coin; archer B\'s arrows are all over the target — they just happen to cancel out. The MEAN says they\'re equal. VARIANCE hands the medal to A. Averages hide chaos; spread exposes it.',
+ b:`<div class="duo"><div class="card"><h3>Every arithmetic step — Drive A</h3>
+<div class="eq">latencies: 98, 99, 100, 101, 102     mean = 100
+deviations: −2, −1, 0, +1, +2
+squares:     4,  1, 0,  1,  4
+sum = 10
+variance = 10 / (5−1) = 2.5
+std dev σ = √2.5 ≈ 1.58 µs</div></div>
+<div class="card"><h3>Every arithmetic step — Drive B</h3>
+<div class="eq">latencies: 80, 90, 100, 110, 120     mean = 100
+deviations: −20, −10, 0, +10, +20
+squares:    400, 100, 0, 100, 400
+sum = 1000
+variance = 1000 / (5−1) = 250
+std dev σ = √250 ≈ 15.8 µs</div></div></div>
+<div class="viz">${(()=>{const p=M(430,190,[75,125],[-0.6,2.2]);
+  const A=[98,99,100,101,102].map(v=>dt(p,v,1.5,'#27c2a8','')).join('');
+  const B=[80,90,100,110,120].map(v=>dt(p,v,0.5,'#d9534f','')).join('');
+  return frame(p,[75,125],[-0.6,2.2],A+B+
+   `<text x="${p.x(104)}" y="${p.y(1.5)-10}" fill="#27c2a8" font-size="11">Drive A: σ≈1.6</text>`+
+   `<text x="${p.x(112)}" y="${p.y(0.5)-10}" fill="#d9534f" font-size="11">Drive B: σ≈15.8</text>`+
+   `<line x1="${p.x(100)}" y1="${p.y(-0.4)}" x2="${p.x(100)}" y2="${p.y(2)}" stroke="#ff8c00" stroke-width="2" stroke-dasharray="5,4"/><text x="${p.x(100)}" y="${p.y(2)+14}" fill="#ff8c00" font-size="10" text-anchor="middle">both means = 100</text>`,'latency (µs)','');})()}
+<div class="cap">Same mean, opposite personalities. σ is the honest width of each cluster — in the ORIGINAL units (µs), which is why we take the square root at the end.</div></div>
+<div class="callout">Why square the deviations (and not just add them)? Raw deviations always cancel to zero (−2−1+0+1+2 = 0). Squaring kills the sign so spread accumulates — then √ brings the units back home.</div>`},
+
+// 9 — covariance
+{t:'Covariance — do TWO features move together?',s:'Variance watches one feature wiggle. Covariance asks whether two features wiggle IN SYNC. Mechanism: each data row casts a vote — deviations multiplied. Same side of their means → positive vote. Opposite sides → negative vote. Covariance = the average of the votes.',
+ ana:'🖼️ Closing analogy: covariance is a DANCE JUDGE watching two partners. Both step left together, both step right together → positive score. One steps left when the other steps right → negative. Strangers dancing to different songs → votes cancel, zero. The judge never watches one dancer — only the PAIRING.',
+ b:`<div class="card"><h3>The four cases — full arithmetic, nothing assumed</h3>
+<table class="tt"><tr><th></th><th>POSITIVE<br>Temp↑ Latency↑</th><th>NEGATIVE<br>Temp↑ Clock↓</th><th>NEUTRAL ≈0<br>unrelated</th><th>cov(X,X)<br>= VARIANCE</th></tr>
+<tr><td>X</td><td>40, 50, 60</td><td>40, 50, 60</td><td>40, 50, 60</td><td>40, 50, 60</td></tr>
+<tr><td>Y</td><td>100, 120, 140</td><td>900, 850, 800</td><td>140, 80, 140</td><td>40, 50, 60 (itself)</td></tr>
+<tr><td>X−X̄</td><td>−10, 0, +10</td><td>−10, 0, +10</td><td>−10, 0, +10</td><td>−10, 0, +10</td></tr>
+<tr><td>Y−Ȳ</td><td>−20, 0, +20</td><td>+50, 0, −50</td><td>+20, −40, +20</td><td>−10, 0, +10</td></tr>
+<tr><td>votes</td><td>+200, 0, +200</td><td>−500, 0, −500</td><td>−200, 0, +200</td><td>+100, 0, +100</td></tr>
+<tr><td>sum</td><td>+400</td><td>−1000</td><td>0</td><td>+200</td></tr>
+<tr><td>cov = sum/(n−1)</td><td class="t"><b>+200</b></td><td class="r"><b>−500</b></td><td><b>0</b></td><td class="o"><b>+100 (always +)</b></td></tr></table>
+<p class="note">The 4th column is the bridge: a feature paired with ITSELF makes every vote a square → never negative → <b>variance is just self-covariance</b>. That's why variances will sit on the matrix diagonal next step.</p></div>
+<div class="viz">${(()=>{const p=M(430,230,[-14,14],[-60,60]);
+  return frame(p,[-14,14],[-60,60],
+   `<rect x="${p.x(0)}" y="${p.y(60)}" width="${p.x(14)-p.x(0)}" height="${p.y(0)-p.y(60)}" fill="rgba(39,194,168,.07)"/>`+
+   `<rect x="${p.x(-14)}" y="${p.y(0)}" width="${p.x(0)-p.x(-14)}" height="${p.y(-60)-p.y(0)}" fill="rgba(39,194,168,.07)"/>`+
+   `<rect x="${p.x(-14)}" y="${p.y(60)}" width="${p.x(0)-p.x(-14)}" height="${p.y(0)-p.y(60)}" fill="rgba(217,83,79,.07)"/>`+
+   `<rect x="${p.x(0)}" y="${p.y(0)}" width="${p.x(14)-p.x(0)}" height="${p.y(-60)-p.y(0)}" fill="rgba(217,83,79,.07)"/>`+
+   dt(p,-10,-20,'#27c2a8','+vote')+dt(p,10,20,'#27c2a8','+vote')+dt(p,0,0,'#cbbb95','0')+
+   dt(p,-10,50,'#d9534f','−vote')+dt(p,10,-50,'#d9534f','−vote'),'X − X̄','Y − Ȳ');})()}
+<div class="cap">The vote quadrants: teal quadrants (same sign) vote positive, red quadrants (opposite signs) vote negative. Teal dots = the positive case; red dots = the throttling case. Where a point LANDS decides its vote.</div></div>
+<div class="callout">⚠️ The classic mistake to warn trainees about: covariance is NOT "multiply the two means." The means are only reference lines — the votes come from per-row DEVIATIONS from those means.</div>`},
+
+// 10 — covariance matrix
+{t:'The covariance matrix — all pairings in one grid',s:'With many features, store every pairwise covariance in a grid. Two rules cover the whole object: the diagonal holds each feature\'s self-covariance (= variance, always ≥ 0); the off-diagonal holds pair relationships (signed) — and it mirrors, because cov(X,Y) = cov(Y,X).',
+ ana:'🖼️ Closing analogy: it\'s the WHO-HANGS-OUT-WITH-WHOM table of an office. Diagonal = how loud each person is alone. Off-diagonal = how strongly each pair syncs. And gossip is symmetric: if X syncs with Y, Y syncs with X — the table mirrors itself.',
+ b:`<div class="duo"><div class="card"><h3>2×2 — both scenarios</h3>
+<p class="note">Positive (Temp–Latency, from the vote table):</p>
+<div style="text-align:center">${matG([['100','+200'],['+200','400']],(i,j,c)=>i===j?'d':'pos')}</div>
+<p class="note">Negative (Temp–Clock, throttling) — ONLY the off-diagonal flips; diagonal stays positive:</p>
+<div style="text-align:center">${matG([['100','−200'],['−200','400']],(i,j,c)=>i===j?'d':'neg')}</div></div>
+<div class="card"><h3>3×3 — full worked read</h3>
+<div class="eq">T: 40,50,60 (dev −10,0,+10)  C: 900,850,800 (dev +50,0,−50)
+L: 100,120,140 (dev −20,0,+20)
+
+var_T = (100+0+100)/2      = 100
+var_C = (2500+0+2500)/2    = 2500
+var_L = (400+0+400)/2      = 400
+cov(T,C) = (−500 + 0 −500)/2  = −500
+cov(T,L) = (+200 + 0 +200)/2  = +200
+cov(C,L) = (−1000 + 0 −1000)/2 = −1000</div>
+<div style="text-align:center">${matG([['100','−500','+200'],['−500','2500','−1000'],['+200','−1000','400']],(i,j,c)=>i===j?'d':(c[0]==='−'?'neg':'pos'))}</div></div></div>
+<div class="card"><h3>The analysis checklist (how to READ any covariance matrix)</h3>
+<div class="eq">1. Diagonal → who spreads most?   Clock (2500) is wild; Temp (100) barely moves.
+2. Off-diagonal SIGNS → the relationships:
+     T–C = −  (heat → throttle)     T–L = +  (heat → slower reads)
+     C–L = −  (faster clock → lower latency)
+3. Symmetry → top-right must mirror bottom-left. If not, recompute.</div>
+<p class="note">NumPy: <code>np.cov(data.T)</code> emits this whole grid in one call. Grid size = (number of FEATURES)² — the readings only steady the estimate, they never change the shape.</p></div>`},
+
+// 11 — matrix as machine
+{t:'A matrix is a MACHINE that rotates + stretches vectors',s:'Forget data for one step. Mechanically, a matrix eats a vector and emits a new vector — generally both ROTATING it (new direction) and STRETCHING it (new length). This picture is the doorway to eigenvectors.',
+ ana:'🖼️ Closing analogy: a matrix is a personal TRAINER. Most clients get yanked into a new posture AND stretched. But a few special clients the trainer cannot twist — only lengthen. Watch those two clients below; they are the whole next chapter.',
+ b:`<div class="duo"><div class="card"><h3>Rotated + stretched (the general case)</h3>
+<div class="eq">A = [ 2  0 ]      feed v = [1, 1]  (a clean 45°):
+    [ 0  3 ]
+
+row 1:  2·1 + 0·1 = 2
+row 2:  0·1 + 3·1 = 3
+result: [2, 3]     2 ≠ 3 → no longer 45° → ROTATED</div>
+<div class="viz">${(()=>{const p=M(320,230,[-0.5,4],[-0.5,4]);return frame(p,[-0.5,4],[-0.5,4],
+  arr(p,1,1,'#a8c87a','[1,1] in')+arr(p,2,3,'#ff8c00','[2,3] out'),'','');})()}
+<div class="cap">In at 45°, out steeper — the machine turned the arrow toward its stronger axis (the 3).</div></div></div>
+<div class="card"><h3>Only stretched (the special case)</h3>
+<div class="eq">same A, feed v = [1, 0]  (pure east):
+
+row 1:  2·1 + 0·0 = 2
+row 2:  0·1 + 3·0 = 0
+result: [2, 0]     same direction, exactly 2× longer</div>
+<div class="viz">${(()=>{const p=M(320,230,[-0.5,4],[-0.5,4]);return frame(p,[-0.5,4],[-0.5,4],
+  arr(p,2,0,'#ff8c00','[2,0] out')+arr(p,1,0,'#a8c87a','[1,0] in'),'','');})()}
+<div class="cap">This arrow the machine could NOT rotate — only double. It is an eigenvector, and its stretch factor (2) is its eigenvalue.</div></div></div>
+<div class="callout"><b>Definition, now earned:</b> A·v = λ·v — if the matrix changes only the LENGTH of v (by factor λ, "lambda"), v is an eigenvector and λ its eigenvalue. Axis arrows of a diagonal matrix are the easy examples; the next chapter finds them for ANY matrix.</div>`},
+
+// 12 — eigen chain (embedded existing page)
+{t:'The eigen chain, end-to-end — 2×2 AND 3×3 fully by hand',s:'This chapter is a complete embedded module (built separately, continued here — not duplicated): characteristic equation → determinant expansion with every algebra line → eigenvalues with trace/det sanity checks → eigenvectors by row-reduction → the repeated-λ plane → animated C·v = λ·v verification → PCA payoff. Work through its 8 steps inside the frame below.',
+ ana:'🖼️ Its analogies travel with it — the gym-bro λ=500, the cube-diagonal common tide, the dance floor of leftover directions.',
+ b:`<iframe class="embed" src="2026-07-02_eigen-by-hand-2x2-vs-3x3_F.html" title="Eigen by hand — 2×2 vs 3×3"></iframe>
+<p class="note">If the frame doesn't load (some browsers block local iframes), open it directly: <a href="2026-07-02_eigen-by-hand-2x2-vs-3x3_F.html" target="_blank" style="color:var(--orange)">2026-07-02_eigen-by-hand-2x2-vs-3x3_F.html</a></p>`},
+
+// 13 — PCA + ML map
+{t:'Where every tool lands in machine learning',s:'The payoff map: which pipeline phase each concept powers. Teach this LAST so every tool has an address, and FIRST next morning so the addresses stick.',
+ ana:'🖼️ Closing analogy: the ML pipeline is a kitchen line. Linear algebra is prep (wash, chop, keep the good parts — PCA is literally discarding the wilted leaves). The matrices are the pans. Later stations (training, tasting) borrow every knife you just learned.',
+ b:`<div class="card"><div class="eq"> RAW DATA → PREP (vectors, norms, covariance→eigen→PCA)
+          → MODEL (weights ARE matrices; forward pass = dot products)
+          → TRAINING (calculus adjusts weights; gradients are vectors — their MAGNITUDE is the step size)
+          → EVALUATE (statistics on errors)
+          → DEPLOY (cosine drives vector search; INT8 quantization scales by weight magnitudes)</div></div>
+<div class="card"><h3>Concept → where it works</h3>
+<table class="tt"><tr><th>Concept</th><th>Powers</th></tr>
+<tr><td>Dot product</td><td>every neuron's core op, similarity scores, attention in Transformers</td></tr>
+<tr><td>Cosine similarity</td><td>recommendations, embeddings / vector search (RAG)</td></tr>
+<tr><td>Magnitude / norms</td><td>distances, MSE loss, gradient clipping, quantization scaling</td></tr>
+<tr><td>Variance / σ</td><td>normalization, z-scores, anomaly fences</td></tr>
+<tr><td>Covariance matrix</td><td>feature-redundancy detection, multivariate Gaussians, PCA input</td></tr>
+<tr><td>Eigenvectors / λ</td><td>PCA: rank directions by variance, keep the top-K, drop the rest</td></tr></table></div>
+<div class="viz">${bars([['PC1 keeps',66.7,'#ffce4a','66.7%'],['PC2 keeps',16.7,'#7a9e5a','16.7%'],['PC3 keeps',16.7,'#7a9e5a','16.7%']])}
+<div class="cap">PCA in one picture (numbers from the 3×3 chapter): rank by λ, keep the big bar(s), drop the tail — features compressed, signal kept.</div></div>`},
+
+// 14 — takeaways
+{t:'Key takeaways + formula sheet',s:'The one-slide version to close the session — and to reopen the next one.',
+ ana:'',
+ b:`<div class="duo"><div class="card"><h3>Key takeaways</h3>
+<div class="eq">1. Data rows ARE vectors — one math for everything.
+2. A vector = direction + magnitude, separable.
+3. Dot product = alignment × size (inseparable → two lies).
+4. Cosine divides out both sizes → pure direction, −1…+1.
+5. Same-length vectors → dot is enough; sizes vary → cosine. Always.
+6. Variance = one feature's spread; σ = same, in original units.
+7. Covariance = average of per-row deviation VOTES.
+8. Cov matrix: diagonal = variances (≥0), off-diag = signed, mirrored.
+9. Matrix = rotate+stretch machine; eigenvector = stretch-only arrow;
+   λ = the stretch = the variance living in that direction.
+10. PCA = eigen of covariance: rank by λ, keep top-K.</div></div>
+<div class="card"><h3>Formula sheet</h3>
+<div class="eq">|v|        = √(Σ vᵢ²)                    np.linalg.norm(v)
+A·B        = Σ aᵢbᵢ                      A @ B
+cos(A,B)   = A·B / (|A||B|)
+var(X)     = Σ(xᵢ−x̄)² / (n−1)
+cov(X,Y)   = Σ(xᵢ−x̄)(yᵢ−ȳ) / (n−1)      np.cov(data.T)
+eigen:       A·v = λ·v
+find λ:      det(C − λI) = 0
+find v:      solve (C − λI)v = 0
+checks:      Σλ = trace(C),  Πλ = det(C)
+PCA share:   λᵢ / Σλ                      np.linalg.eig(cov)</div></div></div>
+<div class="callout">Trainer's closing line: every formula above is three or fewer moves on numbers a trainee can hold in their head. If a session ever feels abstract, return to [3,4] → 5 and rebuild from there.</div>`},
+];
+
+// ---------- machinery ----------
+const stage=document.getElementById('stage'),dotsBox=document.getElementById('dots'),
+      label=document.getElementById('slabel'),prev=document.getElementById('prev'),next=document.getElementById('next');
+let cur=0;
+function render(){
+  stage.innerHTML=steps.map((s,i)=>`<div class="step ${i===cur?'on':''}">
+    <div class="stepHeader"><span class="sn">Ch ${i+1}</span><h2>${s.t}</h2><p>${s.s}</p>${s.ana?`<p class="ana">${s.ana}</p>`:''}</div>${s.b}</div>`).join('');
+  dotsBox.innerHTML=steps.map((_,i)=>`<span class="dot ${i===cur?'on':''}" data-i="${i}"></span>`).join('');
+  label.textContent=`Chapter ${cur+1} / ${steps.length}`;
+  prev.disabled=cur===0; next.disabled=cur===steps.length-1;
+}
+function go(i){cur=Math.max(0,Math.min(steps.length-1,i));render();window.scrollTo({top:0,behavior:'smooth'});}
+prev.onclick=()=>go(cur-1); next.onclick=()=>go(cur+1);
+dotsBox.addEventListener('click',e=>{const t=e.target.closest('.dot');if(t)go(+t.dataset.i);});
+window.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')go(cur-1);if(e.key==='ArrowRight')go(cur+1);});
+
+// cosine what-if
+function cosMove(deg){
+  const r=deg*Math.PI/180, L=160;
+  const x2=40+L*Math.cos(r), y2=190-L*Math.sin(r);
+  const B=document.getElementById('cosB'), Bt=document.getElementById('cosBt');
+  if(B){B.setAttribute('x2',x2);B.setAttribute('y2',y2);Bt.setAttribute('x',x2+5);Bt.setAttribute('y',y2-5);}
+  const c=Math.cos(r);
+  document.getElementById('cosAng').textContent=deg+'°';
+  document.getElementById('cosVal').textContent=c.toFixed(3);
+  document.getElementById('cosMsg').textContent=c>0.85?'nearly identical':c>0.5?'strongly similar':c>0.1?'weakly similar':c>-0.1?'unrelated':'opposing';
+}
+render();
+</script>
+</body>
+</html>
