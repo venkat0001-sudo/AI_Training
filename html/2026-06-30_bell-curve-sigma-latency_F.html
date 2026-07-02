@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bell Curve & σ — latency jitter (interactive) | _F</title>
+<style>
+:root{
+  --bg:#0d1408; --card:rgba(20,40,12,.72); --line:rgba(74,122,46,.5);
+  --cream:#f5e6c8; --creamd:#cbbb95; --sage:#a8c87a; --saged:#4a7a2e;
+  --orange:#ff8c00; --orangeg:#ffb347;
+  --g1:#3A7D44; --g2:#E8A838; --g3:#E05C2A; --blue:#5a8fbf;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:linear-gradient(135deg,#0c1607,#0e1f0a 55%,#171708);color:var(--cream);
+  font-family:'Courier New',monospace;line-height:1.55;min-height:100vh}
+.wrap{max-width:1080px;margin:0 auto;padding:26px 22px 60px}
+.header{text-align:center;margin-bottom:14px}
+.title{font-size:1.7em;color:var(--orange);text-shadow:0 0 18px var(--orange);letter-spacing:1px}
+.subtitle{color:var(--sage);font-size:.82em;margin-top:4px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:14px 0;backdrop-filter:blur(5px)}
+.controls{display:flex;flex-wrap:wrap;gap:26px;justify-content:center;align-items:flex-end}
+.ctrl{display:flex;flex-direction:column;align-items:center;gap:6px}
+.ctrl label{font-size:.74em;color:var(--sage)}
+.ctrl input[type=range]{width:230px;accent-color:var(--orange)}
+.ctrl .val{color:var(--orangeg);font-size:1.15em;font-weight:bold}
+.presets{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.pbtn{background:rgba(74,122,46,.2);color:var(--cream);border:1px solid var(--saged);border-radius:9px;padding:8px 14px;cursor:pointer;font-family:inherit;font-size:.82em;transition:.15s}
+.pbtn:hover{background:var(--orange);color:#1a1a0a}
+.pbtn.on{background:var(--orange);color:#1a1a0a;box-shadow:0 0 12px var(--orange)}
+.readout{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:14px;font-size:.8em}
+.pill{border-radius:10px;padding:5px 12px;border:1px solid var(--line)}
+.pill b{font-size:1.05em}
+.legend{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;font-size:.76em;color:var(--creamd);margin-top:8px}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:5px}
+svg{width:100%;display:block}
+.note{font-size:.82em;color:var(--creamd);margin-top:8px}
+.k{color:var(--orangeg)}
+/* comprehensive narrative */
+.rung{background:rgba(0,0,0,.32);border:1px solid var(--line);border-left:3px solid var(--orange);
+  border-radius:0 10px 10px 0;padding:13px 16px;margin:12px 0}
+.rung h4{color:var(--orangeg);font-size:1.02em;margin-bottom:5px}
+.rung p{font-size:.86em;margin:6px 0;color:var(--cream)}
+.rung .ana{background:rgba(255,217,61,.07);border-radius:7px;padding:7px 11px;margin:7px 0;font-size:.84em;color:var(--gold);font-style:italic}
+.rung .num{background:rgba(0,0,0,.4);border:1px solid var(--line);border-radius:7px;padding:8px 11px;margin:7px 0;
+  font-size:.82em;color:var(--sage);white-space:pre-wrap;font-family:'Courier New',monospace}
+.rung .ssd{color:var(--blue);font-size:.84em}
+.arrowdown{text-align:center;color:var(--saged);font-size:1.1em;margin:-4px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="title">🔔 THE BELL & σ — latency jitter</div>
+    <div class="subtitle">drag σ to watch the bell go fat ↔ skinny · same mean, different reliability · _F · 2026-06-30</div>
+  </div>
+
+  <div class="card" style="border-color:rgba(255,140,0,.4)">
+    <div style="color:var(--orange);font-weight:bold;font-size:1.15em;margin-bottom:4px">🧭 How we got here — the full road to the bell</div>
+    <p class="note" style="margin-top:0">This curve didn't fall from the sky. It's the <b>final shape</b> of a ladder we climbed rung by rung. Read this once and the whole chain should come back — each rung says <b>what it is</b>, <b>why we needed it</b>, and <b>the numbers</b>.</p>
+
+    <div class="rung">
+      <h4>1 · Raw readings — the starting universe</h4>
+      <p>We begin with a stream of read-latencies straight off the drive — just numbers, no story yet:</p>
+      <div class="num">readings = [80, 120, 90, 110, 100]   µs</div>
+      <p>On their own these can't answer anything useful — "Is this drive healthy? Predictable? Will it blow my QoS budget?" Everything else in this page is <b>squeezed out of these five numbers</b>. Each reading is one round-trip time of a read command.</p>
+    </div>
+    <div class="arrowdown">↓ but a pile of numbers has no summary — so first, find the center</div>
+
+    <div class="rung">
+      <h4>2 · Mean — the center of gravity</h4>
+      <p>Add them up, divide by how many. This is the anchor every later step measures against.</p>
+      <div class="num">mean = (80+120+90+110+100) / 5 = 500 / 5 = 100 µs</div>
+      <p class="ana">😄 The mean is the friend-group's <b>average height</b>: it tells you nothing about the giant or the gnome individually — but it's the line everyone stands next to to be measured. Useless alone (two totally different drives can share a mean), yet nothing downstream works without it.</p>
+      <p>⚠️ Trap to remember: the mean is <b>not</b> the biggest value. It's the <b>balance point</b> — the spot where the readings below it exactly counterweight the ones above.</p>
+    </div>
+    <div class="arrowdown">↓ now ask: how far does each reading stray from that center?</div>
+
+    <div class="rung">
+      <h4>3 · Deviations — "how weird is each reading?"</h4>
+      <p>Deviation = <b>value − mean</b>, one per reading. Positive = above average, negative = below.</p>
+      <div class="num">80 − 100 = −20      90 − 100 = −10      100 − 100 = 0
+120 − 100 = +20    110 − 100 = +10</div>
+      <p class="ana">😄 Deviation = your personal "how weird am I" score. Shaq is <b>+15 cm</b> from the room average, Danny DeVito is <b>−10 cm</b>. Same room, opposite weird.</p>
+      <p>🔑 Built-in spell-check: deviations <b>always sum to zero</b> (−20+20−10+10+0 = 0) — that's literally what "balance point" means. If yours don't sum to 0, your mean is wrong. But that zero is also a <b>problem</b>: you can't just average the deviations to summarise spread — you'd always get 0.</p>
+    </div>
+    <div class="arrowdown">↓ deviations cancel to zero — so we square them before averaging</div>
+
+    <div class="rung">
+      <h4>4 · Variance — one number for the spread</h4>
+      <p>Square each deviation (kills the signs so they stop cancelling), then average over n−1:</p>
+      <div class="num">squares: (−20)²+(20)²+(−10)²+(10)²+0² = 400+400+100+100+0 = 1000
+variance = 1000 / (5−1) = 1000 / 4 = 250  µs²</div>
+      <p><b>Why square, not just drop the minus sign?</b> Two jobs at once: (a) it kills the cancellation, and (b) it <b>punishes big misses extra</b> — a deviation of 20 becomes 400, while a 10 becomes only 100. That's the <b>L2 flavour</b> (squaring) vs L1 (absolute value, which treats all gaps evenly).</p>
+      <p>The catch: variance is now in <b>µs² — squared units</b>. "The spread is 250 µs-squared" means nothing to a human. So one more step…</p>
+    </div>
+    <div class="arrowdown">↓ un-square it to get back to real, readable units</div>
+
+    <div class="rung">
+      <h4>5 · Standard deviation σ — the readable headline</h4>
+      <p>Take the square root of variance → back to real µs:</p>
+      <div class="num">σ = √variance = √250 ≈ 15.81  µs</div>
+      <p>Now you can say it like a human: <b>"reads typically land at 100 ± 15.81 µs"</b> — a single, units-correct number for "how far a reading usually strays from the mean." This is the headline you put on a datasheet or set a throttle threshold against. You can't do that with the deviation list (it cancels) or with variance (wrong units).</p>
+    </div>
+    <div class="arrowdown">↓ here's why σ matters more than the mean ever could</div>
+
+    <div class="rung">
+      <h4>6 · The twist — same mean, different σ (mean alone LIES)</h4>
+      <p>Two drives, both averaging 100 µs. The mean calls them identical. σ exposes the truth:</p>
+      <div class="num">Drive A (steady):  [98,100,102,99,101]   mean=100   σ ≈ 1.58 µs   → 98–102
+Drive B (jittery): [80,120,90,110,100]   mean=100   σ ≈ 15.81 µs  → 84–116</div>
+      <p class="ssd">🔧 Identical average latency — but Drive A holds a tight 98–102 band (datacenter-happy, short tail, SLAs safe), while Drive B's reads could be 80 or 120. <b>Drive B's fat σ is the QoS nightmare</b> — the p99 tail blows out and you get the support ticket, even though the average looked perfect. The mean said "fine"; <b>σ told the truth about the jitter.</b></p>
+    </div>
+    <div class="arrowdown">↓ σ is still just a number — so let's DRAW it</div>
+
+    <div class="rung" style="border-left-color:var(--g3)">
+      <h4>7 · The bell — σ drawn as a shape 🔔</h4>
+      <p>"±15.81" is abstract. The bell curve is simply <b>σ made visible</b>: the peak sits at the mean, and the <b>width is set by σ</b>.</p>
+      <div class="num">small σ  →  a razor-thin SPIKE  (steady drive, all reads jammed near the mean)
+big σ    →  a WIDE hill        (jittery drive, reads sprawl far out)</div>
+      <p>The coloured bands below are the <b>68–95–99.7 rule</b>: <span style="color:var(--g1)">±1σ holds ~68%</span>, <span style="color:var(--g2)">±2σ ~95%</span>, <span style="color:var(--g3)">±3σ ~99.7%</span>. So ±1σ is <b>not</b> the outlier fence — about <b>1 in 3 readings normally falls outside ±1σ</b>. Real outliers live beyond <b>±2σ / ±3σ</b>. (That's why Drive B's 80 and 120, sitting inside ±2σ = 68–132, are <b>normal jitter, not outliers</b> — a true outlier would be a ~150 µs read way out in the dead tail.)</p>
+    </div>
+    <p class="note">👇 Everything above is now <b>draggable</b> below — move the σ slider and watch the bell go skinny↔fat; flip Drive A vs B and watch the same five-ish readings sit under completely different shapes.</p>
+  </div>
+
+  <div class="card">
+    <div class="controls">
+      <div class="ctrl"><label>mean (µs)</label><input id="mean" type="range" min="80" max="120" step="1" value="100"><div class="val"><span id="meanv">100</span> µs</div></div>
+      <div class="ctrl"><label>σ — standard deviation (µs)</label><input id="sig" type="range" min="1" max="30" step="0.1" value="15.8"><div class="val">σ = <span id="sigv">15.8</span> µs</div></div>
+    </div>
+    <div class="presets">
+      <button class="pbtn" id="pA">Drive A — steady (σ≈1.58)</button>
+      <button class="pbtn on" id="pB">Drive B — jittery (σ≈15.81)</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="plot"></div>
+    <div class="legend">
+      <span><span class="sw" style="background:#3A7D44"></span>±1σ &nbsp;~68%</span>
+      <span><span class="sw" style="background:#E8A838"></span>±2σ &nbsp;~95%</span>
+      <span><span class="sw" style="background:#E05C2A"></span>±3σ &nbsp;~99.7%</span>
+      <span>● dots = the 5 readings, coloured by the band they land in</span>
+    </div>
+    <div class="readout" id="readout"></div>
+    <div class="note" id="verdict"></div>
+  </div>
+
+  <div class="card" style="border-color:rgba(90,143,191,.45)">
+    <div style="color:var(--blue);font-weight:bold;font-size:1.15em;margin-bottom:4px">🚀 …and where the bell leads next</div>
+    <p class="note" style="margin-top:0">The bell isn't the destination — it's a <b>hub</b> the rest of the course plugs into. Each of these is "the bell + σ, reused":</p>
+
+    <div class="rung" style="border-left-color:var(--blue)">
+      <h4>→ z-score — "how many σ out is this reading?"</h4>
+      <p>Take any reading, measure its distance from the mean <b>in units of σ</b>:</p>
+      <div class="num">z = (value − mean) / σ
+Drive B, reading 80:  z = (80 − 100) / 15.81 = −1.26   → 1.26σ BELOW the mean
+Drive B, reading 120: z = (120 − 100) / 15.81 = +1.26  → 1.26σ ABOVE the mean</div>
+      <p>The z-score is literally the <b>band a dot lands in</b>, turned into a number. It also makes different drives comparable: a z of +2 means "rare" whether σ was 1.58 or 15.81. This is the bridge from "raw µs" to "how unusual, on a universal scale."</p>
+    </div>
+
+    <div class="rung" style="border-left-color:var(--blue)">
+      <h4>→ Anomaly detection — flag the far tail</h4>
+      <p>Set a fence at ±3σ. Anything beyond it is "off-distribution" — it almost never happens by chance (&lt;0.3%), so when it does, something <b>real</b> is wrong.</p>
+      <p class="ssd">🔧 A read at 160 µs on Drive B (z ≈ +3.8) isn't jitter — it's a signal: read-disturb, an ECC/LDPC retry, a thermal throttle kicking in. The bell turns "weird" into a precise, tunable trip-wire instead of a gut feeling.</p>
+    </div>
+
+    <div class="rung" style="border-left-color:var(--blue)">
+      <h4>→ Probability &amp; Bayes — area under the curve</h4>
+      <p>The <b>area under a slice</b> of the bell = the probability a reading lands in that range. The ±1σ slice covers ~68% of the area → "68% chance a read is within 84–116 µs." This is the same probability machinery that feeds into <b>Bayes</b> (your earlier session) — "given a reading, how likely is each cause?"</p>
+    </div>
+
+    <div class="rung" style="border-left-color:var(--blue)">
+      <h4>→ ML normalization — re-centre to mean 0, σ 1</h4>
+      <p>Many models assume features are roughly bell-shaped (Gaussian) and behave badly when one feature swings in the thousands and another in tenths. <b>Standardizing</b> fixes it: subtract the mean, divide by σ — which is exactly the z-score, applied to every value.</p>
+      <div class="num">standardized value = (value − mean) / σ     → new mean 0, new σ 1</div>
+      <p class="ssd">🔧 Edge-AI: this keeps a temperature channel (°C) and a voltage channel (mV) on equal footing before the model sees them — and ties straight back to the covariance/PCA work, where σ-scaling decides which directions look "big."</p>
+    </div>
+
+    <div class="note" style="margin-top:0">🎯 <b>The thread:</b> the same σ you built by hand (readings → mean → deviation → variance → √) becomes the <b>universal ruler for "normal vs weird"</b> — z-scores, anomaly fences, probabilities, and feature scaling all run on it. One number, computed once, reused everywhere downstream.</p>
+  </div>
+</div>
+
+<script>
+const driveA=[98,100,102,99,101], driveB=[80,120,90,110,100];
+let pts=[...driveB];
+const $=id=>document.getElementById(id);
+const meanEl=$('mean'), sigEl=$('sig');
+
+function stats(arr){const m=arr.reduce((a,b)=>a+b,0)/arr.length;
+  const v=arr.reduce((a,b)=>a+(b-m)**2,0)/(arr.length-1); return {m,s:Math.sqrt(v)};}
+
+function pdf(x,mu,s){return Math.exp(-((x-mu)**2)/(2*s*s))/(s*Math.sqrt(2*Math.PI));}
+
+function draw(){
+  const mu=+meanEl.value, s=+sigEl.value;
+  $('meanv').textContent=mu; $('sigv').textContent=s.toFixed(1);
+  const W=1000,H=460,pl=50,pr=20,pt=24,pb=44;
+  const xlo=mu-4*30, xhi=mu+4*30;            // fixed window so morphing is visible
+  const X=v=>pl+(v-xlo)/(xhi-xlo)*(W-pl-pr);
+  const peak=pdf(mu,mu,s); const Y=v=>pt+(1-v/peak)*(H-pt-pb);
+  // curve path + band fills
+  let path='', N=400;
+  const xs=[]; for(let i=0;i<=N;i++){const x=xlo+(xhi-xlo)*i/N; xs.push(x); path+=(i?'L':'M')+X(x).toFixed(1)+' '+Y(pdf(x,mu,s)).toFixed(1)+' ';}
+  function band(k,col){let p='M'+X(mu-k*s)+' '+Y(0);
+    for(let i=0;i<=N;i++){const x=mu-k*s+(2*k*s)*i/N; p+='L'+X(x).toFixed(1)+' '+Y(pdf(x,mu,s)).toFixed(1)+' ';}
+    p+='L'+X(mu+k*s)+' '+Y(0)+' Z';
+    return `<path d="${p}" fill="${col}" opacity="0.16"/>`;}
+  let bands=band(3,'#E05C2A')+band(2,'#E8A838')+band(1,'#3A7D44');
+  // sigma lines
+  let slines='';
+  [[1,'#3A7D44'],[2,'#E8A838'],[3,'#E05C2A']].forEach(([k,c])=>{
+    [mu-k*s,mu+k*s].forEach(xv=>{slines+=`<line x1="${X(xv)}" y1="${pt}" x2="${X(xv)}" y2="${H-pb}" stroke="${c}" stroke-dasharray="5 4" stroke-width="1" opacity=".7"/>`;});
+    slines+=`<text x="${X(mu+k*s)}" y="${pt+12+ (k-1)*14}" fill="${c}" font-size="11">+${k}σ=${(mu+k*s).toFixed(1)}</text>`;
+    slines+=`<text x="${X(mu-k*s)}" y="${pt+12+(k-1)*14}" fill="${c}" font-size="11" text-anchor="end">−${k}σ=${(mu-k*s).toFixed(1)}</text>`;
+  });
+  // axis
+  let axis='';
+  for(let v=Math.ceil(xlo/20)*20; v<=xhi; v+=20){axis+=`<line x1="${X(v)}" y1="${H-pb}" x2="${X(v)}" y2="${H-pb+5}" stroke="var(--saged)"/><text x="${X(v)}" y="${H-pb+18}" fill="var(--creamd)" font-size="10" text-anchor="middle">${v}</text>;`}
+  // data points
+  let dots='', cnt={1:0,2:0,3:0,out:0};
+  pts.forEach(p=>{const d=Math.abs(p-mu)/s; const band = d<=1?1:d<=2?2:d<=3?3:'out';
+    if(band===1)cnt[1]++; else if(band===2)cnt[2]++; else if(band===3)cnt[3]++; else cnt.out++;
+    const col=d<=1?'#3A7D44':d<=2?'#E8A838':'#E05C2A';
+    const yp=Y(pdf(p,mu,s));
+    dots+=`<circle cx="${X(p)}" cy="${yp}" r="9" fill="${col}" stroke="#0c1607" stroke-width="2"/>
+      <text x="${X(p)}" y="${yp-14}" fill="${col}" font-size="11" text-anchor="middle" font-weight="bold">${p}</text>`;});
+  $('plot').innerHTML=`<svg viewBox="0 0 ${W} ${H}">
+    ${bands}${slines}
+    <path d="${path}" fill="none" stroke="#5a8fbf" stroke-width="2.5"/>
+    <line x1="${X(mu)}" y1="${pt}" x2="${X(mu)}" y2="${H-pb}" stroke="#000" stroke-width="1.5"/>
+    <text x="${X(mu)}" y="${pt-6}" fill="var(--cream)" font-size="12" text-anchor="middle" font-weight="bold">mean=${mu}</text>
+    ${axis}
+    <text x="${W/2}" y="${H-6}" fill="var(--creamd)" font-size="11" text-anchor="middle">read latency (µs)</text>
+    ${dots}
+  </svg>`;
+  // readout
+  $('readout').innerHTML=
+    `<div class="pill" style="border-color:#3A7D44">±1σ: <b>${(mu-s).toFixed(1)} – ${(mu+s).toFixed(1)}</b></div>
+     <div class="pill" style="border-color:#E8A838">±2σ: <b>${(mu-2*s).toFixed(1)} – ${(mu+2*s).toFixed(1)}</b></div>
+     <div class="pill" style="border-color:#E05C2A">±3σ: <b>${(mu-3*s).toFixed(1)} – ${(mu+3*s).toFixed(1)}</b></div>
+     <div class="pill">in ±1σ: <b>${cnt[1]}</b>/${pts.length} · ±2σ band: <b>${cnt[2]}</b> · beyond: <b>${cnt.out}</b></div>`;
+  const shape = s<4?'a razor-thin SPIKE — readings jammed tight, super predictable ✅'
+              : s<12?'a moderate hill — some spread':'a WIDE bell — big jitter, fat tail 🔥';
+  $('verdict').innerHTML=`σ=${s.toFixed(1)} → the curve is ${shape} &nbsp; <span class="k">(wider bell = bigger σ = more jitter; same mean can hide totally different reliability)</span>`;
+}
+function setPreset(which){
+  if(which==='A'){pts=[...driveA]; const st=stats(driveA); meanEl.value=Math.round(st.m); sigEl.value=st.s.toFixed(1); $('pA').classList.add('on'); $('pB').classList.remove('on');}
+  else{pts=[...driveB]; const st=stats(driveB); meanEl.value=Math.round(st.m); sigEl.value=st.s.toFixed(1); $('pB').classList.add('on'); $('pA').classList.remove('on');}
+  draw();
+}
+meanEl.oninput=draw; sigEl.oninput=()=>{ $('pA').classList.remove('on'); $('pB').classList.remove('on'); draw(); };
+$('pA').onclick=()=>setPreset('A'); $('pB').onclick=()=>setPreset('B');
+draw();
+</script>
+</body>
+</html>

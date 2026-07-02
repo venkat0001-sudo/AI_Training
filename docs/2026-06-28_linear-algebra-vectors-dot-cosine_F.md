@@ -210,6 +210,8 @@ Each data **row casts a vote**:
 
 A single negative vote (one feature above its mean while the other is below) *drags the whole sum down* — that's the mechanism, not a rule to memorize.
 
+😄 **Analogy — the office gossip chart:** covariance is a "who's secretly synced with whom" detector. When the tall guy is *also* the heavy guy, and the short guy *also* the light guy → height & weight **gossip together** → **positive** covariance. If tall guys were always light → they move opposite → **negative**. And the full covariance **matrix** is the whole office chart: the **diagonal** is "how moody is each person alone" (their own variance), the **off-diagonal** is "who's synced with who."
+
 ### 7c. ⭐ The four cases, side by side (the keystone table)
 
 Same machine every time. The ONLY thing that changes is the **sign-pairing of the deviation rows**.
@@ -356,6 +358,8 @@ Step out of covariance. Forget what the numbers *mean*; watch what a matrix *doe
 
 **Core picture:** a matrix is a machine that eats a vector and spits out a different vector. Generally it does TWO things to the arrow — **rotates it** (changes direction) and **stretches it** (changes length).
 
+😄 **Analogy — the pasta press:** feed a *random* arrow through the matrix like a noodle through a pasta press — it comes out **bent (rotated) AND longer (stretched)**. But a few **special arrows** slide through **without bending** — they come out pointing the exact same way, just longer or shorter. Those un-bendable arrows are the **eigenvectors**.
+
 ```
 A = [ 2  0 ]
     [ 0  3 ]
@@ -368,6 +372,8 @@ A · [1,0] = [2, 0]        same direction, just 2× longer → NOT rotated, only
 ```
 
 That second arrow is the teaser for the next rung: some arrows a given matrix **cannot rotate** — it can only lengthen/shorten them. Those are **eigenvectors**, and the stretch factor is the **eigenvalue**. (continued in §11)
+
+😄 **Analogy — gym-bro gains:** push a normal arrow through the matrix and it **twists like a noodle** (new angle). Push an *eigenvector* through and it just gets **taller — same direction, pure gains, no twist.** 💪 The amount it bulked up = the eigenvalue.
 
 ---
 
@@ -600,3 +606,137 @@ Average the *raw* deviations and you always get **0** — the mean is the balanc
 
 ### J. Artifacts from this journey
 Notebook cells **4.1b** + **4.6**; interactive **PCA 20-sensor HTML** (`html/2026-06-28_pca-20-sensors-walkthrough_F.html`, 11 baby-steps); notes **§12** (eigen basics flow), **§13** (Temp/Latency by-hand), this **§14** (the deep-dive). numpy/matplotlib/sympy installed into the project `.venv` so the notebook actually runs.
+
+---
+
+## 15. Variance & Standard Deviation — the FULL deep-dive (2026-06-30)
+
+> This is the part we drilled hardest in the second half. Capture every rung.
+
+### 15.1 — How deviations are calculated (locked, with the slip)
+- **deviation = value − mean.** One per reading. No special formula — just subtraction.
+- **N values → N deviations**, each measured against the **ONE single mean** (NOT against each other; it's value-vs-mean, never value-vs-neighbour). The mean is the one referee; all players measured against the referee.
+- 😄 **Analogy — the "how weird am I" score:** deviation = how far you are from the room's average height. In a room averaging 5'9", **Shaq is +15 cm** (way above), **Danny DeVito is −10 cm** (below). Same room, opposite weird. The *sign* is which side of normal you're on.
+- Convention is **value − mean** (not mean − value) so the **sign tells above/below**. For variance the sign vanishes anyway (we square), but keep value−mean so sign stays meaningful.
+- **Built-in spell-check: deviations ALWAYS sum to 0** (the mean is the balance point — below cancels above). If yours don't sum to 0, the mean is wrong.
+- **Slip caught (S3 = [10,20,30]):** he said mean=30. ❌ 30 is the **max value**, not the mean. mean = sum/count = 60/3 = **20**. With mean=30 the deviations were −20,−10,0 → summed to **−30 ≠ 0** → the alarm fired. Correct mean=20 → deviations −10, 0, +10 → sum 0 ✓. *His method was perfect; only the anchor was misplaced.*
+- The **÷(n−1) "divide" lives in variance**, NOT in the deviations themselves.
+
+### 15.2 — Why we SQUARE (variance)
+- Average the **raw** deviations → **always 0** (they cancel; mean = balance point). Useless as a summary.
+- **Square first** → all positive → no cancellation → a real spread number.
+- **Bonus job of squaring:** it **punishes big misses extra** — a deviation of 20 → 400, a 10 → only 100. That's the **L2 flavour**. (Absolute value would be **L1**: also kills signs, but treats all gaps evenly.)
+- 😄 **Analogy — the room of people:** a room of **clones** (everyone identical height) → variance **0**. A room with **Danny DeVito AND Shaq** in it → variance **huge**. Variance = "how much do the members disagree with the average?" Wide variance on a latency sensor = jittery QoS.
+- `variance = (Σ squared deviations)/(n−1)` — one number, but in **squared units** (°C², µs²).
+
+### 15.3 — Why STANDARD DEVIATION when we already have deviations / variance
+- **Deviations** = a *list* (signed, sums to 0) → can't summarize spread in one number.
+- **Variance** = one number, but **squared units** ("250 µs²" is meaningless to a human).
+- **σ = √variance** → back to **real units** = "the typical distance a reading sits from the mean." The headline you can put on a datasheet or set a throttle threshold against.
+- **Decision boundary (which tool when):**
+  - **raw deviation** → you care about ONE specific point / how big an outlier is.
+  - **σ (std dev)** → you want the typical spread, in real units (thresholds, ±, datasheets).
+  - **variance (σ²)** → inside the MATH machinery (covariance, optimization) — squared form adds/combines cleanly.
+
+### 15.4 — The "mean ± σ = typical range" statement (analogies)
+- **Height:** "we're typically 5'9" ± 2"."
+- **Pizza 🍕:** mean 30 min. Shop A = 30 ± 2 (reliable, plan dinner); Shop B = 30 ± 20 (chaos). Same mean, σ is the whole difference between trustworthy and gamble.
+- **Latency:** "reads typically land at 100 ± 8 µs."
+
+### 15.5 — ⭐ Two-drive latency example, FULL by hand (same mean, different σ)
+```
+Drive A (steady):  [98, 100, 102, 99, 101]      Drive B (jittery): [80, 120, 90, 110, 100]
+mean A = 500/5 = 100                            mean B = 500/5 = 100        ← identical mean!
+dev A:  −2, 0, +2, −1, +1                       dev B: −20, +20, −10, +10, 0
+sq  A:   4, 0,  4,  1,  1  = 10                  sq  B: 400,400,100,100,0 = 1000
+var A = 10/4   = 2.5                             var B = 1000/4 = 250
+σ_A  = √2.5  ≈ 1.58 µs                           σ_B  = √250  ≈ 15.81 µs
+→ 100 ± 1.6 (98–102): steady ✅                  → 100 ± 16 (84–116): jitter-bomb 🔥
+```
+**The mean said "identical drives." σ exposed the lie.** Drive B's fat σ = p99 tail blowout = QoS support ticket, even though the average looked perfect. *σ is the only number that caught it.*
+
+---
+
+## 16. The Bell Curve — σ drawn as a SHAPE
+
+- The bell **is the picture of σ.** Peak sits at the **mean**; **width is set by σ**.
+  - small σ → a **razor-thin spike** (steady drive, reads jammed near mean)
+  - big σ → a **wide hill** (jittery drive, reads sprawl far)
+- **68–95–99.7 rule:** `±1σ ≈ 68%`, `±2σ ≈ 95%`, `±3σ ≈ 99.7%` of readings.
+- **⚠️ ±1σ is NOT the outlier fence.** ~**1 in 3 readings normally falls outside ±1σ** (by design). Outliers live beyond **±2σ / ±3σ**.
+  - Drive B (σ=15.81): ±1σ = 84–116 (so 80 & 120 fall *outside* ±1σ) — but ±2σ = **68.4–131.6**, and 80 & 120 sit **inside** it → **normal jitter, NOT outliers.** A real outlier would be ~150+ µs (beyond 3σ), out in the dead tail → "go investigate" (ECC retry, read-disturb, throttle).
+- **z-score = (value − mean)/σ** = how many σ from the mean. Drive B's 80 → (80−100)/15.81 = **−1.26σ**. It's the band-position turned into a number, and makes different drives comparable.
+- **The journey into the bell:** raw readings → mean → deviations → variance → σ → *"but what does σ LOOK like?"* → **the bell.**
+- **Where the bell leads (it's a hub):** **z-scores** (how-many-σ), **anomaly detection** (beyond ±3σ = off-distribution), **probability/Bayes** (area under a slice = probability a read lands there), **ML normalization** (standardize = subtract mean ÷ σ = z-score on every value → mean 0, σ 1; keeps °C and mV channels on equal footing, ties back to covariance/PCA scaling).
+
+---
+
+## 17. ⭐⭐ Variance: TRUST vs IMPORTANCE — the reconciliation (the hardest knot, now locked)
+
+**The apparent contradiction he spotted:** the restaurant/latency lesson said *LOW variance = good (trust)*, but PCA said *HIGH variance = important.* Which is it?
+
+**The resolution — variance is NEUTRAL. It only ever means SPREAD. Whether you WANT it high or low flips with the QUESTION:**
+
+```
+                       LOW variance            HIGH variance
+reliability / trust →  GOOD (rely on it)       BAD (unpredictable)
+information / PCA   →  USELESS (no info)        IMPORTANT (informative)
+```
+
+- **Reliability question** ("which do I trust?") → want **LOW** variance = consistency. Restaurant A (30±2) beats B (30±20). SSD: tight σ = good QoS.
+- **Information question** ("which feature tells things apart?", PCA) → **HIGH** variance is "important" = **discriminating power**. A zero-variance feature ("has a roof?" = all yes) can't separate anyone → useless.
+- **KEY: "important" (PCA) ≠ "good/trustworthy."** It means *"this is where the differences / the information live."* The **same high variance** is simultaneously **BAD** (untrustworthy) and **IMPORTANT** (informative) — no contradiction, different questions.
+- **The one-liner:** *variance is a **speedometer, not a judge.*** It tells you "how much spread," never "good or bad." 120 mph is both "important" (lots happening) and "dangerous" (don't trust) — same number, depends if you're the race analyst or the passenger.
+- 😄 **Analogy — the yes-man sensor & the useless exam question:** a sensor that reads `3.30, 3.30, 3.30…` is a **yes-man** — says "all good" every time, so it can never *explain* why the drive throttled → variance ≈ 0 → deletable. Same as the **exam question everyone gets right** (`[10,10,10,10,10]`, variance 0): it can't rank a single student → zero information. The **high-variance** question (`[2,5,7,9,10]`) is the one that *tells students apart* → that's the "important" one PCA keeps. **Important = discriminating power, NOT quality.**
+- **Zero-variance feature `[50,50,50,50]`:** trust lens → **GOOD** (rock-steady); training lens → **DROP it** — it has zero predictive power by construction (every example looks identical on it → model gives it weight 0), yet still costs SRAM/MACs/mW. **Dropping near-zero-variance directions = exactly what PCA/feature-selection automates → smaller model, same accuracy = the Edge-AI win.** (His own words: "I would not keep this for training — it doesn't add any corner scenario.")
+
+---
+
+## 18. Why readings go in ROWS, features in COLUMNS
+
+- It's a **convention**, but the sensible one:
+  1. **Data streams in row-by-row over time** — each new reading appends a new **row** (table grows *downward*, unbounded). Features are **fixed-width**. Columns-as-readings would grow the table sideways off-screen forever.
+  2. **A row = one complete record/snapshot = a C struct.** The whole log = an **array of structs** (`log[reading].field`) — which *is* rows-as-readings.
+  3. **Every tool agrees** (pandas, scikit-learn): rows = samples, columns = features.
+- **The `.T` wrinkle (why it kept appearing):** `np.cov` is the odd one out — it **defaults to rows = variables**. So with normal data (rows=readings) you write **`np.cov(X.T)`** to flip (readings×features) → (features×readings) for that one function. The math works either way; you'd just swap `Xᵀ X` ↔ `X Xᵀ`.
+- **Quick check:** 1000 readings × 5 sensors → shape **1000 × 5**; the **1000 keeps growing** tomorrow, the **5 is fixed**.
+
+---
+
+## 19. Clean 3×3 eigen — FULLY by hand (`[[2,1,1],[1,2,1],[1,1,2]]`)
+
+**Why the capstone's 3×3 was computer-solved (honest reasons):** (1) the eigenVALUE step for 3×3 is a **cubic** `det(C−λI)=0` — generic cubics have no clean hand formula (the real wall past 2×2); (2) the real-data covariance had **ugly decimals**. *But* the eigenVECTOR step (given λ) **is** hand-doable, and with a clean matrix the *whole* thing is.
+
+**Clean matrix — 3 sensors, every pair equally linked:**
+```
+     [ 2  1  1 ]
+C =  [ 1  2  1 ]
+     [ 1  1  2 ]
+```
+**Step 1 — eigenvalues, det(C − λI) = 0.** Let `a = 2−λ`; expand:
+```
+det = a(a²−1) − 1(a−1) + 1(1−a) = a³ − 3a + 2 = (a−1)²(a+2) = 0
+a = 1 (double) or a = −2   →   λ = 1, 1, 4
+(check: Σλ = 6 = trace ✓;  Πλ = 4 = det(C) ✓)
+```
+**Step 2 — eigenvector for λ = 4: (C − 4I)v = 0**
+```
+[ −2  1  1 ][x]   [0]      Row1 − Row2: −3x + 3y = 0 → x = y
+[  1 −2  1 ][y] = [0]      Row2 − Row3: −3y + 3z = 0 → y = z
+[  1  1 −2 ][z]   [0]      → x = y = z → v1 = [1, 1, 1]   ("all sensors together" = PC1)
+```
+**Step 3 — eigenvector for λ = 1: (C − I)v = 0**
+```
+[ 1 1 1 ]            all three rows say:  x + y + z = 0
+[ 1 1 1 ]  → any cancelling arrow, e.g. v2 = [1,−1,0], v3 = [1,1,−2]  (the flat leftover directions)
+[ 1 1 1 ]
+```
+So a 3×3 **can** be elaborated exactly like a 2×2 — the only genuine extra difficulty is the cubic, clean only when the matrix is designed nicely.
+
+---
+
+## 20. Study HTMLs built this session (all in `html/`)
+
+1. **`2026-06-28_pca-20-sensors-walkthrough_F.html`** — 11 baby-steps: 20 SSD sensors → 3 numbers; raw → covariance → eigen → scree/cumulative; worked-by-hand covariance cell + channel-pair counting; "when PCA betrays you."
+2. **`2026-06-30_covariance-eigen-capstone_F.html`** — full-width side-by-side **2×2 vs 3×3**, same pipeline in parallel rows: readings → mean (number-line + formula) → deviations (ladder showing value−mean) → variance (squared arithmetic) → std dev (+ per-sensor bell curves on slide 5) → covariance (vote-quadrant scatter) → covariance matrix (heatmap) → eigenvalues (`det(C−λI)=0`) → **eigenvectors (full matrix-grid derivation: C, λI, C−λI, the system, the solve + machine input→output stretch plot)** → stretch → takeaways.
+3. **`2026-06-30_bell-curve-sigma-latency_F.html`** — interactive σ slider (bell goes skinny↔fat), Drive A/B presets, 68-95-99.7 bands, data points colored by band; **comprehensive narrative** top (the 7-rung road to the bell) + bottom (where the bell leads: z-score/anomaly/Bayes/normalization).
