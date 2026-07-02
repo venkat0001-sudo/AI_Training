@@ -242,9 +242,22 @@
     <p>Cross the <b class="c">95% line</b> and you hit it at exactly <span class="reveal"><b>3 directions.</b> That's your answer: 3 numbers reconstruct ~99.9% of what all 20 sensors were telling you.</span></p>
   </section>
 
-  <!-- STEP 9 -->
+  <!-- STEP 9b: WHAT-IF DRAG-A-POINT SCATTER -->
+  <section class="step" data-draw="scatter">
+    <h2><span class="n">Step 11.</span> ⭐ What-if lab — drag a point, watch covariance tilt</h2>
+    <p>Mini 2D dataset: <b>5 points</b>. <span style="color:var(--gold)">Drag any point</span> — the covariance cloud re-tilts and the eigen-axes re-aim live. PC1 = <span style="color:var(--teal)">teal arrow</span> (most spread), PC2 = <span style="color:var(--coral)">coral</span>.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start">
+      <canvas id="scatterCanvas" width="320" height="300" style="border-radius:12px;border:1px solid var(--line);cursor:grab;flex-shrink:0;touch-action:none"></canvas>
+      <div style="flex:1;min-width:200px">
+        <div class="card mono" id="scatterReadout" style="font-size:13px;line-height:1.9">computing…</div>
+        <div class="hint" style="margin-top:10px"><b>Try:</b> drag a point far ENE — the teal PC1 arrow rotates to follow. Then drag it due North — PC1 rotates North (covariance drops). That's covariance live: the cloud TILTS, the axes re-aim.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 10 -->
   <section class="step">
-    <h2><span class="n">Step 11.</span> The payoff — and this is your world</h2>
+    <h2><span class="n">Step 12.</span> The payoff — and this is your world</h2>
     <p>This whole flow <b>is PCA</b>: <span class="mono">covariance → eigen → drop tiny-λ directions, keep the big ones.</span></p>
     <div class="flowbox">
       <div class="node" style="border-color:var(--coral)">20 numbers<br><span class="muted">per reading</span></div>
@@ -295,6 +308,7 @@ function go(i){
   if(d==='heat')drawHeat();
   if(d==='scree')setTimeout(drawScree,150);
   if(d==='cum')setTimeout(drawCum,150);
+  if(d==='scatter')initScatter();
 }
 document.getElementById('prev').onclick=()=>go(cur-1);
 document.getElementById('next').onclick=()=>go(cur+1);
@@ -370,6 +384,121 @@ function drawCum(){
     ${dots}
     <text x="${pl}" y="${pt+2}" fill="var(--dim)" font-size="11"># channels kept →</text>
   </svg>`;
+}
+
+// ---- Step 11: drag-a-point scatter — live 2×2 covariance + eigenvectors ----
+// Default 5 points (centred around 0). Closed-form 2×2 eigen:
+// λ = ((a+d) ± sqrt((a−d)²+4bc))/2 ; for symmetric cov b=c
+let scatterPts=[{x:40,y:30},{x:70,y:55},{x:120,y:90},{x:160,y:110},{x:200,y:135}];
+let dragIdx=-1, scatterReady=false;
+
+function initScatter(){
+  if(scatterReady)return; scatterReady=true;
+  const cv=document.getElementById('scatterCanvas');
+  if(!cv)return;
+  drawScatter();
+  cv.addEventListener('mousedown',e=>{startDrag(e.offsetX,e.offsetY);});
+  cv.addEventListener('mousemove',e=>{if(dragIdx>=0){scatterPts[dragIdx]={x:clamp(e.offsetX,12,cv.width-12),y:clamp(e.offsetY,12,cv.height-12)};drawScatter();}});
+  cv.addEventListener('mouseup',()=>{dragIdx=-1;cv.style.cursor='grab';});
+  cv.addEventListener('mouseleave',()=>{dragIdx=-1;});
+  cv.addEventListener('touchstart',e=>{e.preventDefault();const t=e.touches[0],r=cv.getBoundingClientRect();startDrag(t.clientX-r.left,t.clientY-r.top);},{passive:false});
+  cv.addEventListener('touchmove',e=>{e.preventDefault();if(dragIdx>=0){const t=e.touches[0],r=cv.getBoundingClientRect();scatterPts[dragIdx]={x:clamp(t.clientX-r.left,12,cv.width-12),y:clamp(t.clientY-r.top,12,cv.height-12)};drawScatter();}},{passive:false});
+  cv.addEventListener('touchend',()=>{dragIdx=-1;});
+}
+function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
+function startDrag(mx,my){
+  let best=-1,bestD=999;
+  scatterPts.forEach((p,i)=>{const d=Math.hypot(p.x-mx,p.y-my);if(d<bestD){bestD=d;best=i;}});
+  if(bestD<22){dragIdx=best;document.getElementById('scatterCanvas').style.cursor='grabbing';}
+}
+function drawScatter(){
+  const cv=document.getElementById('scatterCanvas');
+  if(!cv)return;
+  const ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,cx=W/2,cy=H/2;
+  ctx.clearRect(0,0,W,H);
+  // background
+  ctx.fillStyle='#0f1424'; ctx.fillRect(0,0,W,H);
+  // light grid
+  ctx.strokeStyle='rgba(42,54,88,0.7)'; ctx.lineWidth=1;
+  for(let x=0;x<=W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<=H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  // compute centred coordinates (flip y so up is positive)
+  const xs=scatterPts.map(p=>p.x-cx);
+  const ys=scatterPts.map(p=>cy-p.y);  // flip y
+  const n=scatterPts.length;
+  const mx=xs.reduce((a,b)=>a+b,0)/n;
+  const my=ys.reduce((a,b)=>a+b,0)/n;
+  const dx=xs.map(v=>v-mx), dy=ys.map(v=>v-my);
+  // 2×2 covariance (unbiased, n-1)
+  const cxx=dx.reduce((a,v,i)=>a+v*v,0)/(n-1);
+  const cyy=dy.reduce((a,v,i)=>a+v*v,0)/(n-1);
+  const cxy=dx.reduce((a,v,i)=>a+v*dy[i],0)/(n-1);
+  // eigenvalues: λ = ((cxx+cyy) ± sqrt((cxx-cyy)²+4cxy²))/2
+  const tr=cxx+cyy, disc=Math.max(0,Math.pow(cxx-cyy,2)+4*cxy*cxy);
+  const sqd=Math.sqrt(disc);
+  const l1=(tr+sqd)/2, l2=(tr-sqd)/2;
+  // eigenvectors (unit)
+  function evec(lam){
+    if(Math.abs(cxy)<1e-8){return cxx>=cyy?[1,0]:[0,1];}
+    const v=[cxy,lam-cxx]; const nm=Math.hypot(v[0],v[1]);
+    return [v[0]/nm,v[1]/nm];
+  }
+  const v1=evec(l1), v2=evec(l2);
+  // draw ellipse approximation as covariance cloud (bounding ellipse in PC space)
+  const scl=Math.sqrt(Math.max(l1,1));
+  ctx.save();
+  ctx.translate(cx+mx, cy-my);
+  const ang=Math.atan2(v1[1],v1[0]);
+  ctx.rotate(-ang);  // flip because y is flipped in canvas
+  const ew=Math.sqrt(Math.max(l1,1))*2.2, eh=Math.sqrt(Math.max(l2,0.5))*2.2;
+  ctx.strokeStyle='rgba(0,201,177,0.22)'; ctx.lineWidth=1;
+  ctx.setLineDash([5,4]);
+  ctx.beginPath(); ctx.ellipse(0,0,ew,eh,0,0,2*Math.PI); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+  // eigenvector arrows (from mean, in canvas coords — remember y flip)
+  const scale1=Math.sqrt(Math.max(l1,1))*2;
+  const scale2=Math.sqrt(Math.max(l2,0.5))*1.5;
+  function drawArrow(fx,fy,tx,ty,col,lw){
+    ctx.save();ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=lw;
+    ctx.beginPath();ctx.moveTo(fx,fy);ctx.lineTo(tx,ty);ctx.stroke();
+    const ang2=Math.atan2(ty-fy,tx-fx);
+    ctx.beginPath();ctx.moveTo(tx,ty);
+    ctx.lineTo(tx-10*Math.cos(ang2-0.35),ty-10*Math.sin(ang2-0.35));
+    ctx.lineTo(tx-10*Math.cos(ang2+0.35),ty-10*Math.sin(ang2+0.35));
+    ctx.closePath();ctx.fill();
+    ctx.restore();
+  }
+  const mcx=cx+mx, mcy=cy-my;
+  // v1 in canvas: x component same, y component negated (flip)
+  drawArrow(mcx,mcy, mcx+v1[0]*scale1, mcy-v1[1]*scale1,'#00C9B1',3);
+  drawArrow(mcx,mcy, mcx+v2[0]*scale2, mcy-v2[1]*scale2,'#FF6B6B',2);
+  // draw mean cross
+  ctx.strokeStyle='rgba(255,217,61,0.5)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(mcx-14,mcy);ctx.lineTo(mcx+14,mcy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(mcx,mcy-14);ctx.lineTo(mcx,mcy+14);ctx.stroke();
+  // draw points
+  scatterPts.forEach((p,i)=>{
+    ctx.beginPath();ctx.arc(p.x,p.y,8,0,2*Math.PI);
+    ctx.fillStyle=i===dragIdx?'#FFD93D':'rgba(255,217,61,0.7)';ctx.fill();
+    ctx.strokeStyle='#ffe'; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.fillStyle='#ffe';ctx.font='bold 11px monospace';ctx.textAlign='center';ctx.fillText(String(i+1),p.x,p.y+4);
+  });
+  // readout
+  const rd=document.getElementById('scatterReadout');
+  if(rd){
+    const pcang=(Math.atan2(v1[1],v1[0])*180/Math.PI).toFixed(0);
+    rd.innerHTML=`<span style="color:var(--dim)">cov matrix (2×2):</span><br>`+
+      `<span style="color:var(--gold)">cov_xx = ${cxx.toFixed(1)}</span><br>`+
+      `<span style="color:var(--gold)">cov_yy = ${cyy.toFixed(1)}</span><br>`+
+      `<span style="color:var(--gold)">cov_xy = ${cxy.toFixed(1)}</span><br>`+
+      `<br><span style="color:var(--dim)">eigenvalues:</span><br>`+
+      `<span style="color:var(--teal)">λ1 (PC1) = ${l1.toFixed(1)}</span><br>`+
+      `<span style="color:var(--coral)">λ2 (PC2) = ${l2.toFixed(1)}</span><br>`+
+      `<br><span style="color:var(--dim)">PC1 heading: ${pcang}°</span><br>`+
+      `<span style="color:var(--dim)">PC1 share: ${(l1/(l1+l2+1e-9)*100).toFixed(1)}% of spread</span>`;
+  }
 }
 </script>
 </body>

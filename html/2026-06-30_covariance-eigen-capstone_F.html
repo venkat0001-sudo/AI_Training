@@ -486,7 +486,25 @@ const steps = [
      <p>You just ran the identical pipeline on a 2×2 and a 3×3 and watched every number scale the same way.</p>
      <p class="joke">😄 Same recipe, bigger pot. The 3×3 didn't learn new tricks — it just has more sensors gossiping.</p>`,
    left:()=>`<div class="eq" style="color:var(--teal)">2×2 (S1,S2)\nmean   [4, 4]\nvar    [4, 4]   σ [2, 2]\nC      [[4,2],[2,4]]\nλ      6, 2   (75%, 25%)\nv      [1,1], [1,−1]\nstretch ×6 along [1,1]</div>`,
-   right:()=>`<div class="eq" style="color:var(--gold)">3×3 (S1,S2,S3)\nmean   [45, 35, 130]\nvar    [166.7, 116.7, 550]\nC      [[166.7,133.3,300],\n        [133.3,116.7,250],\n        [300, 250, 550]]\nλ      827.3, 6.0, 0  (99.3%,0.7%,0%)\nv1     [1, 0.83, 1.83]\nstretch ×827 along v1  → PCA keeps v1</div>` }
+   right:()=>`<div class="eq" style="color:var(--gold)">3×3 (S1,S2,S3)\nmean   [45, 35, 130]\nvar    [166.7, 116.7, 550]\nC      [[166.7,133.3,300],\n        [133.3,116.7,250],\n        [300, 250, 550]]\nλ      827.3, 6.0, 0  (99.3%,0.7%,0%)\nv1     [1, 0.83, 1.83]\nstretch ×827 along v1  → PCA keeps v1</div>` },
+
+ { label:'12 · Grid-warp eigenvector lab',
+   concept:`<span class="sn">12.</span><h2>⭐ Matrix as space-warper — eigenvectors stay on their line</h2>
+     <p>A matrix is a <b>machine that warps space itself</b>. Every grid point moves. Every arrow rotates <i>and</i> stretches — except the eigenvectors. Those stay on their own line, only getting longer by λ.</p>
+     <p class="joke">😄 Think of it as a fun-house mirror: normal arrows come out twisted into new angles. The eigenvectors just walk in, get pumped up by λ×, and walk straight out. Gym-bro eigenvectors, no rotation allowed.</p>
+     <p class="ssd">SSD context: a covariance matrix applied to a sensor-deviation vector does this exact warp. The eigenvector direction is the "principle axis" your telemetry actually follows — PCA keeps those lanes, drops the twisted ones.</p>
+     <div class="why">Pick a preset matrix → watch the grid warp (eased 700ms) → a fan of unit vectors rotates to new directions → the highlighted eigenvectors stay on their own lines → λ readouts show the stretch. That stretch IS the eigenvalue.</div>
+     <div id="warpPanel" style="margin-top:14px"></div>`,
+   left:()=>`<div class="muted" style="font-size:.82em">← Interactive panel in the concept block above. Controls:</div>
+     <div id="warpBtnsL" style="display:flex;flex-wrap:wrap;gap:8px;margin:10px 0">
+       <button class="warp-preset bn" data-m="2,0,0,3" style="border-color:var(--teal)">[[2,0],[0,3]]<br><span style="font-size:.72em;color:var(--creamd)">diagonal — axes stay put</span></button>
+       <button class="warp-preset bn" data-m="4,2,2,4" style="border-color:var(--gold)">[[4,2],[2,4]]<br><span style="font-size:.72em;color:var(--creamd)">shear — axes tilt 45°</span></button>
+       <button class="warp-preset bn" data-m="3,1,1,2" style="border-color:var(--sage)">[[3,1],[1,2]]<br><span style="font-size:.72em;color:var(--creamd)">mixed covariance</span></button>
+     </div>
+     <div id="warpLambdaBox" class="eq" style="color:var(--teal);margin-top:10px">select a preset to see λ readout</div>`,
+   right:()=>`<div class="muted" style="font-size:.82em">Unit-vector fan (12 arrows) — watch them swing post-warp. Highlighted = eigenvectors.</div>
+     <canvas id="fanCanvas" width="340" height="300" style="border-radius:12px;border:1px solid var(--line);display:block;max-width:100%"></canvas>
+     <div class="muted" style="font-size:.76em;margin-top:6px"><span style="color:var(--orange)">■ orange</span> = eigenvector (stays on line, just stretched) &nbsp; <span style="color:var(--teal)">■ teal</span> = other unit vectors (rotate to new angles)</div>` }
 ];
 
 // ============================ ENGINE ============================
@@ -514,6 +532,7 @@ function go(i){
   slabel.textContent=steps[cur].label;
   window.scrollTo({top:0,behavior:'smooth'});
   animateBars();
+  if(steps[cur].label.startsWith('12'))initWarp();
 }
 document.getElementById('prev').onclick=()=>go(cur-1);
 document.getElementById('next').onclick=()=>go(cur+1);
@@ -523,6 +542,175 @@ function wireReveals(){document.querySelectorAll('.reveal').forEach(r=>{if(r.dat
 wireReveals();
 slabel.textContent=steps[0].label;
 animateBars();
+
+// ====================== GRID-WARP EIGEN PANEL (step 12) ======================
+// Closed-form 2×2 eigen for symmetric matrix [[a,b],[b,d]]
+// λ = ((a+d) ± sqrt((a-d)²+4b²))/2
+// eigenvectors: for each λ, if b≠0: v=[b, λ-a] (normalised); else axis-aligned
+function eigen2(a,b,d){
+  const tr=a+d, disc=Math.max(0,(a-d)*(a-d)+4*b*b);
+  const sq=Math.sqrt(disc);
+  const l1=(tr+sq)/2, l2=(tr-sq)/2;
+  function evec(lam){
+    if(Math.abs(b)<1e-8){
+      return Math.abs(a-lam)<Math.abs(d-lam)?[1,0]:[0,1];
+    }
+    const vx=b, vy=lam-a, nm=Math.hypot(vx,vy);
+    return [vx/nm,vy/nm];
+  }
+  return {l1,l2,v1:evec(l1),v2:evec(l2)};
+}
+
+let warpAnimId=null, warpReady=false;
+let warpM=[2,0,0,3]; // current matrix [a,b,c,d] (b=c for symmetric)
+// grid points: pre and post warp
+let gridPrePts=[], gridPostPts=[], unitVecsPre=[], unitVecsPost=[];
+
+function buildGrid(a,b,c,d){
+  // 9x9 grid of points in math coords (-4..4)
+  const pts=[];
+  for(let gy=-4;gy<=4;gy++) for(let gx=-4;gx<=4;gx++) pts.push([gx,gy]);
+  const pre=pts.map(p=>p.slice());
+  const post=pts.map(p=>[a*p[0]+b*p[1], c*p[0]+d*p[1]]);
+  // 12 unit vectors (fan at 30° intervals)
+  const uvPre=[], uvPost=[];
+  for(let i=0;i<12;i++){
+    const ang=i*Math.PI/6;
+    const vx=Math.cos(ang), vy=Math.sin(ang);
+    uvPre.push([vx,vy]);
+    uvPost.push([a*vx+b*vy, c*vx+d*vy]);
+  }
+  return {pre,post,uvPre,uvPost};
+}
+
+function drawWarpCanvas(t,a,b,c,d){
+  // t=0: pre-warp, t=1: post-warp; ease
+  const cv=document.getElementById('fanCanvas');
+  if(!cv)return;
+  const ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,ox=W/2,oy=H/2,scale=28;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0c1607'; ctx.fillRect(0,0,W,H);
+
+  const eg=eigen2(a,b,d);
+  const {pre,post,uvPre,uvPost}=buildGrid(a,b,c,d);
+
+  // interpolate points
+  function interp(p0,p1){return [p0[0]+(p1[0]-p0[0])*t, p0[1]+(p1[1]-p0[1])*t];}
+
+  // draw warped grid lines
+  const n=9;
+  ctx.strokeStyle='rgba(74,122,46,0.25)'; ctx.lineWidth=0.8;
+  // horizontal grid lines (same row y)
+  for(let row=0;row<n;row++){
+    ctx.beginPath();
+    for(let col=0;col<n;col++){
+      const idx=row*n+col;
+      const [px,py]=interp(pre[idx],post[idx]);
+      const sx=ox+px*scale, sy=oy-py*scale;
+      col===0?ctx.moveTo(sx,sy):ctx.lineTo(sx,sy);
+    }
+    ctx.stroke();
+  }
+  // vertical grid lines (same col x)
+  for(let col=0;col<n;col++){
+    ctx.beginPath();
+    for(let row=0;row<n;row++){
+      const idx=row*n+col;
+      const [px,py]=interp(pre[idx],post[idx]);
+      const sx=ox+px*scale, sy=oy-py*scale;
+      row===0?ctx.moveTo(sx,sy):ctx.lineTo(sx,sy);
+    }
+    ctx.stroke();
+  }
+
+  // axes
+  ctx.strokeStyle='rgba(74,122,46,0.6)'; ctx.lineWidth=1.2;
+  ctx.beginPath();ctx.moveTo(0,oy);ctx.lineTo(W,oy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(ox,0);ctx.lineTo(ox,H);ctx.stroke();
+
+  // unit vector fan (teal, thin)
+  uvPre.forEach((vp,i)=>{
+    const vq=uvPost[i];
+    const [vx,vy]=interp(vp,vq);
+    const ex=ox+vx*scale*2.5, ey=oy-vy*scale*2.5;
+    ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(ex,ey);
+    ctx.strokeStyle='rgba(39,194,168,0.45)';ctx.lineWidth=1.5;ctx.stroke();
+  });
+
+  // eigenvectors (orange, thick, highlighted)
+  function drawEigVec(v,lam,col){
+    const [vx0,vy0]=v;
+    // post-warp this direction: M·v = λ·v, so it just scales
+    const scl=Math.max(0.8,Math.min(6,Math.abs(lam)));
+    const [vx,vy]=interp([vx0,vy0],[vx0*scl,vy0*scl]);
+    const ex=ox+vx*scale*1.5, ey=oy-vy*scale*1.5;
+    const ex2=ox-vx*scale*1.5, ey2=oy+vy*scale*1.5;
+    ctx.beginPath();ctx.moveTo(ex2,ey2);ctx.lineTo(ex,ey);
+    ctx.strokeStyle=col;ctx.lineWidth=3.5;ctx.stroke();
+    // arrowhead
+    const ang=Math.atan2(ey-ey2,ex-ex2);
+    ctx.save();ctx.fillStyle=col;ctx.beginPath();
+    ctx.moveTo(ex,ey);
+    ctx.lineTo(ex-12*Math.cos(ang-0.4),ey-12*Math.sin(ang-0.4));
+    ctx.lineTo(ex-12*Math.cos(ang+0.4),ey-12*Math.sin(ang+0.4));
+    ctx.closePath();ctx.fill();ctx.restore();
+    // label
+    ctx.fillStyle=col;ctx.font='bold 11px monospace';
+    ctx.fillText(`λ=${lam.toFixed(2)}`,ex+6,ey-6);
+  }
+  drawEigVec(eg.v1,eg.l1,'#ff8c00');
+  drawEigVec(eg.v2,eg.l2,'#ffb347');
+}
+
+function runWarpAnimation(a,b,c,d,onDone){
+  if(warpAnimId)cancelAnimationFrame(warpAnimId);
+  const T=700, t0=performance.now();
+  function ease(x){return x<0.5?4*x*x*x:(x-1)*(2*x-2)*(2*x-2)+1;}
+  function frame(now){
+    const raw=Math.min(1,(now-t0)/T);
+    const t=ease(raw);
+    drawWarpCanvas(t,a,b,c,d);
+    if(raw<1)warpAnimId=requestAnimationFrame(frame);
+    else{if(onDone)onDone();}
+  }
+  warpAnimId=requestAnimationFrame(frame);
+}
+
+function applyPreset(a,b,c,d,matStr){
+  warpM=[a,b,c,d];
+  const eg=eigen2(a,b,d);
+  const lb=document.getElementById('warpLambdaBox');
+  if(lb) lb.innerHTML=
+    `Matrix: ${matStr}\n`+
+    `λ1 = ${eg.l1.toFixed(3)}  v1 = [${eg.v1[0].toFixed(3)}, ${eg.v1[1].toFixed(3)}]\n`+
+    `λ2 = ${eg.l2.toFixed(3)}  v2 = [${eg.v2[0].toFixed(3)}, ${eg.v2[1].toFixed(3)}]\n`+
+    `\nTrace = ${(eg.l1+eg.l2).toFixed(2)}  (= sum of λ = sum of diag ✓)\n`+
+    `Det   = ${(eg.l1*eg.l2).toFixed(2)}  (= product of λ ✓)`;
+  // first draw pre-warp state (t=0)
+  drawWarpCanvas(0,a,b,c,d);
+  // brief pause then animate
+  setTimeout(()=>runWarpAnimation(a,b,c,d,null),200);
+}
+
+function initWarp(){
+  if(warpReady)return; warpReady=true;
+  // draw initial state immediately
+  drawWarpCanvas(0,2,0,0,3);
+  // wire preset buttons (they live in the left pane, created by step engine)
+  function wirePresets(){
+    document.querySelectorAll('.warp-preset').forEach(btn=>{
+      if(btn.dataset.wired)return; btn.dataset.wired=1;
+      btn.addEventListener('click',()=>{
+        const [a,b,c,d]=btn.dataset.m.split(',').map(Number);
+        applyPreset(a,b,c,d,`[[${a},${b}],[${c},${d}]]`);
+      });
+    });
+  }
+  wirePresets();
+  // auto-trigger first preset after a tick (DOM settled)
+  setTimeout(()=>applyPreset(2,0,0,3,'[[2,0],[0,3]]'),300);
+}
 </script>
 </body>
 </html>

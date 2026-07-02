@@ -46,11 +46,21 @@ svg{width:100%;display:block}
   font-size:.82em;color:var(--sage);white-space:pre-wrap;font-family:'Courier New',monospace}
 .rung .ssd{color:var(--blue);font-size:.84em}
 .arrowdown{text-align:center;color:var(--saged);font-size:1.1em;margin:-4px 0}
+@keyframes pulse{0%,100%{text-shadow:0 0 18px #7a9e5a;transform:scale(1)}50%{text-shadow:0 0 36px #ff8c00;transform:scale(1.06)}}
+/* what-if panel */
+.wi-ctrl{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:220px}
+.wi-ctrl label{font-size:.78em;color:var(--sage);display:flex;justify-content:space-between;width:100%}
+.wi-ctrl label span{color:var(--orangeg);font-weight:bold}
+.wi-ctrl input[type=range]{width:100%;accent-color:var(--orange)}
+.wi-replay{background:rgba(74,122,46,.2);color:var(--cream);border:1px solid var(--saged);border-radius:9px;padding:8px 18px;cursor:pointer;font-family:inherit;font-size:.85em;transition:.15s;align-self:flex-end}
+.wi-replay:hover{background:var(--orange);color:#0c1607}
+.wi-legend{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;font-size:.76em;color:var(--creamd);margin-top:8px}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="header">
+    <div style="font-size:54px;animation:pulse 3s ease-in-out infinite;display:block;text-align:center">🐸</div>
     <div class="title">🔔 THE BELL & σ — latency jitter</div>
     <div class="subtitle">drag σ to watch the bell go fat ↔ skinny · same mean, different reliability · _F · 2026-06-30</div>
   </div>
@@ -146,6 +156,93 @@ big σ    →  a WIDE hill        (jittery drive, reads sprawl far out)</div>
     <div class="note" id="verdict"></div>
   </div>
 
+  <!-- ══ WHAT-IF PANEL ══ -->
+  <div class="card" style="border-color:rgba(255,140,0,.45)" id="wiCard">
+    <div style="color:var(--orange);font-weight:bold;font-size:1.15em;margin-bottom:8px">🎬 What-If Panel — Drag &amp; Watch (centerpiece)</div>
+    <p class="note" style="margin-top:0">Drag <b style="color:var(--orange)">mean μ</b> → the bell AND data dots slide together along the axis. Drag <b style="color:var(--orange)">σ</b> → bell widens/flattens and dots spread/tighten. Motion is eased. Hit <b>⟳</b> to replay.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:20px;justify-content:center;align-items:flex-end;margin:14px 0">
+      <div class="wi-ctrl">
+        <label>Mean μ (µs) <span id="wiMuVal">100 µs</span></label>
+        <input type="range" id="wiMean" min="80" max="120" step="1" value="100">
+      </div>
+      <div class="wi-ctrl">
+        <label>Std Dev σ (µs) <span id="wiSigVal">15.8 µs</span></label>
+        <input type="range" id="wiSig" min="1" max="30" step="0.1" value="15.8">
+      </div>
+      <button class="wi-replay" onclick="wiReplay()">⟳ Replay</button>
+    </div>
+    <svg id="wiSvg" viewBox="0 0 900 300" style="width:100%;max-width:900px;display:block;margin:0 auto;border-radius:8px;background:rgba(0,0,0,.3)"></svg>
+    <div class="wi-legend">
+      <span><span class="sw" style="background:#3A7D44"></span>within ±1σ</span>
+      <span><span class="sw" style="background:#E8A838"></span>±1σ–±2σ</span>
+      <span><span class="sw" style="background:#E05C2A"></span>beyond ±2σ</span>
+      <span style="color:var(--orange)">μ = <b id="wiRdMu">100</b> µs &nbsp;|&nbsp; σ = <b id="wiRdSig">15.8</b> µs</span>
+    </div>
+  </div>
+
+  <!-- ══ GYM PICTORIAL ══ -->
+  <div class="card" id="gymCard">
+    <div style="color:var(--orange);font-weight:bold;font-size:1.15em;margin-bottom:8px">🏋️ Normal Distribution — In The Gym</div>
+    <p class="note" style="margin-top:0">Most lifters pull the middle plates. Almost nobody grabs the 5 kg or the 125 kg monster. <b style="color:var(--orange)">μ</b> = the crowd's favourite plate &nbsp;|&nbsp; <b style="color:var(--orange)">σ</b> = how adventurous the gym is (tight σ → everyone on the same plate; wide σ → chaos from 5 to 80).</p>
+    <svg viewBox="0 0 800 320" style="width:100%;max-width:800px;display:block;margin:0 auto;">
+      <!-- grid -->
+      <line x1="60" y1="260" x2="760" y2="260" stroke="rgba(74,122,46,0.4)" stroke-width="1"/>
+      <line x1="60" y1="200" x2="760" y2="200" stroke="rgba(74,122,46,0.15)" stroke-width="1" stroke-dasharray="4 4"/>
+      <line x1="60" y1="140" x2="760" y2="140" stroke="rgba(74,122,46,0.15)" stroke-width="1" stroke-dasharray="4 4"/>
+      <line x1="60" y1="80"  x2="760" y2="80"  stroke="rgba(74,122,46,0.15)" stroke-width="1" stroke-dasharray="4 4"/>
+      <!-- title -->
+      <text x="400" y="24" fill="#ff8c00" font-family="Courier New" font-size="13" text-anchor="middle" font-weight="bold">WEIGHT RACK — who pulls which plate?</text>
+      <!-- bars: gaussian centered on 35kg plate, σ≈15kg -->
+      <rect x="68"  y="254" width="34" height="6"   fill="#3a6a20" rx="3"/>
+      <rect x="123" y="242" width="34" height="18"  fill="#4a7a2e" rx="3"/>
+      <rect x="178" y="220" width="34" height="40"  fill="#5a8e38" rx="3"/>
+      <rect x="233" y="185" width="34" height="75"  fill="#6a9e45" rx="3"/>
+      <rect x="288" y="140" width="34" height="120" fill="#7aae52" rx="3"/>
+      <rect x="343" y="105" width="34" height="155" fill="#a8c87a" rx="3"/>
+      <rect x="398" y="90"  width="34" height="170" fill="#ff8c00" rx="3"/>
+      <rect x="453" y="105" width="34" height="155" fill="#a8c87a" rx="3"/>
+      <rect x="508" y="150" width="34" height="110" fill="#7aae52" rx="3"/>
+      <rect x="563" y="200" width="34" height="60"  fill="#5a8e38" rx="3"/>
+      <rect x="618" y="238" width="34" height="22"  fill="#4a7a2e" rx="3"/>
+      <rect x="673" y="252" width="34" height="8"   fill="#3a6a20" rx="3"/>
+      <rect x="728" y="257" width="34" height="3"   fill="#2a5a18" rx="3"/>
+      <!-- x labels -->
+      <text x="85"  y="278" fill="#cbbb95" font-family="Courier New" font-size="9" text-anchor="middle">5</text>
+      <text x="140" y="278" fill="#cbbb95" font-family="Courier New" font-size="9" text-anchor="middle">10</text>
+      <text x="195" y="278" fill="#cbbb95" font-family="Courier New" font-size="9" text-anchor="middle">15</text>
+      <text x="250" y="278" fill="#cbbb95" font-family="Courier New" font-size="9" text-anchor="middle">20</text>
+      <text x="305" y="278" fill="#cbbb95" font-family="Courier New" font-size="9" text-anchor="middle">25</text>
+      <text x="360" y="278" fill="#cbbb95" font-family="Courier New" font-size="9" text-anchor="middle">30</text>
+      <text x="415" y="278" fill="#ff8c00" font-family="Courier New" font-size="9" text-anchor="middle" font-weight="bold">35★</text>
+      <text x="470" y="278" fill="#cbbb95" font-family="Courier New" font-size="9" text-anchor="middle">40</text>
+      <text x="525" y="278" fill="#cbbb95" font-family="Courier New" font-size="9" text-anchor="middle">50</text>
+      <text x="580" y="278" fill="#cbbb95" font-family="Courier New" font-size="9" text-anchor="middle">60</text>
+      <text x="635" y="278" fill="#cbbb95" font-family="Courier New" font-size="9" text-anchor="middle">80</text>
+      <text x="690" y="278" fill="#cbbb95" font-family="Courier New" font-size="9" text-anchor="middle">100</text>
+      <text x="745" y="278" fill="#cbbb95" font-family="Courier New" font-size="9" text-anchor="middle">125</text>
+      <text x="400" y="298" fill="#a8c87a" font-family="Courier New" font-size="10" text-anchor="middle">Weight plate (kg)</text>
+      <!-- Y label -->
+      <text x="18" y="175" fill="#a8c87a" font-family="Courier New" font-size="10" text-anchor="middle" transform="rotate(-90,18,175)">Lifters who grab it →</text>
+      <!-- bell overlay -->
+      <path d="M68,260 Q140,258 178,220 Q233,185 288,145 Q343,108 398,92 Q453,108 508,152 Q563,202 618,240 Q673,254 728,259 Q745,260 760,260"
+            fill="none" stroke="#ffb347" stroke-width="2.5" stroke-dasharray="6 3" opacity="0.85"/>
+      <!-- μ marker -->
+      <line x1="415" y1="88" x2="415" y2="262" stroke="#ff8c00" stroke-width="2" stroke-dasharray="5 3"/>
+      <text x="415" y="76" fill="#ff8c00" font-family="Courier New" font-size="11" text-anchor="middle" font-weight="bold">μ = 35 kg  "crowd's plate"</text>
+      <!-- σ bracket -->
+      <line x1="305" y1="50" x2="525" y2="50" stroke="#a8c87a" stroke-width="1.5"/>
+      <line x1="305" y1="45" x2="305" y2="55" stroke="#a8c87a" stroke-width="1.5"/>
+      <line x1="525" y1="45" x2="525" y2="55" stroke="#a8c87a" stroke-width="1.5"/>
+      <text x="415" y="44" fill="#a8c87a" font-family="Courier New" font-size="10" text-anchor="middle">σ ≈ ±10 kg  "how adventurous"</text>
+      <!-- tail annotations -->
+      <text x="85"  y="242" fill="#5a8e38" font-family="Courier New" font-size="9" text-anchor="middle">almost</text>
+      <text x="85"  y="253" fill="#5a8e38" font-family="Courier New" font-size="9" text-anchor="middle">nobody</text>
+      <text x="745" y="247" fill="#3a6a20" font-family="Courier New" font-size="9" text-anchor="middle">almost</text>
+      <text x="745" y="258" fill="#3a6a20" font-family="Courier New" font-size="9" text-anchor="middle">nobody</text>
+      <text x="400" y="313" fill="#cbbb95" font-family="Courier New" font-size="11" text-anchor="middle">🏋️ same bell shape as your latency histogram — just kg instead of µs 🍃</text>
+    </svg>
+  </div>
+
   <div class="card" style="border-color:rgba(90,143,191,.45)">
     <div style="color:var(--blue);font-weight:bold;font-size:1.15em;margin-bottom:4px">🚀 …and where the bell leads next</div>
     <p class="note" style="margin-top:0">The bell isn't the destination — it's a <b>hub</b> the rest of the course plugs into. Each of these is "the bell + σ, reused":</p>
@@ -157,6 +254,7 @@ big σ    →  a WIDE hill        (jittery drive, reads sprawl far out)</div>
 Drive B, reading 80:  z = (80 − 100) / 15.81 = −1.26   → 1.26σ BELOW the mean
 Drive B, reading 120: z = (120 − 100) / 15.81 = +1.26  → 1.26σ ABOVE the mean</div>
       <p>The z-score is literally the <b>band a dot lands in</b>, turned into a number. It also makes different drives comparable: a z of +2 means "rare" whether σ was 1.58 or 15.81. This is the bridge from "raw µs" to "how unusual, on a universal scale."</p>
+      <p style="font-size:.8em;color:var(--saged);">↑ Visual twin: in the What-If Panel above, each dot's colour <em>is</em> its z-score made visible — green = |z|≤1, orange = |z|≤2, red = |z|&gt;2. Drag σ to watch which band each dot falls into.</p>
     </div>
 
     <div class="rung" style="border-left-color:var(--blue)">
@@ -252,6 +350,108 @@ function setPreset(which){
 meanEl.oninput=draw; sigEl.oninput=()=>{ $('pA').classList.remove('on'); $('pB').classList.remove('on'); draw(); };
 $('pA').onclick=()=>setPreset('A'); $('pB').onclick=()=>setPreset('B');
 draw();
+
+/* ═══════════════════════════════════
+   WHAT-IF SVG PANEL (centerpiece)
+═══════════════════════════════════ */
+(function(){
+  // Fixed z-scores for 16 representative dots (covers ±3σ)
+  // verified shape: spread covers all band colours
+  var ZSCORES = [
+    0.05, 0.22, -0.18, 0.42, -0.38, 0.65, -0.58, 0.88,
+    -0.82, 1.15, -1.08, 1.45, -1.38, 1.90, -1.80, 2.30
+  ];
+  var wiSvg = $('wiSvg');
+  var wiMeanEl = $('wiMean'), wiSigEl = $('wiSig');
+  var VW=900, VH=300, PL=55, PR=20, PT=30, PB=44;
+  var wiMuCur=100, wiSigCur=15.8;
+  var animFrame=null, animStart=null;
+  var fromMu=100, fromSig=15.8, toMu=100, toSig=15.8;
+
+  function gpdf(x,m,s){ return Math.exp(-((x-m)*(x-m))/(2*s*s))/(s*Math.sqrt(2*Math.PI)); }
+
+  function renderWI(m, s){
+    var xlo=m-4.5*Math.max(s,1), xhi=m+4.5*Math.max(s,1);
+    var peak=gpdf(m,m,s);
+    var W2=VW-PL-PR, H2=VH-PT-PB;
+    function scX(v){ return PL+(v-xlo)/(xhi-xlo)*W2; }
+    function scY(v){ return PT+H2-(v/peak)*H2; }
+    var out='';
+    // x axis
+    out+='<line x1="'+PL+'" y1="'+(VH-PB)+'" x2="'+(VW-PR)+'" y2="'+(VH-PB)+'" stroke="rgba(74,122,46,0.4)" stroke-width="1"/>';
+    // ticks
+    var step=s<3?5:s<10?10:20;
+    for(var tv=Math.ceil(xlo/step)*step; tv<=xhi; tv+=step){
+      var px=scX(tv).toFixed(1);
+      out+='<line x1="'+px+'" y1="'+(VH-PB)+'" x2="'+px+'" y2="'+(VH-PB+5)+'" stroke="rgba(74,122,46,0.5)" stroke-width="1"/>';
+      out+='<text x="'+px+'" y="'+(VH-PB+17)+'" fill="#7a9e5a" font-family="Courier New" font-size="10" text-anchor="middle">'+tv+'</text>';
+    }
+    out+='<text x="'+((PL+VW-PR)/2).toFixed(1)+'" y="'+(VH-4)+'" fill="#a8c87a" font-family="Courier New" font-size="10" text-anchor="middle">read latency (µs)</text>';
+    // band fills
+    var bDefs=[{k:3,fill:'rgba(224,92,42,0.10)'},{k:2,fill:'rgba(232,168,56,0.14)'},{k:1,fill:'rgba(58,125,68,0.22)'}];
+    bDefs.forEach(function(b){
+      var lo=m-b.k*s, hi=m+b.k*s, N=80;
+      var pts='M'+scX(lo).toFixed(1)+','+(VH-PB);
+      for(var i=0;i<=N;i++){var xv=lo+(hi-lo)*i/N; pts+=' L'+scX(xv).toFixed(1)+','+scY(gpdf(xv,m,s)).toFixed(1);}
+      pts+=' L'+scX(hi).toFixed(1)+','+(VH-PB)+' Z';
+      out+='<path d="'+pts+'" fill="'+b.fill+'"/>';
+    });
+    // bell curve
+    var N=300, bellPath='';
+    for(var i=0;i<=N;i++){var xv=xlo+(xhi-xlo)*i/N; bellPath+=(i===0?'M':'L')+scX(xv).toFixed(1)+','+scY(gpdf(xv,m,s)).toFixed(1)+' ';}
+    out+='<path d="'+bellPath+'" fill="none" stroke="#5a8fbf" stroke-width="3"/>';
+    // mean line
+    var mx=scX(m).toFixed(1);
+    out+='<line x1="'+mx+'" y1="'+PT+'" x2="'+mx+'" y2="'+(VH-PB)+'" stroke="rgba(255,140,0,0.85)" stroke-width="2" stroke-dasharray="8 5"/>';
+    out+='<text x="'+mx+'" y="'+(PT-8)+'" fill="#ff8c00" font-family="Courier New" font-size="12" text-anchor="middle" font-weight="bold">μ = '+m.toFixed(1)+' µs</text>';
+    // σ bracket
+    var bx1=scX(m-s).toFixed(1), bx2=scX(m+s).toFixed(1), bY=(PT+H2*0.12).toFixed(1);
+    out+='<line x1="'+bx1+'" y1="'+bY+'" x2="'+bx2+'" y2="'+bY+'" stroke="#a8c87a" stroke-width="1.2"/>';
+    out+='<line x1="'+bx1+'" y1="'+(parseFloat(bY)-4)+'" x2="'+bx1+'" y2="'+(parseFloat(bY)+4)+'" stroke="#a8c87a" stroke-width="1.2"/>';
+    out+='<line x1="'+bx2+'" y1="'+(parseFloat(bY)-4)+'" x2="'+bx2+'" y2="'+(parseFloat(bY)+4)+'" stroke="#a8c87a" stroke-width="1.2"/>';
+    out+='<text x="'+((parseFloat(bx1)+parseFloat(bx2))/2).toFixed(1)+'" y="'+(parseFloat(bY)-7)+'" fill="#a8c87a" font-family="Courier New" font-size="10" text-anchor="middle">σ = '+s.toFixed(1)+' µs</text>';
+    // dots
+    ZSCORES.forEach(function(z){
+      var xv=m+z*s, px=scX(xv);
+      if(px<PL-5||px>VW-PR+5) return;
+      var az=Math.abs(z), col=az<=1?'#3A7D44':az<=2?'#E8A838':'#E05C2A';
+      out+='<circle cx="'+px.toFixed(1)+'" cy="'+(VH-PB-4)+'" r="4" fill="'+col+'" opacity="0.9"/>';
+    });
+    wiSvg.innerHTML=out;
+    $('wiMuVal').textContent=m.toFixed(1)+' µs';
+    $('wiSigVal').textContent=s.toFixed(1)+' µs';
+    $('wiRdMu').textContent=m.toFixed(1);
+    $('wiRdSig').textContent=s.toFixed(1);
+  }
+
+  function animTo(toM, toS){
+    if(animFrame) cancelAnimationFrame(animFrame);
+    fromMu=wiMuCur; fromSig=wiSigCur; toMu=toM; toSig=toS; animStart=null;
+    var dur=500;
+    function step(ts){
+      if(!animStart) animStart=ts;
+      var t=Math.min((ts-animStart)/dur,1);
+      var e=1-Math.pow(1-t,3); // ease-out cubic
+      renderWI(fromMu+(toMu-fromMu)*e, fromSig+(toSig-fromSig)*e);
+      if(t<1) animFrame=requestAnimationFrame(step);
+      else{ wiMuCur=toMu; wiSigCur=toSig; }
+    }
+    animFrame=requestAnimationFrame(step);
+  }
+
+  wiMeanEl.oninput=function(){ var v=parseFloat(this.value); animTo(v, wiSigCur); wiMuCur=v; };
+  wiSigEl.oninput=function(){ var v=parseFloat(this.value); animTo(wiMuCur, v); wiSigCur=v; };
+
+  window.wiReplay=function(){
+    wiMeanEl.value=100; wiSigEl.value=15.8;
+    var savedMu=wiMuCur, savedSig=wiSigCur;
+    wiMuCur=savedMu+15; wiSigCur=3;
+    renderWI(wiMuCur, wiSigCur);
+    setTimeout(function(){ animTo(100, 15.8); wiMuCur=100; wiSigCur=15.8; }, 120);
+  };
+
+  renderWI(100, 15.8);
+})();
 </script>
 </body>
 </html>
