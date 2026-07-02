@@ -3,16 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cross-Validation — Sensei Notes (Session 1)</title>
+<title>Cross-Validation — Sage Scrolls (Session 1)</title>
 <style>
   :root{
     --green:#0b3d2e; --green2:#0f5137; --orange:#ff8c00; --orange2:#ffb347;
     --ink:#e8f5e9; --muted:#9ec9b4; --card:#0e2a20; --line:#1d5c43;
-    --red:#e74c3c;
+    --red:#e74c3c; --cream:#f5e6c8; --cream-dark:#d4c09a;
+    --sage-pale:#a8c87a; --sage-mid:#7a9e5a;
   }
   *{box-sizing:border-box}
   body{
-    margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    margin:0; font-family:'Courier New',monospace;
     background:radial-gradient(circle at 20% 10%,#0f4030,#06231a 60%);
     color:var(--ink); line-height:1.6; padding:32px 18px 80px;
     overflow-x:hidden;
@@ -22,11 +23,13 @@
     animation:rise linear infinite;}
   @keyframes rise{from{transform:translateY(100vh) scale(.5);opacity:.05}
     50%{opacity:.35} to{transform:translateY(-10vh) scale(1.2);opacity:0}}
-  .wrap{max-width:880px;margin:0 auto}
-  h1{font-size:1.9rem;margin:0 0 4px}
-  h1 .frog{filter:drop-shadow(0 0 6px var(--orange))}
-  .sub{color:var(--muted);margin:0 0 28px;font-size:.95rem}
-  h2{color:var(--orange);border-bottom:2px solid var(--line);padding-bottom:6px;margin-top:40px}
+  .wrap{max-width:920px;margin:0 auto}
+  .frog{font-size:56px;display:block;text-align:center;animation:sagePulse 3s ease-in-out infinite;}
+  @keyframes sagePulse{0%,100%{text-shadow:0 0 18px #7a9e5a;transform:scale(1);}50%{text-shadow:0 0 36px var(--orange);transform:scale(1.06);}}
+  h1{font-size:1.9rem;margin:10px 0 4px;text-align:center;color:var(--orange);text-shadow:0 0 18px var(--orange);}
+  .sub{color:var(--muted);margin:0 0 28px;font-size:.88rem;text-align:center;letter-spacing:1px;}
+  h2{color:var(--orange);border-bottom:2px solid var(--line);padding-bottom:6px;margin-top:40px;font-size:1.1em;}
+  h3{color:var(--orange2);margin:14px 0 6px;font-size:.98em;}
   .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
     padding:20px 22px;margin:18px 0;box-shadow:0 6px 18px rgba(0,0,0,.35)}
   .bar{display:flex;height:54px;border-radius:10px;overflow:hidden;
@@ -42,13 +45,40 @@
   .tag{display:inline-block;background:var(--green2);color:var(--orange2);
     border-radius:6px;padding:2px 9px;font-size:.78rem;font-weight:700;margin-bottom:8px}
   strong{color:var(--orange2)}
-  .frog{font-style:normal}
+
+  /* pictorial analogy */
+  .pictorial{background:rgba(0,0,0,.35);border:1px solid rgba(29,92,67,.7);border-radius:14px;padding:18px 20px;margin:20px 0;}
+  .pictorial-title{color:var(--orange2);font-size:.85em;font-weight:bold;margin-bottom:10px;letter-spacing:1px;}
+  .pic-caption{font-size:.78em;color:var(--cream-dark);margin-top:10px;font-style:italic;text-align:center;}
+
+  /* k-fold what-if controls */
+  .kfold-controls{display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:center;margin:16px 0;}
+  .kctrl{display:flex;flex-direction:column;align-items:center;gap:6px;}
+  .kctrl label{font-size:.75em;color:var(--muted);}
+  .kctrl select{background:rgba(0,0,0,.5);color:var(--orange2);border:1px solid var(--line);border-radius:8px;padding:6px 14px;font-family:'Courier New',monospace;font-size:.95em;cursor:pointer;}
+  .split-readout{text-align:center;margin:8px 0;font-size:.88em;color:var(--muted);}
+  .split-readout b{color:var(--orange2);}
+  .fold-bar-wrap{margin:14px 0;}
+  .fold-bar{display:flex;height:40px;border-radius:8px;overflow:hidden;border:2px solid var(--line);margin:6px 0;transition:box-shadow .3s;}
+  .fold-bar.active-round{box-shadow:0 0 14px rgba(255,140,0,.5);}
+  .fold-seg{display:flex;align-items:center;justify-content:center;font-size:.72em;font-weight:700;color:#06231a;transition:background .45s;}
+  .fold-seg.train-seg{background:linear-gradient(180deg,#2ecc71,#27ae60);}
+  .fold-seg.val-seg{background:linear-gradient(180deg,var(--orange2),var(--orange));}
+  .round-label{font-size:.7em;color:var(--muted);width:68px;text-align:right;padding-right:8px;flex-shrink:0;display:flex;align-items:center;}
+  .playctrl{display:flex;align-items:center;gap:12px;justify-content:center;margin:12px 0;}
+  .play-btn{background:rgba(15,81,55,.5);color:var(--orange2);border:1px solid var(--line);border-radius:8px;padding:6px 18px;cursor:pointer;font-family:'Courier New',monospace;font-size:.85em;transition:.15s;}
+  .play-btn:hover{background:var(--orange);color:#06231a;}
+  .round-indicator{color:var(--muted);font-size:.8em;}
+  .replay-btn{background:rgba(15,81,55,.4);color:var(--sage-pale);border:1px solid var(--line);border-radius:8px;padding:5px 14px;cursor:pointer;font-family:'Courier New',monospace;font-size:.78em;transition:.15s;}
+  .replay-btn:hover{background:var(--sage-mid);color:#06231a;}
+  .avg-box{background:rgba(255,140,0,.1);border:1px solid var(--orange);border-radius:8px;padding:10px 16px;margin:12px 0;text-align:center;font-size:.88em;}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1><span class="frog">🐸</span> Cross-Validation — Sage Scrolls</h1>
-  <p class="sub">Session 1 · trusting a model before it goes into silicon · taught one beat at a time</p>
+  <span class="frog">🐸</span>
+  <h1>CROSS-VALIDATION — SAGE SCROLLS</h1>
+  <p class="sub">Session 1 · trusting a model before it goes into silicon · one beat at a time</p>
 
   <h2>1 · Your single split (90 / 10)</h2>
   <div class="card">
@@ -84,23 +114,106 @@
        firmware flash on is <em>noisy</em>. One roll of the dice is not the rigour you said you needed.</p>
   </div>
 
-  <h2>3 · The fix — K-fold (here K = 10)</h2>
+  <h2>3 · The fix — K-fold cross-validation</h2>
+
+  <!-- PICTORIAL ANALOGY: rotating exam papers in a study group -->
+  <div class="pictorial">
+    <div class="pictorial-title">🖼️ Pictorial analogy — nobody grades their own homework</div>
+    <svg viewBox="0 0 620 170" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;display:block;margin:0 auto;">
+      <rect width="620" height="170" rx="10" fill="rgba(0,0,0,0.3)"/>
+      <!-- study group members: 5 students at a round table -->
+      <!-- table circle -->
+      <ellipse cx="310" cy="95" rx="105" ry="55" fill="none" stroke="#1d5c43" stroke-width="2" stroke-dasharray="6,4"/>
+      <!-- students around table (5 positions) -->
+      <!-- S1 top -->
+      <g transform="translate(310,28)">
+        <text font-size="26" text-anchor="middle" y="0">🧑‍💻</text>
+        <text font-size="9" font-family="Courier New" fill="#9ec9b4" text-anchor="middle" y="14">S1</text>
+        <!-- S1 grades S2's paper this round — arrow -->
+      </g>
+      <!-- S2 right -->
+      <g transform="translate(415,75)">
+        <text font-size="26" text-anchor="middle" y="0">🧑‍💻</text>
+        <text font-size="9" font-family="Courier New" fill="#9ec9b4" text-anchor="middle" y="14">S2</text>
+      </g>
+      <!-- S3 bottom-right -->
+      <g transform="translate(380,135)">
+        <text font-size="26" text-anchor="middle" y="0">🧑‍💻</text>
+        <text font-size="9" font-family="Courier New" fill="#9ec9b4" text-anchor="middle" y="14">S3</text>
+      </g>
+      <!-- S4 bottom-left -->
+      <g transform="translate(240,135)">
+        <text font-size="26" text-anchor="middle" y="0">🧑‍💻</text>
+        <text font-size="9" font-family="Courier New" fill="#9ec9b4" text-anchor="middle" y="14">S4</text>
+      </g>
+      <!-- S5 left -->
+      <g transform="translate(205,75)">
+        <text font-size="26" text-anchor="middle" y="0">🧑‍💻</text>
+        <text font-size="9" font-family="Courier New" fill="#9ec9b4" text-anchor="middle" y="14">S5</text>
+      </g>
+      <!-- rotating paper arrows (circular) -->
+      <path d="M330,38 Q380,55 415,70" stroke="#ff8c00" stroke-width="1.8" fill="none" marker-end="url(#arr)" opacity=".7"/>
+      <path d="M420,98 Q415,125 400,135" stroke="#ff8c00" stroke-width="1.8" fill="none" marker-end="url(#arr)" opacity=".7"/>
+      <path d="M368,150 Q310,158 258,150" stroke="#ff8c00" stroke-width="1.8" fill="none" marker-end="url(#arr)" opacity=".7"/>
+      <path d="M230,138 Q210,110 208,98" stroke="#ff8c00" stroke-width="1.8" fill="none" marker-end="url(#arr)" opacity=".7"/>
+      <path d="M208,72 Q245,44 290,34" stroke="#ff8c00" stroke-width="1.8" fill="none" marker-end="url(#arr)" opacity=".7"/>
+      <!-- centre label -->
+      <text x="310" y="90" text-anchor="middle" fill="#ffb347" font-family="Courier New" font-size="10" font-weight="bold">papers rotate</text>
+      <text x="310" y="103" text-anchor="middle" fill="#9ec9b4" font-family="Courier New" font-size="9">→ each round</text>
+      <defs>
+        <marker id="arr" markerWidth="7" markerHeight="7" refX="3" refY="3.5" orient="auto">
+          <polygon points="0 0, 7 3.5, 0 7" fill="#ff8c00"/>
+        </marker>
+      </defs>
+      <!-- "being graded" badge -->
+      <rect x="456" y="20" width="150" height="58" rx="8" fill="rgba(15,81,55,.6)" stroke="#1d5c43"/>
+      <text x="531" y="40" text-anchor="middle" fill="#ffb347" font-family="Courier New" font-size="10" font-weight="bold">K-fold rule:</text>
+      <text x="531" y="55" text-anchor="middle" fill="#e8f5e9" font-family="Courier New" font-size="9">nobody grades</text>
+      <text x="531" y="68" text-anchor="middle" fill="#e8f5e9" font-family="Courier New" font-size="9">their own homework</text>
+    </svg>
+    <p class="pic-caption">5 students rotate who grades whose exam each round — by the end everyone has been graded by fresh eyes. K-fold CV is the same trick: each fold takes its turn as the "exam" so no data ever grades itself.</p>
+  </div>
+
   <div class="card">
     <span class="tag">THE TRICK</span>
-    <p>Stop thinking of <strong>one</strong> quiz. Think of <strong>10 small quizzes in rotation</strong>.
-       Chop the 200 cycles into 10 folds of 20. Each round, a <em>different</em> fold is the quiz; the
-       other nine train. The orange quiz-fold <strong>slides down</strong> one row per round.</p>
-    <div id="kfold"></div>
+    <p>Stop thinking of <strong>one</strong> quiz. Think of <strong>k small quizzes in rotation</strong>.
+       Chop the dataset into k folds. Each round, a <em>different</em> fold is the quiz; the
+       others train. The highlighted fold <strong>slides down</strong> one row per round.</p>
+
+    <!-- k-fold what-if control -->
+    <div class="kfold-controls">
+      <div class="kctrl">
+        <label>k — number of folds</label>
+        <select id="kSelect">
+          <option value="3">k = 3</option>
+          <option value="5" selected>k = 5</option>
+          <option value="10">k = 10</option>
+        </select>
+      </div>
+    </div>
+    <div class="split-readout" id="splitReadout"></div>
+
+    <!-- animated fold-rotation bars -->
+    <div class="fold-bar-wrap" id="foldBarWrap"></div>
+
     <div class="legend">
-      <span><span class="dot train"></span>Train fold</span>
+      <span><span class="dot train"></span>Train folds this round</span>
       <span><span class="dot val"></span>Validation (quiz) fold this round</span>
     </div>
+
+    <div class="playctrl">
+      <button class="play-btn" id="playBtn">▶ Play rotation</button>
+      <span class="round-indicator" id="roundInd">Round 1 of k</span>
+      <button class="replay-btn" id="replayBtnCV">⟳ Restart</button>
+    </div>
+
+    <div class="avg-box" id="avgBox"></div>
   </div>
 
   <div class="card">
     <h3 style="color:var(--orange2);margin-top:0">Both cracks — sealed</h3>
-    <p><strong>Crack 1 gone:</strong> every fold trains the model in 9 of the 10 rounds. No data benched.</p>
-    <p><strong>Crack 2 gone:</strong> you get 10 grades, not 1. Average them — the luck of any single
+    <p><strong>Crack 1 gone:</strong> every fold trains the model in (k−1) of the k rounds. No data benched.</p>
+    <p><strong>Crack 2 gone:</strong> you get k grades, not 1. Average them — the luck of any single
        slice washes out.</p>
     <div class="bar" style="height:auto;flex-wrap:wrap;gap:6px;border:none;background:none">
       <span style="background:var(--green2);padding:6px 10px;border-radius:6px">R1 → 93%</span>
@@ -109,55 +222,125 @@
       <span style="background:var(--green2);padding:6px 10px;border-radius:6px">… </span>
       <span style="background:var(--green2);padding:6px 10px;border-radius:6px">R10 → 95%</span>
       <span style="background:var(--orange);color:#06231a;font-weight:700;padding:6px 10px;border-radius:6px">
-        Final = average(all 10)</span>
+        Final = average(all k)</span>
     </div>
-    <p style="color:var(--muted);margin-bottom:0"><strong>K-fold accuracy = (R1 + R2 + … + R10) / 10</strong>
+    <p style="color:var(--muted);margin-bottom:0"><strong>K-fold accuracy = (R1 + R2 + … + Rk) / k</strong>
        — one honest, stable number you can stake a flash on.</p>
   </div>
 </div>
 
 <script>
-  // build the 10-round K-fold rotation grid
-  (function(){
-    const K=10, host=document.getElementById('kfold');
-    const grid=document.createElement('div');
-    grid.style.display='grid';
-    grid.style.gridTemplateColumns='70px repeat('+K+',1fr)';
-    grid.style.gap='4px'; grid.style.margin='14px 0';
-    // header row
-    grid.appendChild(cell('',true));
-    for(let f=1;f<=K;f++) grid.appendChild(cell('F'+f,true));
-    // one row per round; quiz fold slides down the diagonal
-    for(let r=1;r<=K;r++){
-      grid.appendChild(cell('Round '+r,true));
-      for(let f=1;f<=K;f++){
-        const isVal=(f===r);
-        const c=cell(isVal?'quiz':'',false);
-        c.style.background=isVal?'linear-gradient(180deg,var(--orange2),var(--orange))'
-                                :'linear-gradient(180deg,#2ecc71,#27ae60)';
-        c.style.color='#06231a'; c.style.fontSize='.62rem'; c.style.fontWeight='700';
-        grid.appendChild(c);
-      }
-    }
-    host.appendChild(grid);
-    function cell(t,head){
-      const d=document.createElement('div');
-      d.textContent=t;
-      d.style.padding='7px 2px'; d.style.textAlign='center';
-      d.style.borderRadius='5px'; d.style.fontSize='.68rem';
-      if(head){d.style.color='#9ec9b4';d.style.fontWeight='700';}
-      return d;
-    }
-  })();
+// floating chakra particles
+for(let i=0;i<14;i++){
+  const c=document.createElement('div');c.className='chakra';
+  c.style.left=Math.random()*100+'vw';
+  c.style.animationDuration=(6+Math.random()*8)+'s';
+  c.style.animationDelay=(-Math.random()*10)+'s';
+  c.style.width=c.style.height=(6+Math.random()*10)+'px';
+  document.body.appendChild(c);
+}
 
-  for(let i=0;i<14;i++){
-    const c=document.createElement('div');c.className='chakra';
-    c.style.left=Math.random()*100+'vw';
-    c.style.animationDuration=(6+Math.random()*8)+'s';
-    c.style.animationDelay=(-Math.random()*10)+'s';
-    c.style.width=c.style.height=(6+Math.random()*10)+'px';
-    document.body.appendChild(c);
+// ── K-fold what-if ──────────────────────────────────────────────────────────
+const TOTAL=200;
+const kSelect=document.getElementById('kSelect');
+const splitReadout=document.getElementById('splitReadout');
+const foldBarWrap=document.getElementById('foldBarWrap');
+const playBtn=document.getElementById('playBtn');
+const roundInd=document.getElementById('roundInd');
+const replayBtnCV=document.getElementById('replayBtnCV');
+const avgBox=document.getElementById('avgBox');
+
+let curRound=0, isPlaying=false, playTimer=null;
+
+function buildFoldBars(k, activeRound){
+  foldBarWrap.innerHTML='';
+  const foldSize=Math.round(TOTAL/k);
+  const trainSize=TOTAL-foldSize;
+  for(let r=0;r<k;r++){
+    const row=document.createElement('div');
+    row.style.display='flex';row.style.alignItems='center';row.style.marginBottom='5px';
+
+    const lbl=document.createElement('div'); lbl.className='round-label';
+    lbl.textContent='Round '+(r+1);
+    row.appendChild(lbl);
+
+    const bar=document.createElement('div');
+    bar.className='fold-bar'+(r===activeRound?' active-round':'');
+    bar.style.flex='1';
+
+    // segments: (r) train folds, then 1 val fold, then (k-r-1) train folds
+    for(let f=0;f<k;f++){
+      const seg=document.createElement('div');
+      seg.className='fold-seg '+(f===r?'val-seg':'train-seg');
+      seg.style.width=(100/k)+'%';
+      // label only the active round
+      if(r===activeRound){
+        seg.textContent=f===r?'TEST':'';
+      }
+      bar.appendChild(seg);
+    }
+    row.appendChild(bar);
+    foldBarWrap.appendChild(row);
   }
+}
+
+function updateReadout(k){
+  const foldSize=Math.round(TOTAL/k);
+  const trainSize=TOTAL-foldSize;
+  const trainPct=((trainSize/TOTAL)*100).toFixed(0);
+  const testPct=((foldSize/TOTAL)*100).toFixed(0);
+  splitReadout.innerHTML=
+    'k = <b>'+k+'</b> folds · each fold = <b>'+foldSize+' cycles</b> · '
+    +'per round: train on <b>'+trainSize+' ('+trainPct+'%)</b>, test on <b>'+foldSize+' ('+testPct+'%)</b>';
+  avgBox.innerHTML='Final score = average of <b>'+k+'</b> rounds — stable, lottery-proof. '
+    +'Every cycle trains in <b>'+(k-1)+'</b> of the '+k+' rounds (nothing benched).';
+}
+
+function goRound(k, r){
+  curRound=r;
+  buildFoldBars(k, r);
+  roundInd.textContent='Round '+(r+1)+' of '+k;
+}
+
+function playRotation(){
+  const k=parseInt(kSelect.value);
+  isPlaying=true; playBtn.textContent='⏸ Pause';
+  function step(){
+    if(!isPlaying) return;
+    const next=(curRound+1)%k;
+    goRound(k,next);
+    if(next===k-1){
+      // finished one full rotation — pause
+      isPlaying=false; playBtn.textContent='▶ Play rotation';
+      return;
+    }
+    playTimer=setTimeout(step,800);
+  }
+  playTimer=setTimeout(step,800);
+}
+
+function pauseRotation(){
+  isPlaying=false; playBtn.textContent='▶ Play rotation';
+  if(playTimer) clearTimeout(playTimer);
+}
+
+function init(){
+  const k=parseInt(kSelect.value);
+  curRound=0; isPlaying=false;
+  if(playTimer) clearTimeout(playTimer);
+  playBtn.textContent='▶ Play rotation';
+  updateReadout(k);
+  goRound(k,0);
+}
+
+kSelect.addEventListener('change',init);
+playBtn.addEventListener('click',()=>{
+  if(isPlaying) pauseRotation();
+  else playRotation();
+});
+replayBtnCV.addEventListener('click',init);
+
+init();
 </script>
 </body>
 </html>

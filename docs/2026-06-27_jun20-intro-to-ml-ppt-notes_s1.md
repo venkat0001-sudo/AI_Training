@@ -39,6 +39,23 @@ This is an end-to-end "Intro to ML" deck. It opens by motivating ML through appl
 
 ---
 
+## Revision ladder (skim these in 2 minutes — recall, don't re-read)
+
+1. **Data dimensionality:** 1-D time series, 2-D grayscale image, 3-D color image / grayscale video, 4-D color video. → §1
+2. **Why ML now? Two unlocks:** big data + GPU parallelism. Algorithms existed since the 1990s. → §2
+3. **Rules vs Learning:** handwritten digit rules fail on real variation. "If a problem is hard to solve with rules, use a data-centric method." → §3
+4. **4-step ML workflow:** Collect labelled data → Design model → Define loss → Optimize weights. → §5
+5. **Cross-entropy loss (classification):** only the true class's probability matters; `L_CE = −log(p_true)`. Case 2 (0.095) < Case 1 (0.3677) = better. → §6
+6. **MSE loss (regression):** pixel-wise squared difference; used when output ≈ input (e.g. deblurring). → §6
+7. **Gradient descent vs closed-form:** GD = iterative, scales to big models; closed-form = one-shot, requires matrix inverse, breaks at large feature counts. → §8
+8. **Overfitting vs underfitting:** high bias (underfit) vs high variance (overfit). K-fold cross-validation catches it. → §§12–13
+9. **Confusion matrix:** TP / FP / FN / TN. Type 1 error = FP (false alarm). Type 2 error = FN (missed detection). → §15
+10. **Accuracy / Precision / Recall / F1:** use F1 when classes are imbalanced; accuracy alone misleads. → §16
+11. **Unsupervised learning:** no labels — find structure (clustering, association). → §17
+12. **Reinforcement learning:** agent + environment + reward signal. No labelled dataset needed. → §18
+
+---
+
 ## 1. Motivation & Data Types (Slides 1–11)
 
 - **Slide 1 — Title:** "Introduction to Machine Learning." Mahesh Mohan M R, Department of AI, IIT Kharagpur.

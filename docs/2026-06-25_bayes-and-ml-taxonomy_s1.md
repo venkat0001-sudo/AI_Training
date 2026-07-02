@@ -15,6 +15,28 @@ goal: on-device predictive thermal-throttle ML model (Edge AI)
 
 ---
 
+## Why are we learning this?
+
+A sensor screams HOT — but how often is it actually right?
+And when it is wrong, what's the smarter response than a blind if/else rule?
+
+This session answers both questions, then maps out the entire ML family tree so you know which tool to reach for when you need to build an on-device SSD throttle predictor.
+
+---
+
+## §0 Revision ladder (walk this in 2 minutes — recall, don't re-read)
+
+1. **Bayes flips the conditional:** datasheet gives `P(HOT|Real)`; you need `P(Real|HOT)`. → [§①](#-bayes-theorem)
+2. **The 18/18/2/162 table:** 200 cycles, 10% base rate, 90% sensor → only 50% trust when the alarm fires. → [§①](#-bayes-theorem)
+3. **Rule-based ≠ ML.** `if(temp>90) throttle;` lives outside ML — the machine learns nothing. → [§②](#-ai--ml--classic--deep--the-bloodline)
+4. **Classic vs Deep = who finds features.** You hand-pick → classic. Network discovers them in layers → deep. → [§③](#-classic-ml-vs-deep-learning--the-two-clans)
+5. **Decision tree = learned firmware.** Same nested if/else at runtime; difference is thresholds came from data. → [§④](#-decision-trees--firmware-whose-constants-were-learned)
+6. **Feature ≠ Weight.** Feature = what you feed in. Weight = what the model learns. Never swap them. → [§⑤](#-features-vs-weights--the-vocabulary-that-bites-in-class)
+7. **ML = a learned math function.** Everything → numbers → tensors → arithmetic → prediction. → [§⑥ intuitions](#-intuitions-from-this-session-learner-derived)
+8. **Algorithm produces the model** (trainer ≠ bodybuilder). Labels supervise. Gradient descent corrects. → [§⑥ intuitions](#-intuitions-from-this-session-learner-derived)
+
+---
+
 ## ① Bayes' Theorem
 
 **Why it matters:** A sensor screams HOT. Do you trust it? Bayes answers *"given the alarm fired, how likely is it real?"* by combining the sensor's spec with how rare real events actually are.
@@ -92,6 +114,12 @@ AI ─────────────────────────�
 
 > **Anchor:** the Jun-20 linear classifier *learned* its weights via gradient descent → it's classic ML, **not** rule-based. If "classic = rule-based" were true, that notebook would need no training at all.
 
+### Decision boundary for §②
+- ✅ **ML** when you want the machine to find thresholds or patterns from data — even if the result looks like if/else.
+- ❌ **Rule-based** when the logic is fully known, fixed, and small enough to hand-code (e.g. `if(temp>95°C) shutdown;` — you already know the number from the datasheet).
+
+> **ML destination:** the AI/ML/Deep taxonomy is the map for the whole course. Every session adds a new node to this tree (Sess 2: linear/logistic; Sess 3: trees/SVM; Sess 7+: deep). Knowing where each model sits tells you cost, explainability, and fit for your silicon constraints.
+
 ### The bridge between the clans
 A single neuron = **logistic regression**. Stack it into many feeding-forward **layers**, let it learn its own features → you cross from classic ML into deep learning.
 ⚠️ Only logistic regression is "the neuron." A **decision tree is a sibling model** — stacking trees gives a *random forest* (still classic ML), never a neural net.
@@ -124,6 +152,12 @@ A single neuron = **logistic regression**. Stack it into many feeding-forward **
 | LLMs / GANs / diffusion | scaled transformers; generate data | Modules 4+ |
 
 > 🔌 For your **on-device SSD throttle**: classic ML (small tree or logistic model) likely wins — fits in SRAM, runs in nanoseconds, explainable. Deep learning earns its cost only on huge *unstructured* data (images, audio, text).
+
+### Decision boundary for §③
+- ✅ **Classic ML** when you have clean tabular features, limited memory/compute, need explainability, or the dataset is small-to-medium.
+- ❌ **Deep Learning** NOT when features are hand-engineerable or hardware is constrained — only earn the cost when data is massive and raw (images, audio, text) and clean hand-engineering is hopeless.
+
+> **ML destination:** this table IS the course schedule — each row maps to a module. Knowing the family at a glance means you never confuse the tool with the technique when a professor introduces a new model.
 
 ---
 
@@ -181,6 +215,13 @@ score = 0.7·temp + 0.2·cycles + 0.05·retention + 0.4·workload
 |---|---|---|---|
 | **Classic ML** | clean hand-built features | **you** | data |
 | **Deep Learning** | raw messy data | **the network** | data |
+
+### Decision boundary for §⑤
+- ✅ Think "feature" when you are **choosing inputs** (deciding which sensor columns to feed in).
+- ✅ Think "weight/parameter" when the question is "what did the model learn?" or "how much does X matter?"
+- ❌ Never say "I set the weights to make temp more important" — if a human sets them, it is not ML. Feed the features and let training find the weights.
+
+> **ML destination:** the feature/weight distinction is tested in every session from Sess 2 onward. In the linear classifier notebook (Jun 20): features are your sensor columns; weights are the values gradient descent converges on. In PCA (Sess 5): features go in, eigenvectors are the learned directions.
 
 ---
 

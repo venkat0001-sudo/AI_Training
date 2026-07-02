@@ -4,6 +4,14 @@
 
 ---
 
+## Why are we learning this?
+
+Every ML model compares things — users to users, documents to documents, feature vectors to each other.
+To compare two vectors you need to measure how "similar" they are, and the wrong tool gives the wrong answer.
+This session builds the three tools (magnitude, dot product, cosine similarity) and shows exactly when each one wins — which feeds directly into recommendation systems, embeddings, PCA, and gradient descent.
+
+---
+
 ## 0. Revision ladder (walk this in 2 minutes — recall, don't re-read)
 
 Step through these in order; each builds on the last. If a rung is fuzzy, jump to the section noted.
@@ -41,6 +49,11 @@ A vector has two separable properties:
 - **Gradient descent:** gradient is a vector; its magnitude = slope steepness = step size. "Gradient clipping" = cap that magnitude.
 - **Edge-AI:** INT8 quantization scaling is driven by the **max magnitude** of a weight tensor.
 
+✅ Use magnitude when you need a single number for "how big / how far / how steep" — size, not direction.
+❌ Do NOT use magnitude alone when you care about similarity between two vectors — it tells you nothing about alignment.
+
+> **ML destination:** magnitude feeds gradient clipping (training stability), MSE loss (regression), and INT8 quantization scaling — all in Modules 1–2.
+
 ---
 
 ## 2. Dot product — alignment, but blind to size
@@ -55,6 +68,11 @@ Result is a single number measuring how much two vectors align. **But it's conta
 1. Same direction, different volume → wildly different scores. `[1,1]·[1,1]=2` but `[10,10]·[10,10]=200` — same perfect alignment, 100× the score, purely from loudness.
 2. Different directions → can give the *same* score. `[1,0]·[5,0]=5` (identical heading) and `[5,5]·[1,0]=5` (45° apart) — dot product can't distinguish them.
 
+✅ Use dot product when all vectors you are comparing are already the **same length** (e.g. all unit-normalized, or you only care about absolute activation strength).
+❌ Do NOT use dot product when vectors vary in magnitude — volume will drown out direction, and you will rank the wrong item first.
+
+> **ML destination:** dot product = the MAC (multiply-accumulate) inside every layer of a neural net (`score = w·x`). It powers the linear classifier from the Jun-20 notebook and is the raw operation inside attention heads (Sess 14). Where magnitudes matter, cosine or normalization wraps around it.
+
 ---
 
 ## 3. Cosine similarity — chop off the length, keep the heading
@@ -64,6 +82,11 @@ cosine(A,B) = (A·B) / (|A| × |B|)        # divide out BOTH magnitudes
 ```
 
 Range `−1 … +1`: **+1** = same direction, **0** = unrelated, **−1** = opposite. It normalizes out the gain on both sides, leaving only direction.
+
+✅ Use cosine whenever magnitudes vary across vectors — recommendation engines, NLP embeddings, document similarity, user-taste comparison.
+❌ Do NOT use cosine when direction is meaningless and you genuinely want size (e.g. comparing amplitudes of two signals; here magnitude is the point).
+
+> **ML destination:** cosine similarity is the backbone of vector/embedding search in RAG pipelines (Sess 24) and the similarity metric in k-NN (Module 1). It also shows up in attention — query·key dot products are often scaled (divided by √d) to prevent magnitude from dominating, which is the same fix cosine makes explicit.
 
 ---
 
@@ -375,6 +398,11 @@ That second arrow is the teaser for the next rung: some arrows a given matrix **
 
 😄 **Analogy — gym-bro gains:** push a normal arrow through the matrix and it **twists like a noodle** (new angle). Push an *eigenvector* through and it just gets **taller — same direction, pure gains, no twist.** 💪 The amount it bulked up = the eigenvalue.
 
+✅ Think "matrix as a machine" whenever you reason about what a linear transformation does to a vector — rotation, stretching, projecting.
+❌ This framing is conceptual scaffolding, not a computation shortcut — use NumPy for actual multiplies.
+
+> **ML destination:** the matrix-as-machine picture is the mental model for every neural network layer (`output = A·x`), convolution, and PCA — where the covariance matrix is the machine and eigenvectors are its special non-rotating arrows (Sess 5, 18 Jul).
+
 ---
 
 ## 11. Eigenvectors & Eigenvalues (continues §10)
@@ -422,6 +450,11 @@ Covariance matrix → eigenvalues: λ1=5 (direction [1,2]), λ2=0 (direction [2,
 eigenvalues, eigenvectors = np.linalg.eig(cov_matrix)
 # largest eigenvalue index → most important direction
 ```
+
+✅ Eigenvalues/vectors are the right tool when you want to find the "natural axes" of a dataset — directions of maximum spread or minimum redundancy.
+❌ Do NOT interpret eigenvalue magnitude as "feature importance" in a raw model — it measures variance in the data, not predictive power; a feature with high variance can still be uninformative for a specific label.
+
+> **ML destination:** this is the direct prerequisite for PCA (Sess 5, 18 Jul). The same eigen-decomposition appears in Multivariate Gaussians, anomaly detection, whitening, and embedding compression (Sess 24, RAG). Understanding it here means Session 5 is revision, not new material.
 
 ---
 
@@ -685,9 +718,24 @@ information / PCA   →  USELESS (no info)        IMPORTANT (informative)
 
 - **Reliability question** ("which do I trust?") → want **LOW** variance = consistency. Restaurant A (30±2) beats B (30±20). SSD: tight σ = good QoS.
 - **Information question** ("which feature tells things apart?", PCA) → **HIGH** variance is "important" = **discriminating power**. A zero-variance feature ("has a roof?" = all yes) can't separate anyone → useless.
+
+**⭐ Worked numbers — the two restaurants (same mean 30 min):**
+```
+Restaurant A:  [28, 30, 32, 29, 31]   mean=30   dev −2,0,+2,−1,+1        var=10/4=2.5      σ≈1.58  → 30 ± 1.6 (reliable ✅)
+Restaurant B:  [10, 50, 30, 45, 15]   mean=30   dev −20,+20,0,+15,−15    var=1250/4=312.5  σ≈17.7  → 30 ± 18 (gamble ❌)
+```
+Same average delivery — σ is the entire difference between "plan your evening" and "order at your own risk."
+
 - **KEY: "important" (PCA) ≠ "good/trustworthy."** It means *"this is where the differences / the information live."* The **same high variance** is simultaneously **BAD** (untrustworthy) and **IMPORTANT** (informative) — no contradiction, different questions.
 - **The one-liner:** *variance is a **speedometer, not a judge.*** It tells you "how much spread," never "good or bad." 120 mph is both "important" (lots happening) and "dangerous" (don't trust) — same number, depends if you're the race analyst or the passenger.
 - 😄 **Analogy — the yes-man sensor & the useless exam question:** a sensor that reads `3.30, 3.30, 3.30…` is a **yes-man** — says "all good" every time, so it can never *explain* why the drive throttled → variance ≈ 0 → deletable. Same as the **exam question everyone gets right** (`[10,10,10,10,10]`, variance 0): it can't rank a single student → zero information. The **high-variance** question (`[2,5,7,9,10]`) is the one that *tells students apart* → that's the "important" one PCA keeps. **Important = discriminating power, NOT quality.**
+
+**⭐ Worked numbers — yes-man sensor vs storyteller sensor:**
+```
+Sensor A (voltage rail):  [3.30, 3.30, 3.31, 3.30, 3.30]   mean≈3.30   var≈0.00002   → FLAT, a yes-man → tells you nothing → drop it
+Sensor B (die temp):      [42, 55, 71, 63, 88]             mean=63.8   var≈297.7 (σ≈17.3)  → SWINGS → this is where the throttling story lives → keep it
+```
+For a thermal-throttle predictor, Sensor B (high variance) is gold; Sensor A is deletable dead weight. PCA keeps B's direction, drops A's.
 - **Zero-variance feature `[50,50,50,50]`:** trust lens → **GOOD** (rock-steady); training lens → **DROP it** — it has zero predictive power by construction (every example looks identical on it → model gives it weight 0), yet still costs SRAM/MACs/mW. **Dropping near-zero-variance directions = exactly what PCA/feature-selection automates → smaller model, same accuracy = the Edge-AI win.** (His own words: "I would not keep this for training — it doesn't add any corner scenario.")
 
 ---

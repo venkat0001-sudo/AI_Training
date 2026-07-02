@@ -69,6 +69,26 @@ li{margin:5px 0;}
 .bar.false{background:linear-gradient(90deg,#8b2e1a,#d9534f);}
 .bar .cnt{display:inline-block;margin-left:8px;color:var(--cream-dark);}
 
+/* bucket grid */
+.bucket-grid-wrap{margin:18px auto;max-width:700px;}
+.bucket-grid-title{font-size:.75em;color:var(--sage-pale);text-align:center;margin-bottom:6px;letter-spacing:1px;}
+#bucketGrid{display:grid;grid-template-columns:repeat(20,1fr);gap:2px;margin:0 auto;}
+.bucket{width:100%;aspect-ratio:1;border-radius:3px;transition:background .55s,box-shadow .55s;}
+.bucket.hot-real{background:#ff8c00;box-shadow:0 0 5px rgba(255,140,0,.7);}
+.bucket.hot-false{background:#d9534f;box-shadow:0 0 3px rgba(217,83,79,.5);}
+.bucket.cold-real{background:#4a7a2e;}
+.bucket.cold-false{background:#1a2e0d;}
+.bucket-legend{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:7px;font-size:.7em;color:var(--cream-dark);}
+.bl-dot{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:4px;vertical-align:middle;}
+.bucket-readout{text-align:center;margin:8px 0;font-size:.85em;color:var(--sage-pale);}
+.replay-btn{display:block;margin:6px auto 0;background:rgba(74,122,46,.25);color:var(--orange-glow);border:1px solid var(--sage-mid);border-radius:8px;padding:5px 16px;cursor:pointer;font-family:'Courier New',monospace;font-size:.78em;transition:.15s;}
+.replay-btn:hover{background:var(--orange);color:#1a1a0a;}
+
+/* pictorial analogy — smoke alarm scene */
+.pictorial{background:rgba(0,0,0,.35);border:1px solid rgba(74,122,46,.4);border-radius:14px;padding:18px 20px;margin:20px 0;}
+.pictorial-title{color:var(--orange-glow);font-size:.88em;font-weight:bold;margin-bottom:10px;letter-spacing:1px;}
+.pic-caption{font-size:.78em;color:var(--cream-dark);margin-top:10px;font-style:italic;text-align:center;}
+
 /* tree */
 .tree-box{background:rgba(0,0,0,.4);border-radius:10px;padding:18px;margin:14px 0;text-align:center;font-size:.8em;line-height:1.9;color:var(--sage-pale);}
 .node-q{color:var(--orange-glow);font-weight:bold;}
@@ -164,8 +184,54 @@ P(Real | HOT) =        P(HOT|Real)·P(Real)
                 0.90×0.10  +  0.10×0.90        0.18</pre>
   <div class="quote">Shape to remember: <b>posterior = (one real-alarm bucket) ÷ (all alarm buckets summed)</b>. The bottom is "every way the sensor could fire HOT." The top is "the one way that's actually real."</div>
 
-  <h3>🎮 Watch it bite — drag the base rate</h3>
-  <p class="lead">Real events are the villain when they're <i>rare</i>. Drag the slider and watch a trustworthy-looking alarm rot.</p>
+  <!-- PICTORIAL ANALOGY: smoke-alarm / crying-wolf scene -->
+  <div class="pictorial">
+    <div class="pictorial-title">🖼️ Pictorial analogy — the crying-wolf alarm bank</div>
+    <svg id="alarmScene" viewBox="0 0 620 200" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;display:block;margin:0 auto;">
+      <!-- background wall -->
+      <rect width="620" height="200" rx="10" fill="rgba(0,0,0,0.35)"/>
+      <!-- label: "12 alarms fired today" -->
+      <text x="310" y="22" text-anchor="middle" fill="#f5e6c8" font-family="Courier New" font-size="12" font-weight="bold">12 alarms fired today — count the fire buckets vs smoke-only buckets</text>
+      <!-- 12 alarm panels, 6 per row -->
+      <!-- Row 1: panels 1-6 -->
+      <!-- Panel template: alarm box = 72x72, gap 10, starting x=20 -->
+      <!-- Panels 1,2 = real fire (orange glow) ; panels 3-6 = false alarm (red, no fire) -->
+      <!-- Row 1 -->
+      <g id="alarm1" transform="translate(20,35)">
+        <rect width="72" height="72" rx="8" fill="#2a1a08" stroke="#ff8c00" stroke-width="2"/>
+        <text x="36" y="28" text-anchor="middle" font-size="22">🔥</text>
+        <text x="36" y="54" text-anchor="middle" fill="#ff8c00" font-family="Courier New" font-size="9" font-weight="bold">REAL</text>
+        <text x="36" y="66" text-anchor="middle" fill="#ff8c00" font-family="Courier New" font-size="8">fire bucket</text>
+      </g>
+      <g id="alarm2" transform="translate(102,35)">
+        <rect width="72" height="72" rx="8" fill="#2a1a08" stroke="#ff8c00" stroke-width="2"/>
+        <text x="36" y="28" text-anchor="middle" font-size="22">🔥</text>
+        <text x="36" y="54" text-anchor="middle" fill="#ff8c00" font-family="Courier New" font-size="9" font-weight="bold">REAL</text>
+        <text x="36" y="66" text-anchor="middle" fill="#ff8c00" font-family="Courier New" font-size="8">fire bucket</text>
+      </g>
+      <!-- False alarms — just smoke, no fire -->
+      <g transform="translate(184,35)"><rect width="72" height="72" rx="8" fill="#1a0a08" stroke="#d9534f" stroke-width="1.5"/><text x="36" y="28" text-anchor="middle" font-size="22">💨</text><text x="36" y="54" text-anchor="middle" fill="#d9534f" font-family="Courier New" font-size="9" font-weight="bold">FALSE</text><text x="36" y="66" text-anchor="middle" fill="#d9534f" font-family="Courier New" font-size="8">smoke only</text></g>
+      <g transform="translate(266,35)"><rect width="72" height="72" rx="8" fill="#1a0a08" stroke="#d9534f" stroke-width="1.5"/><text x="36" y="28" text-anchor="middle" font-size="22">💨</text><text x="36" y="54" text-anchor="middle" fill="#d9534f" font-family="Courier New" font-size="9" font-weight="bold">FALSE</text><text x="36" y="66" text-anchor="middle" fill="#d9534f" font-family="Courier New" font-size="8">smoke only</text></g>
+      <g transform="translate(348,35)"><rect width="72" height="72" rx="8" fill="#1a0a08" stroke="#d9534f" stroke-width="1.5"/><text x="36" y="28" text-anchor="middle" font-size="22">💨</text><text x="36" y="54" text-anchor="middle" fill="#d9534f" font-family="Courier New" font-size="9" font-weight="bold">FALSE</text><text x="36" y="66" text-anchor="middle" fill="#d9534f" font-family="Courier New" font-size="8">smoke only</text></g>
+      <g transform="translate(430,35)"><rect width="72" height="72" rx="8" fill="#1a0a08" stroke="#d9534f" stroke-width="1.5"/><text x="36" y="28" text-anchor="middle" font-size="22">💨</text><text x="36" y="54" text-anchor="middle" fill="#d9534f" font-family="Courier New" font-size="9" font-weight="bold">FALSE</text><text x="36" y="66" text-anchor="middle" fill="#d9534f" font-family="Courier New" font-size="8">smoke only</text></g>
+      <!-- Row 2 (alarms 7-12) — all false -->
+      <g transform="translate(20,117)"><rect width="72" height="72" rx="8" fill="#1a0a08" stroke="#d9534f" stroke-width="1.5"/><text x="36" y="28" text-anchor="middle" font-size="22">💨</text><text x="36" y="54" text-anchor="middle" fill="#d9534f" font-family="Courier New" font-size="9" font-weight="bold">FALSE</text><text x="36" y="66" text-anchor="middle" fill="#d9534f" font-family="Courier New" font-size="8">smoke only</text></g>
+      <g transform="translate(102,117)"><rect width="72" height="72" rx="8" fill="#1a0a08" stroke="#d9534f" stroke-width="1.5"/><text x="36" y="28" text-anchor="middle" font-size="22">💨</text><text x="36" y="54" text-anchor="middle" fill="#d9534f" font-family="Courier New" font-size="9" font-weight="bold">FALSE</text><text x="36" y="66" text-anchor="middle" fill="#d9534f" font-family="Courier New" font-size="8">smoke only</text></g>
+      <g transform="translate(184,117)"><rect width="72" height="72" rx="8" fill="#1a0a08" stroke="#d9534f" stroke-width="1.5"/><text x="36" y="28" text-anchor="middle" font-size="22">💨</text><text x="36" y="54" text-anchor="middle" fill="#d9534f" font-family="Courier New" font-size="9" font-weight="bold">FALSE</text><text x="36" y="66" text-anchor="middle" fill="#d9534f" font-family="Courier New" font-size="8">smoke only</text></g>
+      <g transform="translate(266,117)"><rect width="72" height="72" rx="8" fill="#1a0a08" stroke="#d9534f" stroke-width="1.5"/><text x="36" y="28" text-anchor="middle" font-size="22">💨</text><text x="36" y="54" text-anchor="middle" fill="#d9534f" font-family="Courier New" font-size="9" font-weight="bold">FALSE</text><text x="36" y="66" text-anchor="middle" fill="#d9534f" font-family="Courier New" font-size="8">smoke only</text></g>
+      <g transform="translate(348,117)"><rect width="72" height="72" rx="8" fill="#1a0a08" stroke="#d9534f" stroke-width="1.5"/><text x="36" y="28" text-anchor="middle" font-size="22">💨</text><text x="36" y="54" text-anchor="middle" fill="#d9534f" font-family="Courier New" font-size="9" font-weight="bold">FALSE</text><text x="36" y="66" text-anchor="middle" fill="#d9534f" font-family="Courier New" font-size="8">smoke only</text></g>
+      <g transform="translate(430,117)"><rect width="72" height="72" rx="8" fill="#1a0a08" stroke="#d9534f" stroke-width="1.5"/><text x="36" y="28" text-anchor="middle" font-size="22">💨</text><text x="36" y="54" text-anchor="middle" fill="#d9534f" font-family="Courier New" font-size="9" font-weight="bold">FALSE</text><text x="36" y="66" text-anchor="middle" fill="#d9534f" font-family="Courier New" font-size="8">smoke only</text></g>
+      <!-- bracket / counter -->
+      <text x="512" y="90" fill="#ff8c00" font-family="Courier New" font-size="11" font-weight="bold">🔥 2/12</text>
+      <text x="508" y="105" fill="#f5e6c8" font-family="Courier New" font-size="10">= 16.7%</text>
+      <text x="508" y="118" fill="#cbbb95" font-family="Courier New" font-size="9">fire among</text>
+      <text x="508" y="130" fill="#cbbb95" font-family="Courier New" font-size="9">all alarms</text>
+    </svg>
+    <p class="pic-caption">Bayes in a building: the detector fired 12 times, only 2 had real fire (🔥). P(Real|HOT) = 2/12 ≈ 17%. The sensor is fine — fires are just RARE. The denominator (all alarm buckets) is what kills trust.</p>
+  </div>
+
+  <h3>🎬 Watch it bite — drag the base rate (animated 200-cycle bucket grid)</h3>
+  <p class="lead">200 thermal cycles laid out as 10 rows × 20 cells. Each cell is one cycle. Drag the sliders and watch the orange fire-buckets vanish as real events get rarer. <b>That's the base-rate effect, live.</b></p>
   <div class="controls">
     <div class="ctrl">
       <label>Base rate — how common are real events?</label>
@@ -183,8 +249,23 @@ P(Real | HOT) =        P(HOT|Real)·P(Real)
       <span class="val"><span id="faVal">10</span>%</span>
     </div>
   </div>
+
+  <!-- animated 200-cycle bucket grid -->
+  <div class="bucket-grid-wrap">
+    <div class="bucket-grid-title">200 THERMAL CYCLES — each cell = 1 cycle (HOT alarm cells glow)</div>
+    <div id="bucketGrid"></div>
+    <div class="bucket-legend">
+      <span><span class="bl-dot" style="background:#ff8c00;box-shadow:0 0 4px rgba(255,140,0,.7)"></span>HOT alarm + Real event (true positive)</span>
+      <span><span class="bl-dot" style="background:#d9534f"></span>HOT alarm + No event (false alarm)</span>
+      <span><span class="bl-dot" style="background:#4a7a2e"></span>NORMAL + Real event (missed)</span>
+      <span><span class="bl-dot" style="background:#1a2e0d"></span>NORMAL + No event (true negative)</span>
+    </div>
+    <div class="bucket-readout" id="bucketReadout"></div>
+    <button class="replay-btn" id="replayBtn">⟳ Replay animation</button>
+  </div>
+
   <div class="bayes-out">
-    <div style="font-size:.8em;color:var(--cream-dark);">If the sensor fires HOT, probability it's REAL:</div>
+    <div style="font-size:.8em;color:var(--cream-dark);">P(Real | HOT) — if the sensor fires HOT, probability it's REAL:</div>
     <div class="posterior" id="post">50%</div>
     <div id="verdict" style="font-size:.8em;color:var(--sage-pale);"></div>
   </div>
@@ -513,35 +594,112 @@ for(let i=0;i<26;i++){
   document.body.appendChild(p);
 }
 
-// Bayes interactive
+// ── Bucket grid setup (200 cells = 10 rows × 20 cols) ──────────────────────
+const GRID_N = 200;
+const gridEl = document.getElementById('bucketGrid');
+const buckets = [];
+for(let i=0;i<GRID_N;i++){
+  const d=document.createElement('div'); d.className='bucket cold-false';
+  gridEl.appendChild(d); buckets.push(d);
+}
+
+let animRAF=null;
+function classForType(type){
+  // type: 0=cold-false 1=cold-real 2=hot-false 3=hot-real
+  return ['cold-false','cold-real','hot-false','hot-real'][type];
+}
+
+function animateBuckets(types){
+  // types: array of GRID_N integers 0-3, assign with staggered easing
+  if(animRAF) cancelAnimationFrame(animRAF);
+  const start=performance.now();
+  const duration=700; // ms total for all cells
+  function step(now){
+    const elapsed=now-start;
+    // reveal fraction with ease-out
+    const frac=Math.min(1,elapsed/duration);
+    const eased=1-Math.pow(1-frac,2); // ease-out quad
+    const count=Math.round(eased*GRID_N);
+    for(let i=0;i<count;i++){
+      const cls=classForType(types[i]);
+      if(buckets[i].className!=='bucket '+cls) buckets[i].className='bucket '+cls;
+    }
+    if(frac<1) animRAF=requestAnimationFrame(step);
+  }
+  animRAF=requestAnimationFrame(step);
+}
+
+// ── Bayes interactive ────────────────────────────────────────────────────────
 const br=document.getElementById('baseRate'), det=document.getElementById('det'), fa=document.getElementById('fa');
 const brVal=document.getElementById('brVal'), detVal=document.getElementById('detVal'), faVal=document.getElementById('faVal');
 const post=document.getElementById('post'), verdict=document.getElementById('verdict');
 const barReal=document.getElementById('barReal'), barFalse=document.getElementById('barFalse');
 const cntReal=document.getElementById('cntReal'), cntFalse=document.getElementById('cntFalse');
-const N=10000;
+const readout=document.getElementById('bucketReadout');
+
+function buildBucketTypes(pReal, pDetect, pFalseAlarm){
+  // pReal = base rate, pDetect = P(HOT|Real), pFalseAlarm = P(HOT|NoEvent)
+  // For each of 200 cells assign deterministic type based on proportions
+  const nReal   = Math.round(GRID_N * pReal);
+  const nNoEvt  = GRID_N - nReal;
+  const nHotReal   = Math.round(nReal * pDetect);
+  const nColdReal  = nReal - nHotReal;
+  const nHotFalse  = Math.round(nNoEvt * pFalseAlarm);
+  const nColdFalse = nNoEvt - nHotFalse;
+  // build list: hot-real first (most salient), then hot-false, then cold-real, cold-false
+  const types=[];
+  for(let i=0;i<nHotReal;i++)   types.push(3);
+  for(let i=0;i<nHotFalse;i++)  types.push(2);
+  for(let i=0;i<nColdReal;i++)  types.push(1);
+  for(let i=0;i<nColdFalse;i++) types.push(0);
+  // shuffle so they're interspersed (deterministic seeded shuffle via position)
+  for(let i=types.length-1;i>0;i--){
+    const j=Math.floor(((i*2654435761)>>>0)/0x100000000*(i+1));
+    const tmp=types[i];types[i]=types[j];types[j]=tmp;
+  }
+  while(types.length<GRID_N) types.push(0);
+  return {types,nHotReal,nHotFalse,nColdReal,nColdFalse};
+}
+
 function updateBayes(){
   const p=br.value/100, d=det.value/100, f=fa.value/100;
   brVal.textContent=Number(br.value).toFixed(1);
   detVal.textContent=det.value; faVal.textContent=fa.value;
-  const realAlarms=N*p*d;            // truly real AND fired HOT
-  const falseAlarms=N*(1-p)*f;       // calm AND fired HOT
+
+  // Bayes math (exact)
+  const realAlarms=p*d;          // P(HOT,Real)
+  const falseAlarms=(1-p)*f;     // P(HOT,NoEvent)
   const total=realAlarms+falseAlarms;
   const posterior= total>0 ? realAlarms/total : 0;
-  const pct=(posterior*100);
+  const pct=posterior*100;
+
   post.textContent=pct.toFixed(0)+'%';
-  const danger=posterior<0.5;
-  post.classList.toggle('danger',danger);
+  post.classList.toggle('danger',posterior<0.5);
   verdict.textContent = posterior>=0.7 ? 'trustworthy — act on it'
                       : posterior>=0.4 ? 'a coin-flip — base rate is biting'
                       : 'mostly false alarms — do NOT trust a bare HOT';
-  const mx=Math.max(realAlarms,falseAlarms,1);
+
+  const mx=Math.max(realAlarms,falseAlarms,1e-9);
   barReal.style.width=(realAlarms/mx*100)+'%';
   barFalse.style.width=(falseAlarms/mx*100)+'%';
-  cntReal.textContent=Math.round(realAlarms)+' real';
-  cntFalse.textContent=Math.round(falseAlarms)+' false';
+  cntReal.textContent=((realAlarms*100).toFixed(1))+'% of 200 cycles';
+  cntFalse.textContent=((falseAlarms*100).toFixed(1))+'% of 200 cycles';
+
+  // bucket grid
+  const {types,nHotReal,nHotFalse}=buildBucketTypes(p,d,f);
+  animateBuckets(types);
+  const tot200=nHotReal+nHotFalse;
+  readout.innerHTML='<b style="color:#ff8c00">'+nHotReal+'</b> real-fire alarms (orange) + '
+    +'<b style="color:#d9534f">'+nHotFalse+'</b> false alarms (red) = <b>'+tot200+'</b> HOT firings among 200 cycles '
+    +'→ P(Real|HOT) = <b style="color:#ff8c00">'+nHotReal+'/'+ tot200+' = '+(tot200>0?(nHotReal/tot200*100).toFixed(0):0)+'%</b>';
 }
+
 [br,det,fa].forEach(el=>el.addEventListener('input',updateBayes));
+document.getElementById('replayBtn').addEventListener('click',()=>{
+  // force re-animate: reset all cells then re-run
+  buckets.forEach(b=>b.className='bucket cold-false');
+  setTimeout(updateBayes,80);
+});
 updateBayes();
 </script>
 </body>
