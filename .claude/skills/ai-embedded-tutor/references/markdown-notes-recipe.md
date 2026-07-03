@@ -32,6 +32,10 @@ His 2026-07-02 directive upgraded the notes standard. The bar, in his words:
 ## Per-concept sections, EACH built as:
    1. Plain-words definition (one line, simple)
    2. The tiny numeric example — the EXACT numbers from the session, fully worked
+   2b. ⭐ THE NUMPY TWIN (mandatory, 2026-07-04): a fenced ```python block right under the
+       numbers — 3–8 lines of runnable NumPy reproducing those exact values (+ the one-line
+       matplotlib call when the concept has a shape). Hand-math shows understanding;
+       the twin shows he can BUILD it.
    3. The analogies that were actually used: 😄 funny · 🔧 SSD · 🌍 generic
    4. The journey: "The trap I fell into..." misconception + its correction (verbatim spirit)
    5. The formula — LAST, every symbol decoded in plain language
@@ -41,8 +45,9 @@ His 2026-07-02 directive upgraded the notes standard. The bar, in his words:
 ## Formula sheet             ← compact, one block, symbols decoded
 ```
 
-Not every concept needs every block — but **2 (numbers), 6 (boundary), 7 (destination) are never
-optional**, and 4 (the journey) is mandatory whenever a misconception actually happened in session.
+Not every concept needs every block — but **2 (numbers), 2b (numpy twin), 6 (boundary), 7
+(destination) are never optional**, and 4 (the journey) is mandatory whenever a misconception
+actually happened in session.
 
 ## Hard rules
 

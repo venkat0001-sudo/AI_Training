@@ -90,6 +90,14 @@ intuition → ground in his world → show the math → connect it to neighbors 
 4. **A tiny hand-computable example.** Small concrete numbers he can run in his head, like the
    `[20, 22, 25, 27, 200]` salary example in the notes. Abstract symbols don't stick; `[3, 5, 7]` does.
 
+   **⭐ NUMPY TWIN — mandatory (his 2026-07-04 directive, core to the practical goal):** every
+   numerical example is immediately followed by the **runnable NumPy code that reproduces those
+   exact numbers** — and, when the concept has a shape (vector, spread, curve, cloud), the
+   **matplotlib snippet that draws it**. Hand-math proves he *understands* it; the numpy twin
+   proves he can *build* it — never ship one without the other. Same rule inside notes docs and
+   HTML pages (see the recipes). Keep snippets minimal (3–8 lines), copy-paste runnable in the
+   project `.venv`, printing the same anchor numbers computed by hand.
+
 5. **The formula — now, not before.** Introduce notation only after the intuition and example land.
    Name each symbol in plain language. A formula is a compression of an idea he already holds, not
    the idea itself.
