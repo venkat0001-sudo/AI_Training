@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en" data-theme="hokage">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rasengan Path — theme + palette mockup</title>
+<!--HUB {"title":"Rasengan Path — theme mockup","date":"2026-07-03","sessions":["F"],"concepts":["meta"],"type":"interactive","recap":"Design mockup: Naruto theme (engravings + Rasengan status + chakra web) with a live 5-palette switcher"} -->
+<style>
+/* ─────────── semantic tokens; palettes override them ─────────── */
+:root{
+  --bgA:#120d07; --bgB:#171008; --bgC:#1b1207;
+  --card:rgba(42,30,16,.72); --panel:#140e07;
+  --line:rgba(255,140,0,.26); --lineDim:rgba(201,160,90,.22);
+  --ink:#f5e6c8; --inkd:#c9b28c;
+  --hd:#ffb054; --hdim:#a67f4f;
+  --acc:#ff8c00; --accg:#ffb347; --accDim:#7a4a10; --accA:rgba(255,140,0,.16);
+  --gold:#ffce4a; --num2:#8fd8ff;
+  --chakra:#8fd8ff; --chakraHi:#eaf7ff; --chakraA:rgba(143,216,255,.13); --chakraEdge:rgba(143,216,255,.35);
+}
+html[data-theme="midnight"]{
+  --bgA:#070b14; --bgB:#0a1120; --bgC:#0c0f1c;
+  --card:rgba(16,26,48,.72); --panel:#080d1a;
+  --line:rgba(90,143,191,.35); --lineDim:rgba(90,143,191,.2);
+  --ink:#e9eff7; --inkd:#a9b6c9;
+  --hd:#9fe8ff; --hdim:#5f7d9a;
+  --acc:#ff9433; --accg:#ffb347; --accDim:#5a3a14; --accA:rgba(255,148,51,.15);
+  --gold:#ffd75e; --num2:#7fd4c0;
+  --chakra:#9fe8ff; --chakraHi:#ffffff; --chakraA:rgba(159,232,255,.12); --chakraEdge:rgba(159,232,255,.38);
+}
+html[data-theme="kurama"]{
+  --bgA:#140705; --bgB:#1a0a06; --bgC:#1d0c05;
+  --card:rgba(52,18,10,.68); --panel:#160906;
+  --line:rgba(255,94,58,.3); --lineDim:rgba(255,94,58,.16);
+  --ink:#f7e3d2; --inkd:#cfa78f;
+  --hd:#ff7a4d; --hdim:#a05435;
+  --acc:#ffc93c; --accg:#ffe08a; --accDim:#6e5312; --accA:rgba(255,201,60,.14);
+  --gold:#ffce4a; --num2:#ffb347;
+  --chakra:#ff9d6b; --chakraHi:#ffe9d9; --chakraA:rgba(255,157,107,.14); --chakraEdge:rgba(255,157,107,.4);
+}
+html[data-theme="scroll"]{
+  --bgA:#16110a; --bgB:#1b150c; --bgC:#1e170d;
+  --card:rgba(52,42,26,.7); --panel:#171106;
+  --line:rgba(203,187,149,.28); --lineDim:rgba(203,187,149,.16);
+  --ink:#efe3c6; --inkd:#bfae8c;
+  --hd:#e8d5a8; --hdim:#9c8b64;
+  --acc:#e04e39; --accg:#ff7a5c; --accDim:#6b2419; --accA:rgba(224,78,57,.14);
+  --gold:#ffce4a; --num2:#8fbf9f;
+  --chakra:#9fd8e8; --chakraHi:#eefaff; --chakraA:rgba(159,216,232,.12); --chakraEdge:rgba(159,216,232,.35);
+}
+html[data-theme="sage"]{
+  --bgA:#0c1607; --bgB:#0e1f0a; --bgC:#171708;
+  --card:rgba(20,40,12,.72); --panel:#0a1206;
+  --line:rgba(74,122,46,.5); --lineDim:rgba(74,122,46,.3);
+  --ink:#f5e6c8; --inkd:#cbbb95;
+  --hd:#a8c87a; --hdim:#7a9e5a;
+  --acc:#ff8c00; --accg:#ffb347; --accDim:#6b4a10; --accA:rgba(255,140,0,.15);
+  --gold:#ffce4a; --num2:#27c2a8;
+  --chakra:#9fe8ff; --chakraHi:#ffffff; --chakraA:rgba(159,232,255,.12); --chakraEdge:rgba(159,232,255,.35);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:linear-gradient(135deg,var(--bgA),var(--bgB) 55%,var(--bgC));color:var(--ink);
+  font-family:'Courier New',monospace;line-height:1.6;padding-bottom:104px;min-height:100vh;
+  transition:background .35s}
+
+/* ── chakra line + single nindō quote ── */
+.chakra-line{position:fixed;top:0;left:0;right:0;height:3px;z-index:50;
+  background:linear-gradient(90deg,var(--accDim),var(--acc),var(--chakra),var(--acc),var(--accDim));
+  background-size:300% 100%;animation:chakraflow 9s linear infinite;
+  box-shadow:0 0 8px var(--accA)}
+@keyframes chakraflow{to{background-position:300% 0}}
+.nindo{max-width:980px;margin:14px auto 0;padding:0 18px;text-align:center;
+  font-size:.78em;font-style:italic;color:var(--gold);opacity:.85}
+.nindo b{color:var(--accg);font-style:normal}
+
+.wrap{max-width:980px;margin:0 auto;padding:10px 18px}
+
+header{display:flex;align-items:center;gap:16px;margin:18px 0 6px}
+.uzu-head{width:54px;height:54px;flex:0 0 auto}
+.uzu-head .spin{animation:slowspin 40s linear infinite;transform-origin:50% 50%}
+@keyframes slowspin{to{transform:rotate(360deg)}}
+.uzu-head .hue1{stroke:var(--acc);animation:huepulse 6s ease-in-out infinite alternate}
+.uzu-head .hue2{stroke:var(--hd);animation:huepulse 6s ease-in-out infinite alternate-reverse}
+@keyframes huepulse{from{opacity:.15}to{opacity:.95}}
+h1{font-size:1.25em;color:var(--hd);letter-spacing:.5px}
+h1 small{display:block;font-size:.62em;color:var(--inkd);font-weight:normal}
+
+h2{color:var(--acc);font-size:1.02em;margin:34px 0 4px}
+h2 .n{color:var(--hdim);margin-right:8px}
+.sub{color:var(--inkd);font-size:.82em;margin-bottom:12px}
+
+.card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:18px 18px 16px;margin:14px 0;overflow:hidden;transition:background .35s,border-color .35s}
+.engrave{position:absolute;pointer-events:none;color:var(--ink)}
+.engrave.corner{right:-30px;bottom:-34px;width:150px;height:150px;opacity:.05}
+.engrave.hero{left:50%;top:50%;width:340px;height:340px;transform:translate(-50%,-50%);opacity:.04}
+.card > :not(.engrave){position:relative;z-index:1}
+
+.seal{display:flex;align-items:center;gap:12px;margin:16px 0;opacity:.55}
+.seal::before,.seal::after{content:"";flex:1;height:1px;background:var(--line)}
+.seal svg{width:34px;height:34px;flex:0 0 auto}
+.seal .s1{stroke:var(--hd)} .seal .s2{stroke:var(--acc)} .seal .s3{fill:var(--gold)}
+
+.eq{background:var(--panel);border:1px dashed var(--hdim);border-radius:8px;padding:10px 12px;
+  font-size:.86em;white-space:pre;overflow-x:auto;color:var(--ink);margin:10px 0;transition:background .35s}
+.g{color:var(--hd)} .o{color:var(--acc)} .t{color:var(--num2)} .k{color:var(--gold)}
+.muted{color:var(--inkd);font-size:.82em}
+
+.stages{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-around;margin:14px 0}
+.stage{text-align:center;min-width:160px;flex:1}
+.stage svg{width:84px;height:84px}
+.stage .nm{color:var(--hd);font-size:.86em;margin-top:2px}
+.stage .ds{color:var(--inkd);font-size:.72em}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.chip{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);
+  border-radius:20px;padding:5px 14px 5px 8px;font-size:.8em;transition:background .35s}
+.chip svg{width:26px;height:26px}
+
+/* themed svg helper classes (SVG attrs can't hold var(); classes can) */
+.svgChak{stroke:var(--chakra)} .svgChakF{fill:var(--chakraA)} .svgChakHi{stroke:var(--chakraHi)}
+.svgAcc{stroke:var(--acc)} .svgAccF{fill:var(--accA)}
+.nlab{fill:var(--ink);font-size:11px} .nlabd{fill:var(--inkd);font-size:11px}
+.lane{fill:var(--hdim);font-size:11px} .laneD{fill:var(--hdim);opacity:.6;font-size:11px}
+.edgeLit{stroke:var(--chakraEdge)} .edgeDark{stroke:var(--lineDim)}
+.pulse{fill:var(--chakra)} .laneSep{stroke:var(--lineDim)}
+.upNode{stroke:var(--hdim)}
+
+.webbox{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px;
+  overflow-x:auto;transition:background .35s}
+.webbox svg{display:block;min-width:640px;width:100%}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.74em;color:var(--inkd);margin-top:8px}
+.legend span{display:flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+
+.hero{display:flex;align-items:center;gap:18px;
+  background:linear-gradient(135deg,var(--accA),var(--card));border:1px solid var(--acc)}
+.hero .big{font-size:1.05em;color:var(--accg)}
+.hero .cta{display:inline-block;margin-top:6px;padding:8px 18px;border:1px solid var(--acc);
+  border-radius:8px;color:var(--acc);text-decoration:none;font-size:.85em}
+.hero .cta:hover{background:var(--acc);color:var(--bgA)}
+
+.foot{margin-top:30px;padding-top:12px;border-top:1px solid var(--line);font-size:.78em;color:var(--inkd)}
+.foot b{color:var(--hd)}
+
+/* ── the catalog (section 05): tabs + item lists ── */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 12px}
+.tabs button{font-family:inherit;font-size:.78em;color:var(--ink);background:transparent;
+  border:1px solid var(--lineDim);border-radius:18px;padding:6px 14px;cursor:pointer}
+.tabs button.on{border-color:var(--acc);color:var(--accg);box-shadow:0 0 6px var(--accA)}
+.pane{display:none}.pane.on{display:block}
+.grp{margin:16px 0 6px}
+.grp h3{color:var(--hd);font-size:.92em}
+.grp h3 .stat{color:var(--inkd);font-weight:normal;font-size:.8em;margin-left:8px}
+.item{display:flex;align-items:center;gap:9px;padding:7px 6px;border-bottom:1px dashed var(--lineDim);font-size:.84em}
+.item:last-child{border-bottom:none}
+.item a{color:var(--ink);text-decoration:none}
+.item a:hover{color:var(--accg);text-decoration:underline}
+.item .sp{flex:1}
+.badge{font-size:.7em;color:var(--inkd);border:1px solid var(--lineDim);border-radius:10px;padding:1px 8px;white-space:nowrap}
+.badge.sess{color:var(--hd)}
+.pin{border:1px dashed var(--gold);border-radius:8px;padding:8px 10px;margin:8px 0 4px;font-size:.82em;color:var(--gold);
+  display:flex;gap:10px;align-items:center;background:var(--panel)}
+.sessCard{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:10px 0;background:var(--panel)}
+.sessCard.locked{opacity:.55;border-style:dashed}
+.sessCard h4{color:var(--hd);font-size:.88em}
+.sessCard .when{color:var(--acc);font-size:.76em}
+.sessCard .note{color:var(--inkd);font-size:.78em;font-style:italic;margin-top:2px}
+.tl .d{color:var(--acc);margin-top:12px;font-weight:bold;font-size:.86em}
+
+/* ── the palette switcher (mockup-only chrome) ── */
+.palbar{position:fixed;bottom:0;left:0;right:0;z-index:60;background:rgba(10,8,5,.88);
+  backdrop-filter:blur(6px);border-top:1px solid var(--line);padding:9px 10px;
+  display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.palbar button{font-family:inherit;font-size:.72em;color:var(--ink);background:transparent;
+  border:1px solid var(--lineDim);border-radius:18px;padding:6px 12px;cursor:pointer;
+  display:flex;align-items:center;gap:7px}
+.palbar button.on{border-color:var(--acc);box-shadow:0 0 6px var(--accA)}
+.palbar .sw{display:inline-flex;gap:3px}
+.palbar .sw i{width:9px;height:9px;border-radius:50%;display:inline-block}
+@media(max-width:640px){ .stages{flex-direction:column} header{gap:10px} .palbar{gap:5px} .palbar button{padding:6px 8px} }
+</style>
+</head>
+<body>
+
+<div class="chakra-line"></div>
+<div class="nindo" id="nindo"></div>
+
+<div class="wrap">
+
+<header>
+  <svg class="uzu-head" viewBox="-30 -30 60 60" aria-label="Uzumaki spiral">
+    <g class="spin">
+      <path class="hue1" d="M0,0 a3,3 0 0 1 6,0 a6,6 0 0 1 -12,0 a9,9 0 0 1 18,0 a12,12 0 0 1 -24,0 a15,15 0 0 1 30,0 a18,18 0 0 1 -36,0 a21,21 0 0 1 42,0"
+        fill="none" stroke-width="2.6" stroke-linecap="round"/>
+      <path class="hue2" d="M0,0 a3,3 0 0 1 6,0 a6,6 0 0 1 -12,0 a9,9 0 0 1 18,0 a12,12 0 0 1 -24,0 a15,15 0 0 1 30,0 a18,18 0 0 1 -36,0 a21,21 0 0 1 42,0"
+        fill="none" stroke-width="2.6" stroke-linecap="round"/>
+    </g>
+  </svg>
+  <h1>RASENGAN PATH — palette picker
+    <small>Same theme, five skins. Tap the bar below — the whole page repaints live. Your pick is remembered.</small>
+  </h1>
+</header>
+
+<!-- ══════════ 1 · THE SKIN ══════════ -->
+<h2><span class="n">01</span>THE SKIN — engravings, not infographics</h2>
+<div class="sub">A real teaching card wearing the theme. The spiral is carved into the corner like a shrine wall — felt more than seen. Content stays 100% technical.</div>
+
+<div class="card">
+  <svg class="engrave corner" viewBox="-30 -30 60 60">
+    <path d="M0,0 a3,3 0 0 1 6,0 a6,6 0 0 1 -12,0 a9,9 0 0 1 18,0 a12,12 0 0 1 -24,0 a15,15 0 0 1 30,0 a18,18 0 0 1 -36,0 a21,21 0 0 1 42,0 a24,24 0 0 1 -48,0"
+      fill="none" stroke="currentColor" stroke-width="1.6"/>
+  </svg>
+  <p><b class="g">Step 5 — the covariance matrix</b> <span class="muted">(the Bangalore house drill, §21)</span></p>
+  <div class="eq">C = | <b class="o">2</b>  <b class="t">1</b> |     diagonal = the two variances
+    | <b class="t">1</b>  <b class="o">2</b> |     off-diagonal = the shared lean</div>
+  <p class="muted">det(C−λI) = (2−λ)² − 1 = 0 → λ₁ = <b class="o">3</b>, λ₂ = <b class="o">1</b> → v₁=[1,1] ⊥ v₂=[1,−1] → v₁·v₂ = <b class="k">0</b> ✓</p>
+
+  <div class="seal" aria-hidden="true">
+    <svg viewBox="-20 -20 40 40">
+      <circle class="s1" r="16" fill="none" stroke-width="1" stroke-dasharray="2.5 4.4" opacity=".9"/>
+      <circle class="s2" r="10" fill="none" stroke-width="1" opacity=".7"/>
+      <circle class="s3" r="2.4" opacity=".8"/>
+    </svg>
+  </div>
+  <p class="muted">↑ the <b>fūinjutsu seal divider</b> — replaces the plain <code>&lt;hr&gt;</code> between concepts.</p>
+</div>
+
+<!-- ══════════ 2 · STATUS = RASENGAN STAGES ══════════ -->
+<h2><span class="n">02</span>STATUS — every topic is a jutsu mid-formation</h2>
+<div class="sub">Jiraiya split the Rasengan into three trainings. Your recall ladder maps onto them exactly.</div>
+
+<div class="card">
+  <div class="stages">
+    <div class="stage">
+      <svg viewBox="-42 -42 84 84">
+        <ellipse class="svgChak svgChakF" rx="26" ry="24" stroke-width="1.6">
+          <animate attributeName="rx" values="26;28;25;27;26" dur="3.2s" repeatCount="indefinite"/>
+          <animate attributeName="ry" values="24;22;26;23;24" dur="3.2s" repeatCount="indefinite"/>
+        </ellipse>
+        <path class="svgChak" d="M-8,-30 q8,-6 16,0" fill="none" stroke-width="1.4" opacity=".7"/>
+      </svg>
+      <div class="nm">💧 STAGE 1 — ROTATION</div>
+      <div class="ds">the water balloon wobbles<br><b>= learning</b> (first exposure)</div>
+    </div>
+    <div class="stage">
+      <svg viewBox="-42 -42 84 84">
+        <g>
+          <animateTransform attributeName="transform" type="translate" values="0,0;1.6,-1;-1.4,1.2;1,1;-1,-1.4;0,0" dur=".8s" repeatCount="indefinite"/>
+          <circle class="svgAcc svgAccF" r="24" stroke-width="2.2"/>
+          <circle class="svgAcc" r="17" fill="none" stroke-width="1" opacity=".5"/>
+        </g>
+      </svg>
+      <div class="nm">🟠 STAGE 2 — POWER</div>
+      <div class="ds">the rubber ball strains<br><b>= due / under training</b></div>
+    </div>
+    <div class="stage">
+      <svg viewBox="-42 -42 84 84">
+        <circle class="svgChakF" r="30" opacity=".5"/>
+        <circle class="svgChak svgChakF" r="24" stroke-width="1.2" opacity=".9"/>
+        <g>
+          <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="1.6s" repeatCount="indefinite"/>
+          <path class="svgChakHi" d="M0,0 a4,4 0 0 1 8,0 a8,8 0 0 1 -16,0 a12,12 0 0 1 24,0 a16,16 0 0 1 -32,0 a20,20 0 0 1 40,0"
+            fill="none" stroke-width="1.7" opacity=".85" stroke-linecap="round"/>
+        </g>
+        <circle r="3.5" fill="#fff" opacity=".95"/>
+      </svg>
+      <div class="nm">🌀 STAGE 3 — CONTAINMENT</div>
+      <div class="ds">the sphere holds &amp; spins<br><b>= owned</b> (graduated)</div>
+    </div>
+  </div>
+
+  <div class="chips">
+    <span class="chip"><svg viewBox="-30 -30 60 60"><circle class="svgChak svgChakF" r="18" stroke-width="1"/><g><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="1.6s" repeatCount="indefinite"/><path class="svgChakHi" d="M0,0 a3,3 0 0 1 6,0 a6,6 0 0 1 -12,0 a9,9 0 0 1 18,0 a13,13 0 0 1 -26,0" fill="none" stroke-width="1.5"/></g></svg> eigenvectors — <b class="t">owned</b></span>
+    <span class="chip"><svg viewBox="-30 -30 60 60"><g><animateTransform attributeName="transform" type="translate" values="0,0;1.3,-1;-1.2,1;0,0" dur=".8s" repeatCount="indefinite"/><circle class="svgAcc svgAccF" r="16" stroke-width="2"/></g></svg> Bayes — <b class="o">due today</b></span>
+    <span class="chip"><svg viewBox="-30 -30 60 60"><ellipse class="svgChak svgChakF" rx="17" ry="15" stroke-width="1.3"><animate attributeName="rx" values="17;18.5;16;17" dur="3s" repeatCount="indefinite"/><animate attributeName="ry" values="15;13.5;16;15" dur="3s" repeatCount="indefinite"/></ellipse></svg> regression — <b class="g">learning (s2)</b></span>
+  </div>
+</div>
+
+<!-- ══════════ 3 · THE CHAKRA WEB ══════════ -->
+<h2><span class="n">03</span>THE WEB — chakra flowing through your network</h2>
+<div class="sub">On mastered routes, a pulse travels prerequisite → dependent: covariance literally <i>feeds</i> PCA. As you master more, more of the network lights up.</div>
+
+<div class="card">
+  <div class="webbox">
+  <svg viewBox="0 0 660 240">
+    <text class="lane" x="70" y="20" text-anchor="middle">FOUNDATION</text>
+    <text class="lane" x="330" y="20" text-anchor="middle">M1 · ML FUNDAMENTALS</text>
+    <text class="laneD" x="570" y="20" text-anchor="middle">M2 · DEEP LEARNING</text>
+    <line class="laneSep" x1="180" y1="10" x2="180" y2="230"/>
+    <line class="laneSep" x1="470" y1="10" x2="470" y2="230"/>
+
+    <path id="e1" class="edgeLit" d="M100,60 C 180,60 200,78 268,88" fill="none" stroke-width="1.6"/>
+    <path id="e2" class="edgeLit" d="M100,120 C 170,120 210,100 268,92" fill="none" stroke-width="1.6"/>
+    <path id="e3" class="edgeLit" d="M330,92 C 380,95 395,138 330,150" fill="none" stroke-width="1.6"/>
+    <path id="e4" class="edgeDark" d="M100,185 C 200,185 240,168 285,158" fill="none" stroke-width="1.4" stroke-dasharray="4 4"/>
+    <path id="e5" class="edgeDark" d="M370,150 C 440,150 460,110 520,105" fill="none" stroke-width="1.4" stroke-dasharray="4 4"/>
+
+    <circle class="pulse" r="3"><animateMotion dur="2.8s" repeatCount="indefinite"><mpath href="#e1"/></animateMotion></circle>
+    <circle class="pulse" r="3" opacity=".9"><animateMotion dur="3.4s" begin="1s" repeatCount="indefinite"><mpath href="#e2"/></animateMotion></circle>
+    <circle class="pulse" r="3" opacity=".9"><animateMotion dur="3s" begin=".5s" repeatCount="indefinite"><mpath href="#e3"/></animateMotion></circle>
+
+    <g transform="translate(70,60)">
+      <circle class="svgChak svgChakF" r="17" stroke-width="1.2"/>
+      <g><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="1.8s" repeatCount="indefinite"/>
+        <path class="svgChakHi" d="M0,0 a3,3 0 0 1 6,0 a6,6 0 0 1 -12,0 a9,9 0 0 1 18,0 a12,12 0 0 1 -24,0" fill="none" stroke-width="1.4"/></g>
+      <text class="nlab" y="34" text-anchor="middle">covariance</text>
+    </g>
+    <g transform="translate(70,120)">
+      <circle class="svgChak svgChakF" r="17" stroke-width="1.2"/>
+      <g><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="1.8s" begin=".4s" repeatCount="indefinite"/>
+        <path class="svgChakHi" d="M0,0 a3,3 0 0 1 6,0 a6,6 0 0 1 -12,0 a9,9 0 0 1 18,0 a12,12 0 0 1 -24,0" fill="none" stroke-width="1.4"/></g>
+      <text class="nlab" y="34" text-anchor="middle">eigen (λ, v)</text>
+    </g>
+    <g transform="translate(70,185)">
+      <g><animateTransform attributeName="transform" type="translate" values="0,0;1.2,-0.8;-1,1;0,0" dur=".8s" repeatCount="indefinite"/>
+        <circle class="svgAcc svgAccF" r="15" stroke-width="1.8"/></g>
+      <text class="nlab" y="34" text-anchor="middle">gradient descent</text>
+    </g>
+    <g transform="translate(300,90)">
+      <circle class="svgChak svgChakF" r="17" stroke-width="1.2"/>
+      <g><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="1.8s" begin=".8s" repeatCount="indefinite"/>
+        <path class="svgChakHi" d="M0,0 a3,3 0 0 1 6,0 a6,6 0 0 1 -12,0 a9,9 0 0 1 18,0 a12,12 0 0 1 -24,0" fill="none" stroke-width="1.4"/></g>
+      <text class="nlab" y="34" text-anchor="middle">PCA (s5 · 18 Jul)</text>
+    </g>
+    <g transform="translate(330,150)">
+      <circle class="upNode" r="15" fill="none" stroke-width="1.4" stroke-dasharray="3 3"/>
+      <text class="nlabd" y="32" text-anchor="middle">regression (s2)</text>
+    </g>
+    <g transform="translate(555,105)">
+      <circle class="upNode" r="15" fill="none" stroke-width="1.4" stroke-dasharray="3 3" opacity=".6"/>
+      <text class="nlabd" y="32" text-anchor="middle">neural nets (s7)</text>
+    </g>
+  </svg>
+  </div>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--chakra)"></span> owned — chakra flows onward</span>
+    <span><span class="dot" style="background:var(--acc)"></span> due — under training</span>
+    <span><span class="dot" style="border:1.5px dashed var(--hdim)"></span> upcoming — path not yet opened</span>
+  </div>
+</div>
+
+<!-- ══════════ 4 · TODAY HERO ══════════ -->
+<h2><span class="n">04</span>TODAY — the training ground</h2>
+<div class="sub">The hub's pinned hero — first thing you see every morning.</div>
+
+<div class="card hero">
+  <svg class="engrave hero" viewBox="-30 -30 60 60">
+    <path d="M0,0 a3,3 0 0 1 6,0 a6,6 0 0 1 -12,0 a9,9 0 0 1 18,0 a12,12 0 0 1 -24,0 a15,15 0 0 1 30,0 a18,18 0 0 1 -36,0 a21,21 0 0 1 42,0 a24,24 0 0 1 -48,0"
+      fill="none" stroke="currentColor" stroke-width="1.2"/>
+  </svg>
+  <svg width="72" height="72" viewBox="-42 -42 84 84" style="flex:0 0 auto">
+    <circle class="svgChakF" r="30" opacity=".55"/>
+    <circle class="svgChak svgChakF" r="23" stroke-width="1.2"/>
+    <g><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="1.5s" repeatCount="indefinite"/>
+      <path class="svgChakHi" d="M0,0 a4,4 0 0 1 8,0 a8,8 0 0 1 -16,0 a12,12 0 0 1 24,0 a16,16 0 0 1 -32,0 a19,19 0 0 1 38,0" fill="none" stroke-width="1.6" stroke-linecap="round"/></g>
+    <circle r="3.2" fill="#fff"/>
+  </svg>
+  <div>
+    <div class="big">🃏 TODAY'S TRAINING — <b>3 jutsu due</b></div>
+    <div class="muted">Bayes · probability basics · gradient descent — form the sphere before it fades.</div>
+    <a class="cta" href="#">open today's deck →</a>
+  </div>
+</div>
+
+<!-- ══════════ 5 · THE CATALOG ══════════ -->
+<h2><span class="n">05</span>THE CATALOG — one corpus, three clean cuts</h2>
+<div class="sub">The hub's other tabs (the Web in §03 is the fourth, and the default landing). These are your <b>real files</b> — 🎬 deck links open right here, offline; 📜 notes open GitHub-rendered. 📌 = the consolidated doc slot, pinned at the top of its arc.</div>
+
+<div class="card">
+  <div class="tabs" id="cattabs">
+    <button data-pane="pC" class="on">📚 By CONCEPT</button>
+    <button data-pane="pS">🗓 By SESSION</button>
+    <button data-pane="pT">📆 By DATE</button>
+  </div>
+  <div id="pC" class="pane on"></div>
+  <div id="pS" class="pane"></div>
+  <div id="pT" class="pane"></div>
+</div>
+
+<div class="foot">
+  <b>The restraint contract (unchanged in every palette):</b> Courier monospace · step machinery &amp;
+  predict-before-reveal · every number verified vs numpy · engravings ≤5% opacity, never behind equations ·
+  exactly <b>one</b> quote per page · zero external files. Theme whispers; math speaks.
+</div>
+
+</div><!-- /wrap -->
+
+<!-- ── palette switcher (mockup chrome; the winner gets baked into the recipe) ── -->
+<div class="palbar" id="palbar">
+  <button data-pal="hokage"><span class="sw"><i style="background:#171008"></i><i style="background:#ff8c00"></i><i style="background:#ffb054"></i></span>🍥 Hokage Night</button>
+  <button data-pal="midnight"><span class="sw"><i style="background:#0a1120"></i><i style="background:#9fe8ff"></i><i style="background:#ff9433"></i></span>🌀 Rasengan Midnight</button>
+  <button data-pal="kurama"><span class="sw"><i style="background:#1a0a06"></i><i style="background:#ff7a4d"></i><i style="background:#ffc93c"></i></span>🦊 Kurama Ember</button>
+  <button data-pal="scroll"><span class="sw"><i style="background:#1b150c"></i><i style="background:#e8d5a8"></i><i style="background:#e04e39"></i></span>📜 Ink &amp; Scroll</button>
+  <button data-pal="sage"><span class="sw"><i style="background:#0e1f0a"></i><i style="background:#a8c87a"></i><i style="background:#ff8c00"></i></span>🐸 Sage (old)</button>
+</div>
+
+<script>
+// one nindō line, chosen by date — never more than one per page
+const NINDO=[
+  ["I never go back on my word — that's my ninja way!","Naruto"],
+  ["Hard work is worthless for those that don't believe in themselves.","Naruto"],
+  ["If you don't like your destiny, don't accept it — have the guts to change it.","Naruto"],
+  ["A dropout will beat a genius through hard work.","Rock Lee"],
+  ["Never give up without even trying.","Jiraiya"]
+];
+const d=new Date(), doy=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5);
+const q=NINDO[doy%NINDO.length];
+document.getElementById('nindo').innerHTML=`“${q[0]}” — <b>${q[1]}</b>`;
+
+// ── the catalog: real corpus, rendered three ways ──
+const GH='https://github.com/venkat0001-sudo/AI_Training/blob/main/docs/';
+const ICO={deck:'🎬',flash:'🃏',notes:'📜',map:'🗺',ledger:'📋'};
+// st: own = sphere held · due = ball straining · lrn = balloon wobbling
+const DATA=[
+ {t:'Vectors, dot & cosine — interactive deck', f:'2026-06-28_linear-algebra-vectors-dot-cosine_F.html', k:'deck', c:'LA', s:'F',  d:'06-28', st:'due'},
+ {t:'Linear-algebra master notes (§0–§21)',     f:GH+'2026-06-28_linear-algebra-vectors-dot-cosine_F.md',k:'notes',c:'LA', s:'F',  d:'06-28', st:'due'},
+ {t:'PCA: 20 sensors → 3 numbers walkthrough',  f:'2026-06-28_pca-20-sensors-walkthrough_F.html',        k:'deck', c:'LA', s:'F',  d:'06-28', st:'due'},
+ {t:'Covariance → eigen capstone (2×2 vs 3×3)', f:'2026-06-30_covariance-eigen-capstone_F.html',         k:'deck', c:'LA', s:'F',  d:'06-30', st:'due'},
+ {t:'Eigen fully by hand — 2×2 vs 3×3',         f:'2026-07-02_eigen-by-hand-2x2-vs-3x3_F.html',          k:'deck', c:'LA', s:'F',  d:'07-02', st:'due'},
+ {t:'Linear-algebra trainer deck (14 chapters)',f:'2026-07-02_linear-algebra-trainer-deck_F.html',       k:'deck', c:'LA', s:'F',  d:'07-02', st:'due'},
+ {t:'Normal distribution — the original bell',  f:'normal_distribution.html',                            k:'deck', c:'PS', s:'F',  d:'06-07', st:'own'},
+ {t:'Bell curve, σ & latency — what-if slider', f:'2026-06-30_bell-curve-sigma-latency_F.html',          k:'deck', c:'PS', s:'F',  d:'06-30', st:'own'},
+ {t:'Bayes & ML taxonomy — interactive',        f:'2026-06-25_bayes-and-ml-taxonomy_s1.html',            k:'deck', c:'PS', s:'s1', d:'06-25', st:'due'},
+ {t:'Bayes & ML taxonomy — notes',              f:GH+'2026-06-25_bayes-and-ml-taxonomy_s1.md',           k:'notes',c:'PS', s:'s1', d:'06-25', st:'due'},
+ {t:'Cross-validation — why one split lies',    f:'2026-06-27_cross-validation_s1.html',                 k:'deck', c:'ML', s:'s1', d:'06-27', st:'lrn'},
+ {t:'MCU deployment — flashcards',              f:'2026-06-26_mcu-deployment-flashcards_s1.html',        k:'flash',c:'ML', s:'s1', d:'06-26', st:'due'},
+ {t:'Intro-to-ML lecture notes (20 Jun PPT)',   f:GH+'2026-06-27_jun20-intro-to-ml-ppt-notes_s1.md',     k:'notes',c:'ML', s:'s1', d:'06-27', st:'lrn'},
+ {t:'Calculus foundations — notes',             f:GH+'2026-06-14_calculus-foundations_F.md',             k:'notes',c:'CA', s:'F',  d:'06-14', st:'lrn'},
+ {t:'ML pipeline × math map (+ house flow)',    f:GH+'2026-07-02_ml-pipeline-math-map_F.md',             k:'map',  c:'MM', s:'F',  d:'07-02', st:'own'},
+ {t:'Edge-AI roadmap — the north star',         f:GH+'2026-07-02_edge-ai-roadmap.md',                    k:'map',  c:'MM', s:'—',  d:'07-02', st:'own'},
+ {t:'Recall ledger — what is due when',         f:GH+'recall-ledger.md',                                 k:'ledger',c:'MM',s:'—',  d:'live',  st:'own'},
+];
+const GRP={
+ LA:{name:'🧮 Linear Algebra & PCA', pin:'📌 00_linear-algebra-consolidated.md — <b>PENDING</b> · 6 chunks gathered · distills after s5 (18 Jul)'},
+ PS:{name:'📊 Probability & Statistics', pin:'📌 00_prob-stats-consolidated.md — <b>PENDING</b> · arc still growing'},
+ ML:{name:'🤖 ML in Practice (workflow · validation · deployment)'},
+ CA:{name:'📐 Calculus (the training-loop engine)'},
+ MM:{name:'🧭 Maps & Meta (read these to re-orient)'},
+};
+function mini(st){
+  if(st==='own')return `<svg width="15" height="15" viewBox="-20 -20 40 40"><circle class="svgChak svgChakF" r="15" stroke-width="2"/><path class="svgChakHi" d="M0,0 a4,4 0 0 1 8,0 a8,8 0 0 1 -16,0 a12,12 0 0 1 24,0" fill="none" stroke-width="2.4"/></svg>`;
+  if(st==='due')return `<svg width="15" height="15" viewBox="-20 -20 40 40"><g><animateTransform attributeName="transform" type="translate" values="0,0;1.4,-1;-1.2,1;0,0" dur=".8s" repeatCount="indefinite"/><circle class="svgAcc svgAccF" r="14" stroke-width="2.6"/></g></svg>`;
+  return `<svg width="15" height="15" viewBox="-20 -20 40 40"><ellipse class="svgChak svgChakF" rx="15" ry="13" stroke-width="2"><animate attributeName="rx" values="15;16.5;14;15" dur="3s" repeatCount="indefinite"/><animate attributeName="ry" values="13;11.5;14;13" dur="3s" repeatCount="indefinite"/></ellipse></svg>`;
+}
+function row(a){
+  const ext=a.f.startsWith('http');
+  return `<div class="item">${mini(a.st)}<span>${ICO[a.k]}</span><a href="${a.f}"${ext?' target="_blank" rel="noopener"':''}>${a.t}</a><span class="sp"></span><span class="badge sess">${a.s}</span><span class="badge">${a.d}</span></div>`;
+}
+// pane 1 — by concept arc (consolidated slot pinned on top)
+document.getElementById('pC').innerHTML=Object.keys(GRP).map(g=>{
+  const items=DATA.filter(a=>a.c===g);
+  const due=items.filter(a=>a.st==='due').length, own=items.filter(a=>a.st==='own').length;
+  return `<div class="grp"><h3>${GRP[g].name}<span class="stat">${own} owned · ${due} due · ${items.length-own-due} learning</span></h3>
+  ${GRP[g].pin?`<div class="pin">${GRP[g].pin}</div>`:''}
+  ${items.map(row).join('')}</div>`;
+}).join('');
+// pane 2 — by course session (one hood per weekend)
+const SESS=[
+ {id:'F', ttl:'Foundation Bridge — the math runway', when:'6–14 Jun', note:'Python · Prob/Stats · Linear Algebra · Calculus — everything _F extends this'},
+ {id:'s1',ttl:'s1 · Data analysis, ML workflow, cross-validation & metrics', when:'20 Jun'},
+ {id:'s2',ttl:'s2 · Linear & logistic regression', when:'27 Jun', note:'deep-dive artifacts pending — queue it'},
+ {id:'s3',ttl:'s3 · Decision trees & SVMs', when:'4 Jul', lock:1, note:'tomorrow — nested if/else state machines await'},
+ {id:'s5',ttl:'s5 · K-means & PCA', when:'18 Jul', lock:1, note:'your whole covariance→eigen chain cashes out here'},
+];
+document.getElementById('pS').innerHTML=SESS.map(s=>{
+  const items=DATA.filter(a=>a.s===s.id);
+  return `<div class="sessCard${s.lock?' locked':''}"><h4>${s.lock?'🔒 ':''}${s.ttl} <span class="when">· ${s.when}</span></h4>
+  ${s.note?`<div class="note">${s.note}</div>`:''}
+  ${items.length?items.map(row).join(''):''}</div>`;
+}).join('');
+// pane 3 — by date (the journal)
+const days=[...new Set(DATA.map(a=>a.d))].sort().reverse();
+document.getElementById('pT').innerHTML='<div class="tl">'+days.map(d=>
+  `<div class="d">2026-${d==='live'?'(living doc)':d}</div>`+DATA.filter(a=>a.d===d).map(row).join('')
+).join('')+'</div>';
+// tab switcher
+const ct=document.getElementById('cattabs');
+ct.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  ct.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+  ['pC','pS','pT'].forEach(p=>document.getElementById(p).classList.toggle('on',p===b.dataset.pane));
+});
+
+// palette switcher — remembers your pick
+const bar=document.getElementById('palbar');
+function setPal(p){
+  document.documentElement.dataset.theme=p;
+  try{localStorage.setItem('rasengan-pal',p)}catch(e){}
+  bar.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.pal===p));
+}
+bar.addEventListener('click',e=>{const b=e.target.closest('button');if(b)setPal(b.dataset.pal)});
+let saved='hokage'; try{saved=localStorage.getItem('rasengan-pal')||'hokage'}catch(e){}
+setPal(saved);
+</script>
+</body>
+</html>
