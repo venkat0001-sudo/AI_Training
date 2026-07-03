@@ -167,6 +167,34 @@ h2 .n{color:var(--hdim);margin-right:8px}
 .sessCard .note{color:var(--inkd);font-size:.78em;font-style:italic;margin-top:2px}
 .tl .d{color:var(--acc);margin-top:12px;font-weight:bold;font-size:.86em}
 
+/* ── find-it-fast row: search + status chips + fresh-ink strip ── */
+.searchrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 10px}
+.searchrow input{flex:1;min-width:180px;background:var(--panel);border:1px solid var(--lineDim);
+  border-radius:18px;color:var(--ink);font-family:inherit;font-size:.84em;padding:8px 14px;outline:none}
+.searchrow input:focus{border-color:var(--acc);box-shadow:0 0 6px var(--accA)}
+#fchips button{font-family:inherit;font-size:.74em;color:var(--ink);background:transparent;
+  border:1px solid var(--lineDim);border-radius:16px;padding:5px 11px;cursor:pointer;margin-left:4px}
+#fchips button.on{border-color:var(--acc);color:var(--accg);box-shadow:0 0 6px var(--accA)}
+.recentBox{margin:2px 0 10px}
+.recentBox .lbl{font-size:.7em;color:var(--hdim);letter-spacing:1.5px;margin-bottom:2px}
+
+/* ── the SCROLLS: closed by default, tap to unroll ── */
+.scroll{margin:12px 0}
+.scrollHead{width:100%;display:flex;align-items:center;gap:10px;cursor:pointer;font-family:inherit;
+  background:linear-gradient(180deg,var(--card),var(--panel));border:1px solid var(--line);
+  border-radius:10px;padding:10px 12px;color:var(--hd);font-size:.9em;text-align:left}
+.scrollHead:hover{border-color:var(--acc)}
+.rollL,.rollR{width:8px;height:26px;border-radius:4px;background:var(--accDim);
+  border:1px solid var(--line);flex:0 0 auto}
+.scroll.open .scrollHead{border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom-style:dashed}
+.unroll{font-size:.7em;color:var(--inkd);white-space:nowrap}
+.scrollHead .stat{color:var(--inkd);font-weight:normal;font-size:.76em}
+.scrollHead .when{color:var(--acc);font-size:.76em}
+.scrollBody{max-height:0;overflow:hidden;transition:max-height .45s ease;
+  border:1px solid var(--line);border-top:none;border-radius:0 0 10px 10px;
+  padding:0 12px;background:var(--panel)}
+.scroll.open .scrollBody{max-height:1400px;padding:8px 12px 10px}
+
 /* ── the palette switcher (mockup-only chrome) ── */
 .palbar{position:fixed;bottom:0;left:0;right:0;z-index:60;background:rgba(10,8,5,.88);
   backdrop-filter:blur(6px);border-top:1px solid var(--line);padding:9px 10px;
@@ -367,6 +395,13 @@ h2 .n{color:var(--hdim);margin-right:8px}
 <div class="sub">The hub's other tabs (the Web in §03 is the fourth, and the default landing). These are your <b>real files</b> — 🎬 deck links open right here, offline; 📜 notes open GitHub-rendered. 📌 = the consolidated doc slot, pinned at the top of its arc.</div>
 
 <div class="card">
+  <div class="searchrow">
+    <input id="csearch" type="search" placeholder="🔍 type to find a deck… (title, concept, session, date)">
+    <span id="fchips">
+      <button data-st="due">🟠 due</button><button data-st="lrn">💧 learning</button><button data-st="own">🌀 owned</button>
+    </span>
+  </div>
+  <div class="recentBox"><div class="lbl">🕘 FRESH INK — the 3 newest artifacts</div><div id="recent"></div></div>
   <div class="tabs" id="cattabs">
     <button data-pane="pC" class="on">📚 By CONCEPT</button>
     <button data-pane="pS">🗓 By SESSION</button>
@@ -375,6 +410,7 @@ h2 .n{color:var(--hdim);margin-right:8px}
   <div id="pC" class="pane on"></div>
   <div id="pS" class="pane"></div>
   <div id="pT" class="pane"></div>
+  <p class="muted" style="margin-top:8px">📜 scrolls stay rolled until tapped · searching or filtering unrolls the matches automatically.</p>
 </div>
 
 <div class="foot">
@@ -446,33 +482,60 @@ function row(a){
   const ext=a.f.startsWith('http');
   return `<div class="item">${mini(a.st)}<span>${ICO[a.k]}</span><a href="${a.f}"${ext?' target="_blank" rel="noopener"':''}>${a.t}</a><span class="sp"></span><span class="badge sess">${a.s}</span><span class="badge">${a.d}</span></div>`;
 }
-// pane 1 — by concept arc (consolidated slot pinned on top)
-document.getElementById('pC').innerHTML=Object.keys(GRP).map(g=>{
-  const items=DATA.filter(a=>a.c===g);
-  const due=items.filter(a=>a.st==='due').length, own=items.filter(a=>a.st==='own').length;
-  return `<div class="grp"><h3>${GRP[g].name}<span class="stat">${own} owned · ${due} due · ${items.length-own-due} learning</span></h3>
-  ${GRP[g].pin?`<div class="pin">${GRP[g].pin}</div>`:''}
-  ${items.map(row).join('')}</div>`;
-}).join('');
-// pane 2 — by course session (one hood per weekend)
 const SESS=[
  {id:'F', ttl:'Foundation Bridge — the math runway', when:'6–14 Jun', note:'Python · Prob/Stats · Linear Algebra · Calculus — everything _F extends this'},
  {id:'s1',ttl:'s1 · Data analysis, ML workflow, cross-validation & metrics', when:'20 Jun'},
  {id:'s2',ttl:'s2 · Linear & logistic regression', when:'27 Jun', note:'deep-dive artifacts pending — queue it'},
- {id:'s3',ttl:'s3 · Decision trees & SVMs', when:'4 Jul', lock:1, note:'tomorrow — nested if/else state machines await'},
+ {id:'s3',ttl:'s3 · Decision trees & SVMs', when:'4 Jul', lock:1, note:'today! — nested if/else state machines await'},
  {id:'s5',ttl:'s5 · K-means & PCA', when:'18 Jul', lock:1, note:'your whole covariance→eigen chain cashes out here'},
 ];
-document.getElementById('pS').innerHTML=SESS.map(s=>{
-  const items=DATA.filter(a=>a.s===s.id);
-  return `<div class="sessCard${s.lock?' locked':''}"><h4>${s.lock?'🔒 ':''}${s.ttl} <span class="when">· ${s.when}</span></h4>
-  ${s.note?`<div class="note">${s.note}</div>`:''}
-  ${items.length?items.map(row).join(''):''}</div>`;
-}).join('');
-// pane 3 — by date (the journal)
-const days=[...new Set(DATA.map(a=>a.d))].sort().reverse();
-document.getElementById('pT').innerHTML='<div class="tl">'+days.map(d=>
-  `<div class="d">2026-${d==='live'?'(living doc)':d}</div>`+DATA.filter(a=>a.d===d).map(row).join('')
-).join('')+'</div>';
+// ── find-it-fast state: search query, status filter, which scrolls are unrolled ──
+let q='', stF=null; const OPEN=new Set();
+const hit=a=>(!stF||a.st===stF)&&(!q||(a.t+' '+a.c+' '+a.s+' '+a.d).toLowerCase().includes(q));
+function scrollBlock(id,head,inner,extra){
+  const open=OPEN.has(id)||q||stF;   // searching/filtering auto-unrolls the matches
+  return `<div class="scroll${open?' open':''}"><button class="scrollHead" onclick="tog('${id}')">
+    <span class="rollL"></span><span>${head}</span><span class="sp"></span>${extra||''}
+    <span class="unroll">${open?'▾ open':'▸ unroll'}</span><span class="rollR"></span></button>
+    <div class="scrollBody">${inner}</div></div>`;
+}
+window.tog=id=>{OPEN.has(id)?OPEN.delete(id):OPEN.add(id);render();};
+function renderC(){
+  document.getElementById('pC').innerHTML=Object.keys(GRP).map(g=>{
+    const items=DATA.filter(a=>a.c===g&&hit(a));
+    if(!items.length&&(q||stF))return '';
+    const all=DATA.filter(a=>a.c===g);
+    const own=all.filter(a=>a.st==='own').length, due=all.filter(a=>a.st==='due').length;
+    const inner=(GRP[g].pin?`<div class="pin">${GRP[g].pin}</div>`:'')+items.map(row).join('');
+    return scrollBlock('c_'+g,GRP[g].name,inner,`<span class="stat">${all.length} · ${own}🌀 ${due}🟠</span>`);
+  }).join('')||'<p class="muted">no scroll matches — loosen the search</p>';
+}
+function renderS(){
+  document.getElementById('pS').innerHTML=SESS.map(s=>{
+    const items=DATA.filter(a=>a.s===s.id&&hit(a));
+    if(!items.length&&(q||stF))return '';
+    const inner=(s.note?`<div class="note" style="color:var(--inkd);font-size:.78em;font-style:italic;margin:4px 0">${s.note}</div>`:'')
+      +items.map(row).join('');
+    return scrollBlock('s_'+s.id,`${s.lock?'🔒 ':''}${s.ttl} <span class="when">· ${s.when}</span>`,inner,
+      `<span class="stat">${items.length||'—'}</span>`);
+  }).join('')||'<p class="muted">no scroll matches</p>';
+}
+function renderT(){
+  const days=[...new Set(DATA.filter(hit).map(a=>a.d))].sort().reverse();
+  document.getElementById('pT').innerHTML='<div class="tl">'+(days.map(d=>
+    `<div class="d">2026-${d==='live'?'(living doc)':d}</div>`+DATA.filter(a=>a.d===d&&hit(a)).map(row).join('')
+  ).join('')||'<p class="muted">no match</p>')+'</div>';
+}
+function renderRecent(){
+  const rec=[...DATA].filter(a=>a.d!=='live').sort((a,b)=>b.d.localeCompare(a.d)).slice(0,3);
+  document.getElementById('recent').innerHTML=rec.map(row).join('');
+}
+function render(){renderC();renderS();renderT();renderRecent();}
+render();
+document.getElementById('csearch').addEventListener('input',e=>{q=e.target.value.trim().toLowerCase();render();});
+document.getElementById('fchips').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  stF=(stF===b.dataset.st)?null:b.dataset.st;
+  document.querySelectorAll('#fchips button').forEach(x=>x.classList.toggle('on',x.dataset.st===stF));render();});
 // tab switcher
 const ct=document.getElementById('cattabs');
 ct.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
