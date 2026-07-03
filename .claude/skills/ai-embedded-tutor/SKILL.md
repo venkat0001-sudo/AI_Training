@@ -91,12 +91,15 @@ intuition → ground in his world → show the math → connect it to neighbors 
    `[20, 22, 25, 27, 200]` salary example in the notes. Abstract symbols don't stick; `[3, 5, 7]` does.
 
    **⭐ NUMPY TWIN — mandatory (his 2026-07-04 directive, core to the practical goal):** every
-   numerical example is immediately followed by the **runnable NumPy code that reproduces those
-   exact numbers** — and, when the concept has a shape (vector, spread, curve, cloud), the
-   **matplotlib snippet that draws it**. Hand-math proves he *understands* it; the numpy twin
-   proves he can *build* it — never ship one without the other. Same rule inside notes docs and
-   HTML pages (see the recipes). Keep snippets minimal (3–8 lines), copy-paste runnable in the
-   project `.venv`, printing the same anchor numbers computed by hand.
+   numerical example is immediately followed by a **Jupyter-cell-ready NumPy snippet — and the
+   PLOT is the point, not a garnish.** He pastes the cell into Jupyter and *sees* the concept:
+   arrows for vectors, the bell for σ, the tilted cloud + eigen-axes for covariance, the bowl +
+   rolling ball for gradient descent. **If the concept has a shape, the twin MUST draw it**
+   (labeled matplotlib plot) and also print the hand-computed anchor numbers as the check.
+   Numbers-only twins are allowed ONLY for concepts with no honest shape. A visual anchor is his
+   best learning mechanism — hand-math proves he *understands*, the plotted twin makes it
+   *stick* and proves he can *build* it. One self-contained cell (imports included, ~5–15
+   lines), runnable as-is in the project `.venv`/Jupyter. Same rule in notes docs and HTML pages.
 
 5. **The formula — now, not before.** Introduce notation only after the intuition and example land.
    Name each symbol in plain language. A formula is a compression of an idea he already holds, not

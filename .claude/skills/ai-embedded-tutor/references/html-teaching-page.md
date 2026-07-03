@@ -130,11 +130,12 @@ the honest equivalent story, fully told — not a "see other side" note.
 - **Precomputed data, VERIFIED vs numpy** — never hand-wave numbers in JS. Compute in Python first, paste
   the verified constants, add a `// verified vs numpy` comment. A wrong number on a "concrete memory" page
   is worse than no page.
-- **⭐ NUMPY TWIN on the page (2026-07-04 directive)** — every numeric-example step also SHOWS the
-  3–8-line NumPy snippet that reproduces its numbers (collapsible `<details>` or a styled code block,
-  monospace, copyable), plus the matplotlib line when the step draws a shape. The reader must be able
-  to lift the code off the page, run it in the `.venv`, and get the same anchor numbers. Practical
-  goal: he learns to *write* numpy, not just watch animations.
+- **⭐ NUMPY TWIN on the page (2026-07-04 directive)** — every numeric-example step also SHOWS a
+  copyable, Jupyter-cell-ready snippet (collapsible `<details>` or styled code block, monospace,
+  imports included). **If the step has a shape, the snippet PLOTS it** — he lifts the cell into
+  Jupyter and gets the same visual the page animates, plus the anchor numbers printed as the check.
+  The page's SVG animation and the twin's matplotlib plot must agree. Practical goal: he learns to
+  *write* the numpy that draws the concept, not just watch animations.
 - **Detailed, presentation-grade prose** — each step carries a full explanation, not a bullet stub. He may
   present from it, so it must stand alone without him narrating.
 - **Mobile-responsive** — `.split` collapses to one column under 900px.

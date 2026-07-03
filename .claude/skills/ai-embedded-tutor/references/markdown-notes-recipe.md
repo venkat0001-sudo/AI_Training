@@ -33,9 +33,11 @@ His 2026-07-02 directive upgraded the notes standard. The bar, in his words:
    1. Plain-words definition (one line, simple)
    2. The tiny numeric example — the EXACT numbers from the session, fully worked
    2b. ⭐ THE NUMPY TWIN (mandatory, 2026-07-04): a fenced ```python block right under the
-       numbers — 3–8 lines of runnable NumPy reproducing those exact values (+ the one-line
-       matplotlib call when the concept has a shape). Hand-math shows understanding;
-       the twin shows he can BUILD it.
+       numbers — ONE Jupyter-cell-ready snippet (imports included, ~5–15 lines). **If the
+       concept has a shape, the cell MUST PLOT it** (labeled matplotlib: arrows/bell/cloud/
+       bowl) and print the anchor numbers as the check; numbers-only is allowed only when
+       there is no honest shape. He runs the cell, SEES the concept — the visual anchor is
+       the learning mechanism; the code is how he learns to BUILD it.
    3. The analogies that were actually used: 😄 funny · 🔧 SSD · 🌍 generic
    4. The journey: "The trap I fell into..." misconception + its correction (verbatim spirit)
    5. The formula — LAST, every symbol decoded in plain language
