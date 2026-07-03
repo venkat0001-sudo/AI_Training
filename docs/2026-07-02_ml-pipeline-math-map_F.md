@@ -43,6 +43,53 @@ That's it. Everything in the course is a zoom-in on one of these six boxes.
 
 ---
 
+## 1b. The same strip, made CONCRETE — house-price prediction (non-SSD, for teaching a stranger)
+
+> The abstract strip above, walked as one real regression example. Use this one when explaining to
+> someone who has no firmware background. The star annotation: the **⬇ LABEL ENTERS HERE ⬇** line —
+> everything above it is *unsupervised* (never sees the price), everything below is *supervised*.
+> This flowchart is exactly what makes the **PCA-vs-gradient-descent** split click.
+
+```
+                🏠 HOUSE-PRICE PREDICTION  (a regression pipeline)
+
+  [1] RAW DATA            20 features/house: school? hospital? metro? traffic?
+      ───────────         sqft, floor, age … (Bangalore)                        math: —
+                                    │                                           label seen? NO
+                                    ▼
+  [2] PCA  (PREP)         covariance matrix → eigenvectors/eigenvalues          math: LINEAR ALGEBRA
+      ──────────────      "which 4 blended directions hold the most spread?"    label seen? NO  ← unsupervised
+      squeeze 20 → 4      OUTPUT = 4 clean, perpendicular ingredients           weight born? RECIPE weights
+                          (recipe weights / loadings — how to BLEND features)      (loadings)
+                                    │
+        ════════════════════ ⬇  LABEL (the price) ENTERS HERE  ⬇ ════════════════════
+                                    │
+  [3] MODEL              price_guess = w₁·c₁ + w₂·c₂ + w₃·c₃ + w₄·c₄ + b        math: LINEAR ALGEBRA
+      ─────             (the w's start as random junk)                          label seen? about to
+                                    │
+                                    ▼
+  [4] LOSS              how wrong?  (guess − real price)²                       math: CALCULUS + PROB
+      ────                                                                       label seen? YES ← supervised
+                                    │
+                                    ▼
+  [5] GRADIENT DESCENT  nudge each w downhill on the loss bowl, repeat          math: CALCULUS
+      ────────────────  thousands of times                                      weight born? PREDICTION weights
+                                    │
+                                    ▼
+  [6] TRAINED WEIGHTS   w₁..w₄, b  →  the model is now built                    math: —
+      ──────────────    (THESE are the price-prediction weights)
+```
+
+**Two different "weights" born in two different boxes** (this is the whole confusion, solved by the picture):
+- **Box [2]** makes **recipe weights** (loadings) — *how to blend* 20 features into 4. Price never seen. Unsupervised.
+- **Box [5]** makes **prediction weights** — *how hard each ingredient pushes the price.* Price drives them. Supervised.
+
+**PCA vs gradient descent, side by side:** PCA (box 2) *reshapes features* using covariance — no label, no loss. Gradient descent (box 5) *minimizes a loss* using the label. They are **not** two flavors of the same machine; they live on opposite sides of the label line. Full untangling: `2026-06-28_linear-algebra-vectors-dot-cosine_F.md` §21.
+
+**Box [2] is optional.** You can feed all 20 features straight to box [3] and let gradient descent sort them out. PCA earns its seat only when features are many / noisy / redundant — it's an *upstream convenience*, not a mandatory link.
+
+---
+
 ## 2. The journey note (the misconception this doc kills)
 
 **The trap:** *"Probability and statistics are used at the end, in the production phase."*

@@ -857,6 +857,29 @@ Keeping just PC1 compresses **3 sensors → 1 number** (the sum) and retains ⅔
 
 > **Why this section exists:** the word **"weights"** in §9/§13 (eigenvector components) got mixed up with the **prediction weights** a model learns. This was a high-value confusion — untangled here so it never recurs. Then a fresh 8-step drill re-revises covariance AND proves *why* the kept eigenvectors come out perpendicular.
 
+### 21.0 — The picture first: WHERE each weight is born (house-price flow)
+
+The whole confusion dissolves the moment you see the two weights born in **two different boxes**, on **two sides of the label line**:
+
+```
+  [1] 20 raw house features ─┐
+                             │      math: —                 label? NO
+  [2] PCA (covariance→eigen) │      math: LINEAR ALGEBRA    label? NO   ← UNSUPERVISED
+      squeeze 20 → 4 clean   │      → makes RECIPE weights (loadings): how to BLEND features
+      perpendicular axes     │
+  ════════════ ⬇ LABEL (price) ENTERS HERE ⬇ ════════════
+  [3] model: price = w₁c₁+…+b │     math: LINEAR ALGEBRA
+  [4] loss = (guess − price)² │     math: CALCULUS+PROB    label? YES  ← SUPERVISED
+  [5] gradient descent        │     → makes PREDICTION weights: how hard each ingredient pushes price
+  [6] trained weights w₁..b  ─┘     the model is built
+```
+
+- **Box [2] → recipe weights** (the eigenvector components / loadings). Price never seen. Unsupervised.
+- **Box [5] → prediction weights.** Price drives them. Supervised.
+- **PCA reshapes features; gradient descent predicts.** Opposite sides of the label line — not two flavors of one machine.
+
+*(Full 6-box version with per-box math annotations: `2026-07-02_ml-pipeline-math-map_F.md` §1b.)* Now the details:
+
 ### 21.1 — "Weights" means TWO different things (the overloaded word)
 
 | | **Recipe weights** (aka *loadings*) | **Prediction weights** |
