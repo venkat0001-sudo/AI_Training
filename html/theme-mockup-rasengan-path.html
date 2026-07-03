@@ -490,10 +490,10 @@ const SESS=[
  {id:'s5',ttl:'s5 · K-means & PCA', when:'18 Jul', lock:1, note:'your whole covariance→eigen chain cashes out here'},
 ];
 // ── find-it-fast state: search query, status filter, which scrolls are unrolled ──
-let q='', stF=null; const OPEN=new Set();
-const hit=a=>(!stF||a.st===stF)&&(!q||(a.t+' '+a.c+' '+a.s+' '+a.d).toLowerCase().includes(q));
+let qy='', stF=null; const OPEN=new Set();
+const hit=a=>(!stF||a.st===stF)&&(!qy||(a.t+' '+a.c+' '+a.s+' '+a.d).toLowerCase().includes(qy));
 function scrollBlock(id,head,inner,extra){
-  const open=OPEN.has(id)||q||stF;   // searching/filtering auto-unrolls the matches
+  const open=OPEN.has(id)||qy||stF;   // searching/filtering auto-unrolls the matches
   return `<div class="scroll${open?' open':''}"><button class="scrollHead" onclick="tog('${id}')">
     <span class="rollL"></span><span>${head}</span><span class="sp"></span>${extra||''}
     <span class="unroll">${open?'▾ open':'▸ unroll'}</span><span class="rollR"></span></button>
@@ -503,7 +503,7 @@ window.tog=id=>{OPEN.has(id)?OPEN.delete(id):OPEN.add(id);render();};
 function renderC(){
   document.getElementById('pC').innerHTML=Object.keys(GRP).map(g=>{
     const items=DATA.filter(a=>a.c===g&&hit(a));
-    if(!items.length&&(q||stF))return '';
+    if(!items.length&&(qy||stF))return '';
     const all=DATA.filter(a=>a.c===g);
     const own=all.filter(a=>a.st==='own').length, due=all.filter(a=>a.st==='due').length;
     const inner=(GRP[g].pin?`<div class="pin">${GRP[g].pin}</div>`:'')+items.map(row).join('');
@@ -513,7 +513,7 @@ function renderC(){
 function renderS(){
   document.getElementById('pS').innerHTML=SESS.map(s=>{
     const items=DATA.filter(a=>a.s===s.id&&hit(a));
-    if(!items.length&&(q||stF))return '';
+    if(!items.length&&(qy||stF))return '';
     const inner=(s.note?`<div class="note" style="color:var(--inkd);font-size:.78em;font-style:italic;margin:4px 0">${s.note}</div>`:'')
       +items.map(row).join('');
     return scrollBlock('s_'+s.id,`${s.lock?'🔒 ':''}${s.ttl} <span class="when">· ${s.when}</span>`,inner,
@@ -532,7 +532,7 @@ function renderRecent(){
 }
 function render(){renderC();renderS();renderT();renderRecent();}
 render();
-document.getElementById('csearch').addEventListener('input',e=>{q=e.target.value.trim().toLowerCase();render();});
+document.getElementById('csearch').addEventListener('input',e=>{qy=e.target.value.trim().toLowerCase();render();});
 document.getElementById('fchips').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
   stF=(stF===b.dataset.st)?null:b.dataset.st;
   document.querySelectorAll('#fchips button').forEach(x=>x.classList.toggle('on',x.dataset.st===stF));render();});
