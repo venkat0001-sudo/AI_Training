@@ -1,4 +1,4 @@
-﻿Hour 1 Student Notes
+Hour 1 Student Notes
 Session 4 – Hour 1 Student Notes
 Calculus Intuition, Functions, Slope & Derivatives
 Why Are We Learning This?
@@ -1408,3 +1408,18 @@ Salary > 70000
 
 
 at the same time.
+
+
+Matrix Input -> [MODEL ] -> weights 
+
+
+
+
+
+
+
+
+
+
+
+
