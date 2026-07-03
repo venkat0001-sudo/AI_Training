@@ -59,6 +59,7 @@ html[data-theme="sage"]{
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
+.sp{flex:1}
 body{background:linear-gradient(135deg,var(--bgA),var(--bgB) 55%,var(--bgC));color:var(--ink);
   font-family:'Courier New',monospace;line-height:1.6;padding-bottom:104px;min-height:100vh;
   transition:background .35s}
@@ -178,54 +179,69 @@ h2 .n{color:var(--hdim);margin-right:8px}
 .recentBox{margin:2px 0 10px}
 .recentBox .lbl{font-size:.7em;color:var(--hdim);letter-spacing:1.5px;margin-bottom:2px}
 
-/* ── the SCROLLS: real makimono — parchment, wooden dowels, wax seal ──
-   Paper colors are FIXED (paper is paper in every palette). Grain = inline SVG turbulence. */
-.scroll{margin:16px 6px;position:relative}
-/* the closed roll: a paper cylinder wound on a dowel, knobs poking out both ends */
-.scrollHead{width:100%;display:flex;align-items:center;gap:10px;cursor:pointer;font-family:inherit;
-  position:relative;padding:12px 16px;font-size:.9em;text-align:left;color:#3a2812;
-  border:1px solid #7a5c34;border-radius:14px;
-  background:
-    url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.36 0 0 0 0 0.27 0 0 0 0 0.14 0 0 0 0.35 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E"),
-    repeating-linear-gradient(90deg, rgba(90,60,25,.07) 0 2px, transparent 2px 30px),
-    linear-gradient(180deg,#b6976a,#ecdcae 38%,#f2e4bb 52%,#d9c48f 74%,#96784e);
-  box-shadow:0 3px 8px rgba(0,0,0,.45), inset 0 0 14px rgba(90,60,25,.18)}
-.scrollHead:hover{border-color:#a8281c}
-/* dowel end-knobs */
+/* ── the SCROLLS: the summoning-contract look — bone paper, maroon bands, black
+   lacquered roller, radial seal-script + ninja-profile engravings, 忍道 ink strip.
+   Paper colors are FIXED (paper is paper in every palette). Grain = SVG turbulence. */
+.scroll{margin:16px 8px;position:relative}
+/* CLOSED = the black lacquered roller with maroon end bands; the title rides a paper wrap-label */
+.scrollHead{width:100%;display:flex;align-items:center;cursor:pointer;font-family:inherit;
+  position:relative;padding:7px 26px;font-size:.9em;text-align:left;
+  border:1px solid #000;border-radius:13px;
+  background:linear-gradient(90deg,#7e1c14 0 16px,transparent 16px calc(100% - 16px),#7e1c14 calc(100% - 16px)),
+    linear-gradient(180deg,#33333a,#1a1a1f 55%,#0a0a0d);
+  box-shadow:0 4px 10px rgba(0,0,0,.55), inset 0 2px 3px rgba(255,255,255,.10), inset 0 -3px 5px rgba(0,0,0,.6)}
+.scrollHead:hover{box-shadow:0 4px 12px rgba(0,0,0,.55), 0 0 8px rgba(159,232,255,.25), inset 0 2px 3px rgba(255,255,255,.10)}
+/* roller end caps (dark metal knobs) */
 .scrollHead::before,.scrollHead::after{content:"";position:absolute;top:50%;transform:translateY(-50%);
-  width:11px;height:65%;border-radius:5px;border:1px solid #120a04;
-  background:radial-gradient(circle at 35% 30%,#5a3a20,#241408)}
-.scrollHead::before{left:-8px}.scrollHead::after{right:-8px}
+  width:12px;height:78%;border-radius:6px;border:1px solid #000;
+  background:radial-gradient(circle at 35% 28%,#4a4a52,#101014)}
+.scrollHead::before{left:-9px}.scrollHead::after{right:-9px}
 .scroll.open .scrollHead{border-bottom-left-radius:0;border-bottom-right-radius:0}
-.inkTitle{color:#3a2812;font-weight:bold}
-.inkTitle .when{color:#8f1f18;font-size:.78em;font-weight:normal}
-.unroll{font-size:.68em;color:#7a5c34;white-space:nowrap;font-style:italic}
-.scrollHead .stat{color:#6b4f2a;font-weight:normal;font-size:.74em;white-space:nowrap}
+/* the bone paper wrap-label around the roller */
+.scrollHead .wrap{flex:1;display:flex;align-items:center;gap:10px;min-width:0;padding:6px 12px;
+  border-radius:4px;color:#2f2415;
+  background:
+    url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.30 0 0 0 0 0.24 0 0 0 0 0.14 0 0 0 0.28 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(180deg,#cfc6a8,#efe8d2 30%,#f4eeda 55%,#e6dec2 85%,#c9c0a0);
+  box-shadow:0 1px 4px rgba(0,0,0,.5), inset 0 0 8px rgba(110,90,50,.22)}
+.inkTitle{color:#2f2415;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.inkTitle .when{color:#7e1c14;font-size:.78em;font-weight:normal}
+.unroll{font-size:.66em;color:#6b5a3a;white-space:nowrap;font-style:italic}
+.scrollHead .stat{color:#5c4c2c;font-weight:normal;font-size:.72em;white-space:nowrap}
 .seal{width:30px;height:30px;border-radius:50%;flex:0 0 auto;transform:rotate(-6deg);
   background:radial-gradient(circle at 38% 32%,#d24a3a,#9b2318 70%,#7a1a10);
   color:#f7e3c8;display:inline-flex;align-items:center;justify-content:center;
   font-size:.7em;font-weight:bold;border:2px solid #6e150c;box-shadow:0 1px 3px rgba(0,0,0,.5)}
-/* the unrolled paper */
+/* OPEN = the unrolled bone paper with maroon edge bands (the summoning-contract look) */
 .scrollBody{max-height:0;overflow:hidden;transition:max-height .5s ease}
 .scroll.open .scrollBody{max-height:1600px}
-.paper{position:relative;padding:12px 18px 16px;color:#3b2a16;
-  border-left:1px solid #7a5c34;border-right:1px solid #7a5c34;
+.paper{position:relative;padding:16px 20px 18px;color:#2f2415;
+  border-left:1px solid #6b5a3a;border-right:1px solid #6b5a3a;
+  border-top:7px solid #7e1c14;border-bottom:7px solid #7e1c14;
+  box-shadow:inset 0 2px 0 rgba(0,0,0,.25), inset 0 -2px 0 rgba(0,0,0,.25);
   background:
-    url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.36 0 0 0 0 0.27 0 0 0 0 0.14 0 0 0 0.35 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E"),
-    radial-gradient(ellipse at 18% 8%, rgba(120,85,40,.12), transparent 55%),
-    radial-gradient(ellipse at 85% 92%, rgba(120,85,40,.15), transparent 50%),
-    repeating-linear-gradient(0deg, rgba(120,90,50,.05) 0 1px, transparent 1px 9px),
-    linear-gradient(90deg,#cdb684,#e9d9ad 7%,#f0e2b8 50%,#e9d9ad 93%,#c9b27f)}
-.paper::after{content:"";position:absolute;left:0;right:0;bottom:0;height:16px;
-  background:linear-gradient(180deg,transparent,rgba(60,40,15,.28))}
-/* the bottom dowel the paper hangs from */
-.rodBot{position:relative;height:14px;border-radius:7px;border:1px solid #1c1006;
-  background:linear-gradient(180deg,#4a3018,#6b4526 45%,#2e1c0e);
-  box-shadow:0 3px 6px rgba(0,0,0,.5)}
+    url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.30 0 0 0 0 0.24 0 0 0 0 0.14 0 0 0 0.30 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 18% 8%, rgba(110,88,45,.10), transparent 55%),
+    radial-gradient(ellipse at 85% 92%, rgba(110,88,45,.13), transparent 50%),
+    linear-gradient(90deg,#ded5b8,#efe8d2 8%,#f4eeda 50%,#efe8d2 92%,#d8cfae)}
+.paper>*{position:relative;z-index:1}
+/* engravings: radial summoning array (center) + ninja profile (corner) + 忍道 strip (edge) */
+.paper .mark{position:absolute;z-index:0;pointer-events:none}
+.paper .mkArray{inset:0;margin:auto;width:min(72%,330px);height:82%;opacity:.075;color:#241c10}
+.paper .mkNinja{right:12px;bottom:16px;width:86px;height:86px;opacity:.085;color:#241c10}
+.paper .mkKanji{top:14px;right:8px;writing-mode:vertical-rl;font-size:1.15em;font-weight:bold;
+  color:rgba(126,28,20,.26);letter-spacing:7px;font-family:'Hiragino Mincho ProN','Yu Mincho',serif}
+.paper::after{content:"";position:absolute;left:0;right:0;bottom:0;height:14px;z-index:2;
+  background:linear-gradient(180deg,transparent,rgba(50,35,15,.22))}
+/* the black roller at the paper's end */
+.rodBot{position:relative;height:16px;border-radius:8px;border:1px solid #000;
+  background:linear-gradient(90deg,#7e1c14 0 16px,transparent 16px calc(100% - 16px),#7e1c14 calc(100% - 16px)),
+    linear-gradient(180deg,#33333a,#1a1a1f 55%,#0a0a0d);
+  box-shadow:0 4px 8px rgba(0,0,0,.55), inset 0 2px 3px rgba(255,255,255,.08)}
 .rodBot::before,.rodBot::after{content:"";position:absolute;top:50%;transform:translateY(-50%);
-  width:14px;height:22px;border-radius:5px;border:1px solid #120a04;
-  background:radial-gradient(circle at 35% 30%,#5a3a20,#241408)}
-.rodBot::before{left:-9px}.rodBot::after{right:-9px}
+  width:14px;height:24px;border-radius:6px;border:1px solid #000;
+  background:radial-gradient(circle at 35% 28%,#4a4a52,#101014)}
+.rodBot::before{left:-10px}.rodBot::after{right:-10px}
 /* content re-inked for paper: dark ink, hanko-red accents */
 .paper .item{border-bottom:1px dashed rgba(110,80,40,.4)}
 .paper .item a{color:#41301a;font-weight:bold}
@@ -471,6 +487,35 @@ h2 .n{color:var(--hdim);margin-right:8px}
   <button data-pal="sage"><span class="sw"><i style="background:#0e1f0a"></i><i style="background:#a8c87a"></i><i style="background:#ff8c00"></i></span>🐸 Sage (old)</button>
 </div>
 
+<!-- engraving symbols: the summoning array + ninja profile (used by every unrolled scroll) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="mkArraySym" viewBox="0 0 200 200">
+  <circle cx="100" cy="100" r="30" fill="none" stroke="currentColor" stroke-width="2.5"/>
+  <circle cx="100" cy="100" r="38" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="100" y="113" text-anchor="middle" font-size="36" fill="currentColor"
+    font-family="'Hiragino Mincho ProN','Yu Mincho',serif">忍</text>
+  <g id="mkRay"><line x1="100" y1="52" x2="100" y2="8" stroke="currentColor" stroke-width="2.6"
+    stroke-linecap="round" stroke-dasharray="5 3 2 3 6 2 3 4"/></g>
+  <use href="#mkRay" transform="rotate(22.5 100 100)"/><use href="#mkRay" transform="rotate(45 100 100)"/>
+  <use href="#mkRay" transform="rotate(67.5 100 100)"/><use href="#mkRay" transform="rotate(90 100 100)"/>
+  <use href="#mkRay" transform="rotate(112.5 100 100)"/><use href="#mkRay" transform="rotate(135 100 100)"/>
+  <use href="#mkRay" transform="rotate(157.5 100 100)"/><use href="#mkRay" transform="rotate(180 100 100)"/>
+  <use href="#mkRay" transform="rotate(202.5 100 100)"/><use href="#mkRay" transform="rotate(225 100 100)"/>
+  <use href="#mkRay" transform="rotate(247.5 100 100)"/><use href="#mkRay" transform="rotate(270 100 100)"/>
+  <use href="#mkRay" transform="rotate(292.5 100 100)"/><use href="#mkRay" transform="rotate(315 100 100)"/>
+  <use href="#mkRay" transform="rotate(337.5 100 100)"/>
+</symbol>
+<symbol id="mkNinjaSym" viewBox="0 0 100 100">
+  <path fill="currentColor" d="M44 36 C45 30 49 23 55 20 L60 10 L64 19 L70 12 L72 22 L79 18 L78 28
+    C82 34 83 40 82 46 C80 54 76 60 70 63 L72 76 L63 70 C59 72 55 73 52 72 L50 80 L46 70
+    C42 66 40 60 40 56 L36 54 L40 51 L37 46 L41 45 C41 42 42 39 44 36 Z"/>
+  <path fill="currentColor" opacity=".5" d="M40 39 L82 41 L82 48 L40 46 Z"/>
+  <rect x="55" y="39.5" width="13" height="8" rx="1.5" fill="currentColor" opacity=".8"/>
+  <path fill="currentColor" d="M82 42 Q94 40 98 34 L92 45 Q87 47 82 47 Z"/>
+  <path fill="currentColor" d="M82 46 Q95 50 99 47 L91 55 Q86 53 82 50 Z"/>
+</symbol>
+</defs></svg>
+
 <script>
 // one nindō line, chosen by date — never more than one per page
 const NINDO=[
@@ -533,12 +578,15 @@ const SESS=[
 // ── find-it-fast state: search query, status filter, which scrolls are unrolled ──
 let qy='', stF=null; const OPEN=new Set();
 const hit=a=>(!stF||a.st===stF)&&(!qy||(a.t+' '+a.c+' '+a.s+' '+a.d).toLowerCase().includes(qy));
+const MARKS=`<svg class="mark mkArray" viewBox="0 0 200 200"><use href="#mkArraySym"/></svg>`
+ +`<svg class="mark mkNinja" viewBox="0 0 100 100"><use href="#mkNinjaSym"/></svg>`
+ +`<span class="mark mkKanji">忍道</span>`;
 function scrollBlock(id,head,inner,extra){
   const open=OPEN.has(id)||qy||stF;   // searching/filtering auto-unrolls the matches
   return `<div class="scroll${open?' open':''}"><button class="scrollHead" onclick="tog('${id}')">
-    <span class="inkTitle">${head}</span><span class="sp"></span>${extra||''}
-    <span class="unroll">${open?'▾ roll up':'▸ unroll'}</span></button>
-    <div class="scrollBody"><div class="paper">${inner}</div><div class="rodBot"></div></div></div>`;
+    <span class="wrap"><span class="inkTitle">${head}</span><span class="sp"></span>${extra||''}
+    <span class="unroll">${open?'▾ roll up':'▸ unroll'}</span></span></button>
+    <div class="scrollBody"><div class="paper">${MARKS}${inner}</div><div class="rodBot"></div></div></div>`;
 }
 window.tog=id=>{OPEN.has(id)?OPEN.delete(id):OPEN.add(id);render();};
 function renderC(){
