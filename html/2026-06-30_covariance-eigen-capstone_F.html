@@ -467,7 +467,7 @@ const steps = [
      <div class="why">Left (2×2) is done <b>fully by hand</b> — every grid, every subtraction. Right (3×3) is the <b>identical recipe</b>, but the 3-equation system has no clean hand formula (cubic), so the computer cranks the last solve.</div>`,
    left:()=>eigDeriv2(D2.cov,6,TC)+eigDeriv2(D2.cov,2,TC)+stretchPlot2([1,1],6,TC),
    right:()=>eigDeriv3(GC)
-     +`<div class="g" style="font-size:.78em;margin-top:8px">v1 read as a recipe of the 3 sensors (weights):</div>`+eigWeights(D3,0,GC)
+     +`<div class="g" style="font-size:.78em;margin-top:8px">v1 read as a recipe of the 3 sensors — RECIPE weights (loadings), i.e. how much of each sensor to blend. ⚠️ NOT the model's prediction weights (those come later from gradient descent, once a label is involved):</div>`+eigWeights(D3,0,GC)
      +`<div class="num" style="font-size:.8em;margin-top:6px">stretch: C·v1 ≈ <b class="o">827.29</b>·v1 — same 3-D direction, ×827 longer. v1 holds 99.3% of all the spread → this is the one direction PCA keeps.</div>`
      +eigDeriv3ByHand(GC) },
 

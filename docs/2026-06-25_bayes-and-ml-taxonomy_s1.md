@@ -318,6 +318,12 @@ features → [ MODEL ] → prediction
 
 > **Labels supervise · the algorithm corrects.**
 
+> **⚠️ The label rule is about the METHOD, not the PIPELINE (2026-07-03 clarification).**
+> "Supervised / unsupervised" classifies a *technique* by whether **that technique itself looks at the label** — NOT whether the overall project has labels lying around.
+> - Your house-price project is **supervised** (price = label). But you can still bolt **PCA** onto the front of it. PCA, *as a step*, closes its eyes to the price — it only studies how the features move together. So **PCA is unsupervised even inside a supervised project.**
+> - 😄 Kitchen analogy: the restaurant's job is "serve the dish the customer ordered" (supervised — there's a target). But the **prep cook** who chops veg into a clean mirepoix never sees the order — his step is "unsupervised." Still part of a supervised kitchen.
+> - Test: **has the label entered the math yet?** No → the step is unsupervised (PCA blending features). Yes → supervised (a loss is being minimized). Full untangling in `2026-06-28_linear-algebra-vectors-dot-cosine_F.md` §21.
+
 ### What *is* a model? — a learned transfer function
 
 You already think in transfer functions (ADC count → temperature, voltage → BER). **A model is exactly that — a box mapping inputs → output — with two twists:** (1) it takes *many* inputs at once, and (2) its shape & constants are *learned from data*, not derived from a datasheet.

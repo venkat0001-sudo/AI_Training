@@ -570,7 +570,7 @@ All spread on ONE direction (data sits perfectly on L = 2T+20).
 v1 = [1]  ← Temp weight
      [2]  ← Latency weight
 ```
-v1's components are **weights on each feature**: the main axis is "1 part Temp, 2 parts Latency" → Latency swings **2× per unit Temp** — exactly the built-in `L = 2T+20`. **The eigenvector recovered the feature relationship.** Both weights positive → features rise together (matches +200 cov).
+v1's components are **weights on each feature** *(⚠️ these are RECIPE weights / loadings — a blend, NOT the model's prediction weights; see §21 for the full untangling)*: the main axis is "1 part Temp, 2 parts Latency" → Latency swings **2× per unit Temp** — exactly the built-in `L = 2T+20`. **The eigenvector recovered the feature relationship.** Both weights positive → features rise together (matches +200 cov).
 
 **Step 9 — PCA payoff:** λ₁ = 100% → keep only v1 → each reading becomes one number `1·T + 2·L` → 2 features → 1, zero loss.
 
@@ -850,6 +850,102 @@ Keeping just PC1 compresses **3 sensors → 1 number** (the sum) and retains ⅔
 **Paper caveat:** this all works cleanly because the matrix is symmetric with a nice-shaped cubic. Real 3×3 covariances from field data will have ugly decimals and won't factor by inspection — that's when we hand it to `np.linalg.eig`. But the **mechanics** are the same eight steps.
 
 **Side-by-side interactive twin:** `html/2026-07-02_eigen-by-hand-2x2-vs-3x3_F.html` walks both §13 (2×2) and §19 (3×3) in parallel, step-by-step, so you can see the exact same chain at two sizes.
+
+---
+
+## 21. ⭐ The two "weights", the label rule, + the perpendicularity drill (2026-07-03)
+
+> **Why this section exists:** the word **"weights"** in §9/§13 (eigenvector components) got mixed up with the **prediction weights** a model learns. This was a high-value confusion — untangled here so it never recurs. Then a fresh 8-step drill re-revises covariance AND proves *why* the kept eigenvectors come out perpendicular.
+
+### 21.1 — "Weights" means TWO different things (the overloaded word)
+
+| | **Recipe weights** (aka *loadings*) | **Prediction weights** |
+|---|---|---|
+| What | eigenvector components — *how much of each feature to BLEND into a new axis* | how hard each ingredient *pushes the answer* |
+| Formula | `PC1 = 0.71·School + 0.71·Metro` | `Price = w₁·PC1 + w₂·PC2 + b` |
+| Comes from | **PCA** (eigen of covariance) | **gradient descent** (or least-squares) |
+| Sees the label? | ❌ never | ✅ yes — the label drives them |
+| Answers | *"what is this new axis made OF?"* | *"how important is it to the answer?"* |
+
+- ✅ *"An eigenvector's components are weights on your features"* → **recipe weights.** True. (What §13 meant.)
+- ❌ *"PCA gives me the price-prediction weights"* → **false.** Those are learned later, by the model.
+- 😄 **Cooking split:** PCA is the **prep cook** writing a *recipe* ("2 parts school, 2 parts metro" = one clean ingredient). Gradient descent is the **head chef** deciding *how much of each ingredient makes the dish taste right* (predict the price). Same word "measure," two different jobs.
+
+### 21.2 — The label rule: it's about the METHOD, not the PIPELINE
+
+> A technique is supervised/unsupervised by **whether THAT technique looks at the label** — not whether the overall project has labels.
+
+- House-price project = **supervised** (price = label). But **PCA as a step is unsupervised** — it never sees the price, it only studies how features co-move. Perfectly legal to bolt an unsupervised step onto the front of a supervised pipeline.
+- 😄 **Kitchen:** the restaurant is "supervised" (serve the ordered dish). The **prep cook** who chops veg never sees the order → his step is "unsupervised." Still a supervised kitchen.
+- **One-line test — has the label entered the math yet?**
+  - **No** → any "weight" you see is a **recipe weight** (PCA loadings); the step is unsupervised.
+  - **Yes** → "weight" now means **prediction weight** (gradient descent); the step is supervised.
+
+### 21.3 — ⭐ The perpendicularity drill (8 steps, house features, fully by hand)
+
+Same skeleton as the §13/§19 covariance drills, but the payoff is **orthogonality**. Non-SSD domain on purpose (for teaching a stranger). *All numbers verified vs `np.linalg.eig`.*
+
+**Setup — 5 Bangalore houses, 2 amenity features** (score 0–10, higher = closer):
+```
+House:     H1    H2    H3    H4    H5
+School :    3     4     6     6     6
+Metro  :    4     7     5     7     7
+```
+
+**Step 1 — means:** School = 25/5 = **5**  ·  Metro = 30/5 = **6**
+
+**Step 2 — deviations (value − mean):**
+```
+School dev:  −2   −1   +1   +1   +1
+Metro  dev:  −2   +1   −1   +1   +1
+```
+(each row sums to 0 ✓ — the built-in spell-check)
+
+**Step 3 — the two variances (÷ n−1 = ÷4):**
+```
+var(School) = (4+1+1+1+1)/4 = 8/4 = 2
+var(Metro)  = (4+1+1+1+1)/4 = 8/4 = 2
+```
+
+**Step 4 — the covariance (average of the per-house "votes"):**
+```
+School·Metro dev products:  (−2)(−2)+(−1)(1)+(1)(−1)+(1)(1)+(1)(1)
+                          =    4   −1    −1    +1    +1   = 4
+cov = 4/4 = 1     (positive → school & metro proximity rise together)
+```
+
+**Step 5 — the covariance matrix:**
+```
+C = | 2  1 |     (diagonal = the two variances; off-diagonal = the shared lean)
+    | 1  2 |
+```
+
+**Step 6 — eigenvalues via det(C − λI) = 0:**
+```
+det | 2−λ   1  | = (2−λ)² − 1 = 0  →  2−λ = ±1  →  λ₁ = 3,  λ₂ = 1
+    |  1   2−λ |
+```
+
+**Step 7 — eigenvectors (the recipe weights):**
+```
+λ₁ = 3:  (2−3)x + y = 0  →  −x + y = 0  →  x = y   →  v₁ = [1, 1]   (the "both rise together" axis)
+λ₂ = 1:  (2−1)x + y = 0  →   x + y = 0  →  y = −x  →  v₂ = [1, −1]  (the "one up, other down" axis)
+```
+
+**Step 8 — THE PUNCHLINE (perpendicularity + PCA):**
+```
+v₁ · v₂ = (1)(1) + (1)(−1) = 1 − 1 = 0   →  the two axes are at 90° (PERPENDICULAR) ✓
+shares:  λ₁/Σλ = 3/4 = 75%   ·   λ₂/Σλ = 1/4 = 25%
+PCA: keep v₁ (75%) → each house's 2 numbers → 1 number (1·School + 1·Metro). Drop v₂, lose only 25%.
+```
+
+### 21.4 — Why perpendicular, and why it matters
+
+- **Guaranteed, not lucky.** *Every* covariance matrix is **symmetric** (`cov(A,B)=cov(B,A)`), and symmetric matrices *always* hand back eigenvectors at exactly 90°. Pick any dataset — the axes come out perpendicular. (That's why your earlier `[1,2]` + `[1,1]` guess couldn't both be real components — they're not at 90°; the true partner of `[1,2]` is `[2,−1]`.)
+- **Why 90° = "clean":** perpendicular axes share **zero** information. Each new ingredient carries something the others don't — no double-counting. That's the whole point of PCA: turn 20 overlapping, gossiping features into a few **independent** ones.
+- **Recipe-weight, not prediction-weight:** `v₁ = [1,1]` says *"blend one School + one Metro to make the strongest new axis."* It does **not** say what a house costs — the price never entered. (Label rule, §21.2.)
+
+**🎯 The thread forward:** these perpendicular recipe axes are what you feed *into* a regression model on 18 Jul (Session 5). Only *there* does gradient descent look at the price and learn the **prediction weights**. PCA compresses; the model predicts. Two steps, two kinds of weight.
 
 ---
 

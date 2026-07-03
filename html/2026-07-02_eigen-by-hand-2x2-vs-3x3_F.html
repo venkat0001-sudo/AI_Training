@@ -356,7 +356,7 @@ C·v₃: [2+1−2, 1+2−2, 1+1−4] = [1,1,−2] = 1·[1,1,−2]  ✓</div>
 <button class="bnn" onclick="flashNote(this)">▶ stretch v₂ ×1</button><span class="note" style="display:none;color:var(--gold)"> ← it didn't move. Exactly. λ=1. 🎬</span></div>`},
 
 // ---------- STEP 8 ----------
-{t:'Read v₁ as WEIGHTS → the PCA payoff', s:'An eigenvector\'s components are weights on your original features. Rank directions by λ/Σλ, keep the top ones, drop the rest — that is the entire PCA algorithm you\'ll meet formally on 18 Jul (Session 5).',
+{t:'Read v₁ as RECIPE-WEIGHTS (loadings) → the PCA payoff', s:'An eigenvector\'s components are RECIPE weights (formal name: loadings) — how much of each original feature to BLEND to build this new axis. ⚠️ These are NOT the model\'s prediction weights (those come later from gradient descent, using the label). PCA never sees the label — it just blends features. Rank directions by λ/Σλ, keep the top ones, drop the rest — that is the entire PCA algorithm you\'ll meet formally on 18 Jul (Session 5). NOTE: because a covariance matrix is symmetric, the kept eigenvectors are always PERPENDICULAR — that is WHY the blended features are "clean" (no two carry the same info twice).',
  joke:'😄 PCA is Marie Kondo for features: hold each direction up, ask "how much variance do you spark?", keep the joyful ones, thank λ=0 for its service and bin it.',
  wide:`<div class="viz"><svg viewBox="0 0 900 150" width="100%">
   <path d="M20,90 Q130,40 250,90 T480,90 T710,90 T900,90" fill="none" stroke="#27c2a8" stroke-width="2.5"/>
