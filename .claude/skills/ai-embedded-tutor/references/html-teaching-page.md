@@ -162,21 +162,32 @@ End the deck with a "🎯 the thread" note tying the concept forward to its ML u
 
 ## 3. The exact palette + machinery to copy (keeps every page one deck)
 
+**⭐ PALETTE = "Rasengan Midnight" (his 2026-07-04 verdict — supersedes the old sage/olive green,
+which he rejected as "too much green").** Deep navy bg, chakra-cyan headings, orange energy accents.
+Use SEMANTIC tokens so palettes stay swappable:
+
 ```css
-:root{
-  --bg:#0d1408; --bg2:#0f1d0a; --card:rgba(20,40,12,.72); --line:rgba(74,122,46,.5);
-  --cream:#f5e6c8; --creamd:#cbbb95; --sage:#a8c87a; --sagem:#7a9e5a; --saged:#4a7a2e;
-  --orange:#ff8c00; --orangeg:#ffb347; --red:#d9534f; --blue:#5a8fbf;
-  --teal:#27c2a8; --gold:#ffce4a; --ink:#eaf0dd;
+:root{ /* Rasengan Midnight — the default for every new page */
+  --bgA:#070b14; --bgB:#0a1120; --bgC:#0c0f1c;
+  --card:rgba(16,26,48,.72); --panel:#080d1a;
+  --line:rgba(90,143,191,.35); --lineDim:rgba(90,143,191,.2);
+  --ink:#e9eff7; --inkd:#a9b6c9;          /* main / muted text */
+  --hd:#9fe8ff; --hdim:#5f7d9a;           /* headings / dim labels (chakra cyan) */
+  --acc:#ff9433; --accg:#ffb347; --accDim:#5a3a14; --accA:rgba(255,148,51,.15); /* orange energy */
+  --gold:#ffd75e; --num2:#7fd4c0;
+  --chakra:#9fe8ff; --chakraHi:#ffffff; --chakraA:rgba(159,232,255,.12); --chakraEdge:rgba(159,232,255,.38);
 }
-body{background:linear-gradient(135deg,#0c1607,#0e1f0a 55%,#171708);color:var(--cream);
+body{background:linear-gradient(135deg,var(--bgA),var(--bgB) 55%,var(--bgC));color:var(--ink);
   font-family:'Courier New',monospace;line-height:1.6}
 /* step machine: .step{display:none} .step.on{display:block} + rise keyframe */
 /* fixed .nav bottom bar with #prev #next, #dots, #slabel; wire ArrowLeft/ArrowRight */
 ```
-Colour code: `.joke/.k`=gold, `.ssd/.t`=teal, `.o`=orange, `.g`=sage, `.r`=red. Frog header pulses
-orange↔sage. Nav buttons flip to orange on hover. See the covariance-capstone `<head>` for the full sheet —
-copy it wholesale, then swap the step content.
+Colour code: `.joke/.k`=gold, `.o`=orange energy, `.g`=heading-cyan, `.t`=--num2, `.r`=red. Header mark =
+the rotating 🍥 Uzumaki spiral (NO frog). Nav buttons flip to orange on hover. **The live palette source
+of truth is `html/theme-mockup-rasengan-path.html`** (Rasengan Path: chakra top-border + one rotating
+nindō quote + ≤5%-opacity spiral engravings + fūinjutsu seal dividers + makimono paper scrolls for
+collapsible catalogs — copy those component styles from the mockup wholesale). Older sage-palette pages
+get re-skinned opportunistically when next touched.
 
 ---
 
