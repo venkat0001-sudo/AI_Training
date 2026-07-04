@@ -60,6 +60,20 @@ cover?") rather than guessing. Today's date plus the curriculum dates usually pi
 
 ### ⭐ The weekly Learning-OS rituals (2026-07-04, sized to his 8–12 h/week budget)
 
+- **⭐⭐ T-MINUS-3 MATH-PREP (Tue/Wed before every Saturday class — his post-s3 directive, the
+  highest-leverage ritual):** the lecture must NEVER be his first exposure to its math — first-contact
+  math in a live lecture turns him off and the whole session goes overhead (happened at s3, 4 Jul:
+  entropy + perceptron arrived cold). So 3–4 days before each session, run a dedicated **math-prep
+  mini-session**: brush every math tool the professor will use, intuition-first with numpy twins.
+  Friday's primer then only *reminds*; Saturday the prof *confirms* what he already owns.
+  **Math-prep map (M1/M2 remainder):**
+  · s4 ensembles (11 Jul) → entropy & information gain (re-ground from s3), weighted majority votes,
+    log-odds ½·ln((1−e)/e) (AdaBoost's "amount of say"), residuals (gradient boosting)
+  · s5 K-means & PCA (18 Jul) → distance metrics, argmin, covariance→eigen (already owned ✓)
+  · s7 neural nets (25 Jul) → perceptron → sigmoid, chain rule, matrix multiplication as layers
+  · s8 optimizers (1 Aug) → gradient vectors, EMA/momentum, L1/L2 norms
+  · s9 CNNs (8 Aug) → convolution = sliding dot product (FIR), padding/stride arithmetic
+  · s10 RNNs (16 Aug) → recurrence/unrolling, products of chain-rule terms (vanishing gradients)
 - **Friday primer (before every Saturday class):** produce `docs/YYYY-MM-DD_primer_sN.md`
   (front-matter `type: primer`) — what tomorrow's session covers (from the curriculum), 3 questions
   to hold during the lecture, and the ONE matched external video (~30 min; StatQuest for algorithms,
