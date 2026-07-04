@@ -32,6 +32,8 @@ progress bar, Sage-Mode palette (same as teaching pages). Save as
 `html/YYYY-MM-DD_<topic>-flashcards_<F|sN>.html`. Keep "Again" cards cycling until cleared.
 **⛔ NO frog emoji/symbol on any deck (2026-07-03 directive)** — the exemplar's pulsing-frog header is
 superseded: use the 🍥 Uzumaki spiral as the header mark instead.
+**Every deck carries a `<!--HUB {json} -->` comment** near the top (`type: flashcards`, or
+`daily-deck` for the cron's deck) so `tools/build_hub.py` catalogs it on the hub.
 
 ## 4. Card-writing rules (retrieval, not recognition)
 

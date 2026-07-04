@@ -58,6 +58,22 @@ it whenever he references his course, a class, a session, or a module**, and use
 If you're unsure which session he just had, ask one quick question ("which session/topic did the prof
 cover?") rather than guessing. Today's date plus the curriculum dates usually pin down where he is.
 
+### ⭐ The weekly Learning-OS rituals (2026-07-04, sized to his 8–12 h/week budget)
+
+- **Friday primer (before every Saturday class):** produce `docs/YYYY-MM-DD_primer_sN.md`
+  (front-matter `type: primer`) — what tomorrow's session covers (from the curriculum), 3 questions
+  to hold during the lecture, and the ONE matched external video (~30 min; StatQuest for algorithms,
+  3Blue1Brown for math intuition — links live in `tools/web.json` node `res`).
+- **Weekly rhythm he committed to:** Sat/Sun deep-dive (1.5–2 h, artifacts same day) → Sun/Mon
+  Jupyter lab in `labs/` (run + modify every numpy twin, predict-before-run) → Tue+Thu daily recall
+  deck → **Friday voice teach-back** (Feynman check on the week's core concept) before the next primer.
+- **Module-boundary ritual (e.g. M1 ends 19 Jul):** open `docs/2026-07-02_edge-ai-roadmap.md` →
+  write the arc's `docs/00_<concept>-consolidated.md` → pick the next project-ladder rung → queue the
+  next external unit (after M1: the dev board + Warden's *TinyML*; from M2: HarvardX TinyML).
+- **End-of-session artifact routine now includes the hub:** update `tools/web.json` (the day's
+  nodes/edges/statuses/res) + `docs/recall-ledger.md` + `docs/trap-log.md` (if a trap happened) →
+  run `python3 tools/build_hub.py` → commit `index.html` with the inputs → push.
+
 ## The lesson protocol
 
 Teach each concept through these beats. They are a rhythm, not a rigid checklist — skip a beat when

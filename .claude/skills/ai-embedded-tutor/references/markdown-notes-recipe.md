@@ -51,6 +51,18 @@ Not every concept needs every block — but **2 (numbers), 2b (numpy twin), 6 (b
 (destination) are never optional**, and 4 (the journey) is mandatory whenever a misconception
 actually happened in session.
 
+## Front-matter + the consolidated lifecycle (2026-07-04 — the hub reads these)
+
+- **Every notes doc starts with YAML front-matter** (Obsidian-native; `tools/build_hub.py` scans it):
+  `title`, `date`, `sessions: [F|s1..s32]`, `concepts: [slugs matching tools/web.json]`,
+  `type: notes|consolidated|map|ledger|primer`, `recap:` one-line reactivation hook (shows on hub cards).
+- **Consolidated docs:** when a concept arc completes (e.g. linear algebra after s5), distill its
+  chunks into `docs/00_<concept>-consolidated.md` (`00_` sorts first; `type: consolidated` pins it as
+  the arc's cover scroll in the hub). It must END with a **one-page formula card** (one screen,
+  printable: every formula of the arc, symbols decoded).
+- After saving any artifact: update `tools/web.json`, run `python3 tools/build_hub.py`, commit
+  `index.html` alongside. A trap corrected in-session also gets one line in `docs/trap-log.md`.
+
 ## Hard rules
 
 - **Numbers are the memory anchors.** Preserve every worked example with the *exact* values computed
