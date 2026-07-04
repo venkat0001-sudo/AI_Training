@@ -168,6 +168,24 @@ h2 .n{color:var(--hdim);margin-right:8px}
 .sessCard .note{color:var(--inkd);font-size:.78em;font-style:italic;margin-top:2px}
 .tl .d{color:var(--acc);margin-top:12px;font-weight:bold;font-size:.86em}
 
+/* ── the JOURNEY strip: at-a-glance progress + unfurlable full road ── */
+.jstrip{display:flex;gap:4px;align-items:center;cursor:pointer;padding:4px 0}
+.jseg{position:relative;height:11px;border-radius:6px;background:var(--panel);
+  border:1px solid var(--lineDim);overflow:visible}
+.jseg .fill{position:absolute;left:0;top:0;bottom:0;border-radius:6px;
+  background:linear-gradient(90deg,var(--chakraA),var(--chakra))}
+.jseg .mtag{position:absolute;top:-16px;left:50%;transform:translateX(-50%);
+  font-size:.62em;color:var(--hdim);white-space:nowrap}
+.jdot{position:absolute;top:50%;width:15px;height:15px;border-radius:50%;
+  transform:translate(-50%,-50%);background:radial-gradient(circle at 35% 30%,var(--chakraHi),var(--chakra));
+  border:2px solid var(--chakraHi);animation:jglow 1.6s ease-in-out infinite;z-index:2}
+@keyframes jglow{0%,100%{box-shadow:0 0 4px var(--chakra)}50%{box-shadow:0 0 16px var(--chakra),0 0 26px var(--chakraA)}}
+.jlabel{font-size:.78em;color:var(--inkd);margin-top:14px}
+.jlabel b{color:var(--hd)}
+.jfull{max-height:0;overflow:hidden;transition:max-height .5s ease}
+.jfull.open{max-height:240px}
+.jscroll{overflow-x:auto;margin-top:8px;border:1px solid var(--lineDim);border-radius:10px;background:var(--panel)}
+
 /* ── find-it-fast row: search + status chips + fresh-ink strip ── */
 .searchrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 10px}
 .searchrow input{flex:1;min-width:180px;background:var(--panel);border:1px solid var(--lineDim);
@@ -447,6 +465,16 @@ h2 .n{color:var(--hdim);margin-right:8px}
   </div>
 </div>
 
+<!-- ══════════ 4b · THE JOURNEY ══════════ -->
+<h2><span class="n">04b</span>THE JOURNEY — the glowing stone is where you stand</h2>
+<div class="sub">Sits directly under the Today hero in the real hub. The strip answers "where am I?" at a glance — tap it to unfurl the full 8-month road (drag sideways). ⛩ gates mark module boundaries. In the real hub, tapping a stone jumps to that session's scroll.</div>
+
+<div class="card">
+  <div class="jstrip" id="jstrip" onclick="jtog()"></div>
+  <div class="jlabel" id="jlabel"></div>
+  <div class="jfull" id="jfull"><div class="jscroll" id="jroad"></div></div>
+</div>
+
 <!-- ══════════ 5 · THE CATALOG ══════════ -->
 <h2><span class="n">05</span>THE CATALOG — one corpus, three clean cuts</h2>
 <div class="sub">The hub's other tabs (the Web in §03 is the fourth, and the default landing). These are your <b>real files</b> — 🎬 deck links open right here, offline; 📜 notes open GitHub-rendered. 📌 = the consolidated doc slot, pinned at the top of its arc.</div>
@@ -631,6 +659,71 @@ ct.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
   ct.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
   ['pC','pS','pT'].forEach(p=>document.getElementById(p).classList.toggle('on',p===b.dataset.pane));
 });
+
+// ── the journey road: every course session as a stone; glowing = you are here ──
+const ROAD=[
+ ['Py','6/6','Foundation'],['Prob','7/6','Foundation'],['LinAlg','13/6','Foundation'],['Calc','14/6','Foundation'],
+ ['s1','20/6','M1·ML'],['s2','27/6','M1·ML'],['s3','4/7','M1·ML'],['s4','11/7','M1·ML'],['s5','18/7','M1·ML'],['s6','19/7','M1·ML'],
+ ['s7','25/7','M2·DL'],['s8','1/8','M2·DL'],['s9','8/8','M2·DL'],['s10','16/8','M2·DL'],['s11','22/8','M2·DL'],['s12','23/8','M2·DL'],
+ ['s13','29/8','M3·NLP'],['s14','5/9','M3·NLP'],['s15','12/9','M3·NLP'],['s16','19/9','M3·NLP'],['s17','20/9','M3·NLP'],
+ ['s18','26/9','M4·GenAI'],['s19','3/10','M4·GenAI'],['s20','10/10','M4·GenAI'],['s21','24/10','M4·GenAI'],['s22','31/10','M4·GenAI'],['s23','1/11','M4·GenAI'],
+ ['s24','21/11','M5·RAG'],['s25','28/11','M5·RAG'],['s26','5/12','M5·RAG'],['s27','12/12','M5·RAG'],['s28','13/12','M5·RAG'],
+ ['s29','19/12','M6·Agents'],['s30','26/12','M6·Agents'],['s31','2/1','M6·Agents'],['s32','9/1','M6·Agents'],['🏁','10/1','M6·Agents']
+];
+const NOW=6;  // index of s3 — today's class
+let jCurX=0;
+function jrenderStrip(){
+  const mods=[...new Set(ROAD.map(r=>r[2]))];
+  document.getElementById('jstrip').innerHTML=mods.map(m=>{
+    const idx=ROAD.map((r,i)=>i).filter(i=>ROAD[i][2]===m);
+    const n=idx.length, done=idx.filter(i=>i<NOW).length+(idx.includes(NOW)?0.5:0);
+    const dot=idx.includes(NOW)?`<span class="jdot" style="left:${done/n*100}%"></span>`:'';
+    return `<div class="jseg" style="flex:${n}"><span class="mtag">${m.split('·')[0]}</span>
+      <span class="fill" style="width:${Math.min(done/n*100,100)}%"></span>${dot}</div>`;
+  }).join('');
+  document.getElementById('jlabel').innerHTML=
+    `🌀 <b>YOU ARE HERE — s3 · Decision Trees &amp; SVMs</b> · today (4 Jul) · Module 1 `
+    +`<i style="color:var(--hdim)">&nbsp;▸ tap the strip to unfurl the whole road</i>`;
+}
+function jrenderRoad(){
+  let x=40, out=[];
+  ROAD.forEach((r,i)=>{
+    if(i>0&&r[2]!==ROAD[i-1][2]){
+      out.push(`<text x="${x-4}" y="66" text-anchor="middle" font-size="16">⛩</text>`
+        +`<text x="${x-4}" y="24" text-anchor="middle" font-size="9" style="fill:var(--hdim)">${r[2]}</text>`);
+      x+=28;
+    }
+    const done=i<NOW, cur=i===NOW;
+    if(cur){ jCurX=x;
+      out.push(`<circle cx="${x}" cy="60" r="11" fill="none" style="stroke:var(--chakra)">`
+        +`<animate attributeName="r" values="9;15;9" dur="1.6s" repeatCount="indefinite"/>`
+        +`<animate attributeName="opacity" values=".9;.1;.9" dur="1.6s" repeatCount="indefinite"/></circle>`
+        +`<circle cx="${x}" cy="60" r="7.5" style="fill:var(--chakraHi)"/>`);
+    } else if(done){
+      out.push(`<circle cx="${x}" cy="60" r="6.5" style="fill:var(--chakra)" opacity=".85"/>`);
+    } else {
+      out.push(`<circle cx="${x}" cy="60" r="6.5" fill="none" stroke-dasharray="2.5 2.5" style="stroke:var(--hdim)"/>`);
+    }
+    out.push(`<text x="${x}" y="${cur?40:44}" text-anchor="middle" font-size="${cur?11:9}" font-weight="${cur?'bold':'normal'}" style="fill:var(--${cur?'hd':'inkd'})">${r[0]}</text>`);
+    out.push(`<text x="${x}" y="82" text-anchor="middle" font-size="8" style="fill:var(--hdim)">${r[1]}</text>`);
+    if(cur) out.push(`<text x="${x}" y="102" text-anchor="middle" font-size="9" style="fill:var(--chakra)">▲ TODAY</text>`);
+    x+=40;
+  });
+  const w=x+16;
+  document.getElementById('jroad').innerHTML=
+    `<svg width="${w}" height="112" viewBox="0 0 ${w} 112" style="display:block">`
+    +`<line x1="20" y1="60" x2="${w-16}" y2="60" style="stroke:var(--lineDim)" stroke-width="2"/>`
+    +out.join('')+`</svg>`;
+}
+window.jtog=function(){
+  const f=document.getElementById('jfull'); f.classList.toggle('open');
+  if(f.classList.contains('open')){
+    const road=document.getElementById('jroad');
+    if(!road.innerHTML) jrenderRoad();
+    setTimeout(()=>{road.scrollLeft=Math.max(0,jCurX-160);},80);  // auto-center on today's stone
+  }
+};
+jrenderStrip();
 
 // palette switcher — remembers your pick
 const bar=document.getElementById('palbar');

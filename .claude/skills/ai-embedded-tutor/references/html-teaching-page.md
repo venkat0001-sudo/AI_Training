@@ -104,11 +104,25 @@ already explains it" — the panes will be read independently, and re-explaining
 If a case genuinely doesn't exist on one side (e.g. no repeated λ in a 2×2), fill that pane with
 the honest equivalent story, fully told — not a "see other side" note.
 
+**Gate 2b — LAYOUT DISCIPLINE (2026-07-04, added after real breakage he caught: inconsistent
+indentation + plots rendering "overly big" on some pages while fitting on others). STRICT:**
+- **Every figure/plot/SVG lives in a bounded box:** `width:100%; max-width:<designed px>` on the
+  container, size from `viewBox` only (aspect-ratio preserved) — NEVER fixed px width/height that can
+  outgrow the viewport. Embedded matplotlib images: `max-width:100%; height:auto`, and cap them
+  (e.g. `max-width:640px`) so a plot can never dwarf its step.
+- **One spacing rhythm per page:** a single `.card` padding, one margin scale, one text indent level —
+  no ad-hoc per-block indentation. If two steps look differently indented, one of them is wrong.
+- **Anything wide scrolls in its OWN container** (`overflow-x:auto` on tables/code/wide SVGs) — the
+  page body itself must never scroll horizontally.
+- **Verify at 360px AND ~1200px widths before shipping.** A page that only looks right on the width
+  it was authored at is not done.
+
 **Gate 3 — the checklist, per page, before saving:**
 - [ ] every step has ≥1 drawn visual (Gate 1 table)
 - [ ] ≥1 interactive what-if control on the page (Rule 2)
 - [ ] 1 pictorial analogy (§0)
 - [ ] side-by-side panes independently complete (Gate 2)
+- [ ] layout pass at 360px & 1200px: no figure overflows or dwarfs its step, indent rhythm consistent (Gate 2b)
 - [ ] all numbers verified, all JS ids wired, zero external deps
 
 ---
