@@ -2,7 +2,7 @@
 title: Session 2 — Linear & Logistic Regression (deck + transcript master notes)
 date: 2026-06-27
 sessions: [s2]
-concepts: [regression, gradient-descent, neural-nets, logistic-regression]
+concepts: [regression, gradient-descent, neural-nets]
 type: notes
 recap: The full 62-slide deck (incl. every handwritten annotation) + transcript — perceptron→dot product→linear/logistic regression→regularization→gradient descent (batch/SGD/mini-batch)
 ---
