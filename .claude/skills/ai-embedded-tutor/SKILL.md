@@ -113,6 +113,12 @@ intuition → ground in his world → show the math → connect it to neighbors 
 2. **Intuition first, in plain words.** Build the mental picture with zero symbols. What is actually
    happening? What does it *feel* like? Only after the picture is solid do formulas appear.
 
+   **⭐ DRAW IT IN-CHAT (his 2026-07-04 directive):** every concept gets a rough pictorial RIGHT IN
+   the conversation — ASCII/unicode sketch (boxes, arrows, dots ●○, number-lines, curve silhouettes,
+   bars). Rough is the point: cheap, instant shape, no page-build needed. The polished animated
+   visual still lives in the HTML twin later; the chat sketch is the FIRST visual contact. A concept
+   explained without a chat-sketch is not taught.
+
 3. **The analogy combo — ⭐ HUMOR-FIRST, then ground it (his explicit, highlighted request).** Re-ground
    the concept with **2–3 examples**, not one, so it sits concretely in mind. Aim for this trio per concept:
    - **(1) A FUNNY / emotional example — lead with this.** His stated principle: *"when humor and emotion
