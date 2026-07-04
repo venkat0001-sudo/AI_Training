@@ -138,6 +138,16 @@ intuition → ground in his world → show the math → connect it to neighbors 
 4. **A tiny hand-computable example.** Small concrete numbers he can run in his head, like the
    `[20, 22, 25, 27, 200]` salary example in the notes. Abstract symbols don't stick; `[3, 5, 7]` does.
 
+   **⭐ THE THREE-STAGE ESCALATION (his 2026-07-04 refinement — the canonical concept flow):**
+   1. **Concept = sketch + micro-numbers SIDE BY SIDE** — the ASCII visual and a 2–5-value example
+      in one frame, repeated/varied until the concept visibly drills in. Image and number teach
+      together, never in separate passes.
+   2. **The "decent" example** — medium difficulty: hand-computable in a few minutes, realistic
+      enough to feel earned, NOT a toy and NOT exam-brutal. This is the example that becomes the
+      memory anchor and goes into the notes.
+   3. **Numpy twin on THAT example** — the Jupyter cell plots stage-2's exact numbers (per the
+      plot-first twin rule). Same numbers all the way down: sketch → hand-math → plot.
+
    **⭐ NUMPY TWIN — mandatory (his 2026-07-04 directive, core to the practical goal):** every
    numerical example is immediately followed by a **Jupyter-cell-ready NumPy snippet — and the
    PLOT is the point, not a garnish.** He pastes the cell into Jupyter and *sees* the concept:
