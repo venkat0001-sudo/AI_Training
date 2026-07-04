@@ -56,6 +56,32 @@ This is an end-to-end "Intro to ML" deck. It opens by motivating ML through appl
 
 ---
 
+## 🧮 Math Blueprint (verified from THIS doc — 2026-07-04)
+
+> The math this session actually uses, checked term-by-term against the doc (not from memory).
+> `owned ✅ · refresh 🔸 · gap 🆕`. The ⭐-tagged rows are ALSO in Session 2 — prep them once, clear both.
+
+| Math fundamental | Where | Status |
+|---|---|---|
+| ⭐ **Cross-entropy loss** `L_CE = −log(p_true)` | §6 · S34–35 | 🆕 gap |
+| ⭐ **MSE loss** `(1/n)Σ(Yᵢ−Ŷᵢ)²` | §6 · S36–38 | 🔸 refresh |
+| ⭐ **Gradient descent vs closed-form** + learning rate | §8 · S40–44 | 🔸 owned basics (Calc_F) |
+| ⭐ **Derivative** (sign = increasing/decreasing) | §8 | ✅ owned |
+| ⭐ **Overfitting / underfitting** (bias vs variance) | §12 · S57–58 | ✅ conceptual |
+| **Confusion matrix** · Type I (FP) / Type II (FN) | §15 · S64–65 | 🆕 gap |
+| **Accuracy / Precision / Recall / F1** (harmonic mean) | §16 · S66 | 🆕 gap |
+| **K-fold cross-validation** (fold averaging + variance) | §13 · S60–62 | 🔸 half-owned |
+| **Parametric vs non-parametric** | §9 · S45–46 | 🆕 concept |
+| **Curse of dimensionality** | §10 · S52 | 🆕 concept |
+| mean / median / mode / variance | early | ✅ owned |
+
+**NOT in this session** (do not prep for S1): quartiles, IQR, percentiles, z-score, min-max, correlation, dot product, sigmoid, logistic regression.
+
+**S1 ∩ S2 shared cluster** (the ⭐ rows): **cross-entropy · MSE · gradient descent + learning rate**.
+Full three-way map lives in `2026-06-27_s2-linear-logistic-regression-ppt-notes_s2.md` → Math Blueprint.
+
+---
+
 ## 1. Motivation & Data Types (Slides 1–11)
 
 - **Slide 1 — Title:** "Introduction to Machine Learning." Mahesh Mohan M R, Department of AI, IIT Kharagpur.

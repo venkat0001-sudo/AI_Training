@@ -320,6 +320,48 @@ Epoch:                 iters/epoch = dataset_size ÷ batch_size
 
 ---
 
+## 13.5 🧮 Math Blueprint — S1 · S2 · shared (verified from both docs, 2026-07-04)
+
+> Every math tool checked term-by-term against the actual notes. `owned ✅ · refresh 🔸 · gap 🆕`.
+> **Prep strategy: do the SHARED cluster once → clears both sessions.**
+
+### ⭐ SHARED — in BOTH Session 1 and Session 2
+| Math fundamental | S1 | S2 | Status |
+|---|---|---|---|
+| **Cross-entropy loss** `−log(p_true)` / `Σ[y·logp+(1−y)log(1−p)]` | §6·S34–35 | §11·S55 | 🆕 gap |
+| **MSE loss** `(1/n)Σ(y−ŷ)²` | §6·S36–38 | §10·S45,S51 | 🔸 refresh |
+| **Gradient descent + learning rate** | §8·S40–44 | §10·S47–52 | 🔸 owned basics (DUE) |
+| **Derivative** (sign → downhill) | §8 | §9·S42 | ✅ owned |
+| **Closed-form vs iterative** | §8·S40 | §9·S46 | 🔸 light |
+| **Overfitting / underfitting** | §12·S57–58 | §7·S25–29 | ✅ conceptual |
+
+### 🔵 SESSION-1 ONLY
+Confusion matrix · Type I/II (§15) · Accuracy/Precision/Recall/F1 (§16) · K-fold CV (§13) ·
+parametric vs non-parametric (§9) · curse of dimensionality (§10) · mean/median/mode/variance.
+
+### 🟢 SESSION-2 ONLY
+| Math fundamental | Where | Status |
+|---|---|---|
+| **Dot product / `wᵀx`** (neuron core) | S14–16,20 | ✅ owned (LinAlg_F) |
+| **Magnitude & cosine** `|r||w|cosθ` | S16 | ✅ owned |
+| **Hyperplane / decision boundary** `wᵀx=0` | S17–20 | 🔸 new use |
+| **Linear model + bias**, signum/threshold | S19,S23 | ✅ owned |
+| **L1 / L2 norms → Ridge/Lasso** | S27–29 | ✅ owned (norms section!) |
+| **Polynomial features** (x², x³) | S25 | 🔸 light |
+| **Exponential eˣ / sigmoid + limits** | S31–33 | 🆕 gap |
+| **Odds / log-odds + log rules** `log(ab)=log a+log b` | S35–36,55 | 🆕 gap |
+| **Partial derivatives / gradient** | S43 | 🔸 refresh |
+| **⭐ Chain rule** `∂E/∂θ = ∂E/∂F·∂F/∂θ` | S52,S56 | 🆕 **KEYSTONE** |
+| 2nd-derivative minima test `d²y/dx²` | S46 | 🔸 light |
+| **Maximum likelihood** (∏ of independent probs) | S54–55 | 🆕 gap |
+| **Batch / SGD / Mini-batch**, epochs vs iterations | S57–62 | 🆕 (easy) |
+
+**The keystone:** the **chain rule** powers the MSE *and* cross-entropy gradients in the shared block —
+so it's the first domino for BOTH sessions (and unblocks s3's entropy math too). Sprint order:
+**chain rule → cross-entropy → MSE gradient → gradient descent.**
+
+---
+
 ## 14. Where this sits in the web + edge-AI grades
 
 - **Builds on:** dot/cosine (Linear-Algebra_F), derivatives & gradient descent (Calculus_F),
