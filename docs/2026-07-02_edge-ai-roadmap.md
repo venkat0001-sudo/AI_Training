@@ -1,3 +1,12 @@
+---
+title: Edge-AI roadmap — the north star
+date: 2026-07-02
+sessions: []
+concepts: [edge-ai]
+type: map
+recap: Goal, market data, storage×AI unfair advantage, the 6-rung project ladder
+---
+
 # Edge-AI Roadmap — from SSD-firmware engineer to exceptional Edge-AI engineer
 
 > The north star doc. Goal → what the market wants → the unfair advantage → skill stack → project

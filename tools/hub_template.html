@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="en" data-theme="midnight">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🍥 Rasengan Path — AI Learning Hub</title>
+<style>
+/* ───────── semantic tokens · palettes (Rasengan Midnight = default) ───────── */
+:root{
+  --bgA:#070b14; --bgB:#0a1120; --bgC:#0c0f1c;
+  --card:rgba(16,26,48,.72); --panel:#080d1a;
+  --line:rgba(90,143,191,.35); --lineDim:rgba(90,143,191,.2);
+  --ink:#e9eff7; --inkd:#a9b6c9; --hd:#9fe8ff; --hdim:#5f7d9a;
+  --acc:#ff9433; --accg:#ffb347; --accDim:#5a3a14; --accA:rgba(255,148,51,.15);
+  --gold:#ffd75e; --num2:#7fd4c0;
+  --chakra:#9fe8ff; --chakraHi:#ffffff; --chakraA:rgba(159,232,255,.12); --chakraEdge:rgba(159,232,255,.38);
+}
+html[data-theme="hokage"]{--bgA:#120d07;--bgB:#171008;--bgC:#1b1207;--card:rgba(42,30,16,.72);--panel:#140e07;
+ --line:rgba(255,140,0,.26);--lineDim:rgba(201,160,90,.22);--ink:#f5e6c8;--inkd:#c9b28c;--hd:#ffb054;--hdim:#a67f4f;
+ --acc:#ff8c00;--accg:#ffb347;--accDim:#7a4a10;--accA:rgba(255,140,0,.16);--gold:#ffce4a;--num2:#8fd8ff;
+ --chakra:#8fd8ff;--chakraHi:#eaf7ff;--chakraA:rgba(143,216,255,.13);--chakraEdge:rgba(143,216,255,.35)}
+html[data-theme="kurama"]{--bgA:#140705;--bgB:#1a0a06;--bgC:#1d0c05;--card:rgba(52,18,10,.68);--panel:#160906;
+ --line:rgba(255,94,58,.3);--lineDim:rgba(255,94,58,.16);--ink:#f7e3d2;--inkd:#cfa78f;--hd:#ff7a4d;--hdim:#a05435;
+ --acc:#ffc93c;--accg:#ffe08a;--accDim:#6e5312;--accA:rgba(255,201,60,.14);--gold:#ffce4a;--num2:#ffb347;
+ --chakra:#ff9d6b;--chakraHi:#ffe9d9;--chakraA:rgba(255,157,107,.14);--chakraEdge:rgba(255,157,107,.4)}
+html[data-theme="scroll"]{--bgA:#16110a;--bgB:#1b150c;--bgC:#1e170d;--card:rgba(52,42,26,.7);--panel:#171106;
+ --line:rgba(203,187,149,.28);--lineDim:rgba(203,187,149,.16);--ink:#efe3c6;--inkd:#bfae8c;--hd:#e8d5a8;--hdim:#9c8b64;
+ --acc:#e04e39;--accg:#ff7a5c;--accDim:#6b2419;--accA:rgba(224,78,57,.14);--gold:#ffce4a;--num2:#8fbf9f;
+ --chakra:#9fd8e8;--chakraHi:#eefaff;--chakraA:rgba(159,216,232,.12);--chakraEdge:rgba(159,216,232,.35)}
+html[data-theme="sage"]{--bgA:#0c1607;--bgB:#0e1f0a;--bgC:#171708;--card:rgba(20,40,12,.72);--panel:#0a1206;
+ --line:rgba(74,122,46,.5);--lineDim:rgba(74,122,46,.3);--ink:#f5e6c8;--inkd:#cbbb95;--hd:#a8c87a;--hdim:#7a9e5a;
+ --acc:#ff8c00;--accg:#ffb347;--accDim:#6b4a10;--accA:rgba(255,140,0,.15);--gold:#ffce4a;--num2:#27c2a8;
+ --chakra:#9fe8ff;--chakraHi:#ffffff;--chakraA:rgba(159,232,255,.12);--chakraEdge:rgba(159,232,255,.35)}
+
+*{box-sizing:border-box;margin:0;padding:0}
+.sp{flex:1}
+body{background:linear-gradient(135deg,var(--bgA),var(--bgB) 55%,var(--bgC));color:var(--ink);
+  font-family:'Courier New',monospace;line-height:1.6;min-height:100vh;padding-bottom:96px;transition:background .35s}
+a{color:var(--ink)}
+.chakra-line{position:fixed;top:0;left:0;right:0;height:3px;z-index:50;
+  background:linear-gradient(90deg,var(--accDim),var(--acc),var(--chakra),var(--acc),var(--accDim));
+  background-size:300% 100%;animation:chakraflow 9s linear infinite;box-shadow:0 0 8px var(--accA)}
+@keyframes chakraflow{to{background-position:300% 0}}
+.nindo{max-width:1020px;margin:14px auto 0;padding:0 18px;text-align:center;
+  font-size:.76em;font-style:italic;color:var(--gold);opacity:.85}
+.nindo b{color:var(--accg);font-style:normal}
+.wrap{max-width:1020px;margin:0 auto;padding:8px 16px}
+
+header{display:flex;align-items:center;gap:14px;margin:14px 0 10px}
+.uzu{width:50px;height:50px;flex:0 0 auto}
+.uzu .spin{animation:slowspin 40s linear infinite;transform-origin:50% 50%}
+@keyframes slowspin{to{transform:rotate(360deg)}}
+.uzu .h1p{stroke:var(--acc);animation:huep 6s ease-in-out infinite alternate}
+.uzu .h2p{stroke:var(--hd);animation:huep 6s ease-in-out infinite alternate-reverse}
+@keyframes huep{from{opacity:.15}to{opacity:.95}}
+h1{font-size:1.18em;color:var(--hd);letter-spacing:.5px}
+h1 small{display:block;font-size:.6em;color:var(--inkd);font-weight:normal}
+
+.card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:14px 16px;margin:12px 0;overflow:hidden;transition:background .35s,border-color .35s}
+.engrave{position:absolute;pointer-events:none;color:var(--ink);z-index:0}
+.engrave.corner{right:-30px;bottom:-34px;width:150px;height:150px;opacity:.05}
+.card>:not(.engrave){position:relative;z-index:1}
+.muted{color:var(--inkd);font-size:.82em}
+
+/* hero */
+.hero{display:flex;align-items:center;gap:16px;
+  background:linear-gradient(135deg,var(--accA),var(--card));border:1px solid var(--acc)}
+.hero .big{font-size:1em;color:var(--accg)}
+.hero .cta{display:inline-block;margin-top:6px;padding:8px 16px;border:1px solid var(--acc);
+  border-radius:8px;color:var(--acc);text-decoration:none;font-size:.84em}
+.hero .cta:hover{background:var(--acc);color:var(--bgA)}
+#deckStat{font-size:.74em;color:var(--inkd)}
+
+/* journey strip + pilgrim path */
+.jstrip{display:flex;gap:4px;align-items:center;cursor:pointer;padding:16px 0 4px}
+.jseg{position:relative;height:11px;border-radius:6px;background:var(--panel);border:1px solid var(--lineDim)}
+.jseg .fill{position:absolute;left:0;top:0;bottom:0;border-radius:6px;
+  background:linear-gradient(90deg,var(--chakraA),var(--chakra))}
+.jseg .mtag{position:absolute;top:-15px;left:50%;transform:translateX(-50%);
+  font-size:.6em;color:var(--hdim);white-space:nowrap}
+.jdot{position:absolute;top:50%;width:15px;height:15px;border-radius:50%;
+  transform:translate(-50%,-50%);background:radial-gradient(circle at 35% 30%,var(--chakraHi),var(--chakra));
+  border:2px solid var(--chakraHi);animation:jglow 1.6s ease-in-out infinite;z-index:2}
+@keyframes jglow{0%,100%{box-shadow:0 0 4px var(--chakra)}50%{box-shadow:0 0 16px var(--chakra),0 0 26px var(--chakraA)}}
+.jlabel{font-size:.76em;color:var(--inkd);margin-top:8px}
+.jlabel b{color:var(--hd)}
+.jfull{max-height:0;overflow:hidden;transition:max-height .55s ease}
+.jfull.open{max-height:4200px}
+.ppath{position:relative;margin:14px 0 4px;padding:4px 0}
+.ppath::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,var(--chakraEdge),var(--lineDim));transform:translateX(-50%)}
+.prow{position:relative;display:grid;grid-template-columns:1fr 46px 1fr;align-items:center;min-height:46px}
+.prow .txt{font-size:.76em;color:var(--inkd);padding:2px 10px}
+.prow .txt b{color:var(--ink);font-size:1.02em}
+.prow.L .txt.left{text-align:right}
+.prow .stone{grid-column:2;display:flex;justify-content:center;cursor:pointer}
+.prow.cur .txt b{color:var(--hd)}
+.prow.cur{background:linear-gradient(90deg,transparent,var(--chakraA),transparent);border-radius:10px}
+.ptorii{position:relative;text-align:center;margin:10px 0 4px}
+.ptorii svg{width:52px;height:36px;display:block;margin:0 auto}
+.ptorii .mname{font-size:.68em;color:var(--hd);letter-spacing:2px}
+
+/* find-it-fast */
+.searchrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0 6px}
+.searchrow input{flex:1;min-width:170px;background:var(--panel);border:1px solid var(--lineDim);
+  border-radius:18px;color:var(--ink);font-family:inherit;font-size:.84em;padding:8px 14px;outline:none}
+.searchrow input:focus{border-color:var(--acc);box-shadow:0 0 6px var(--accA)}
+#fchips button{font-family:inherit;font-size:.72em;color:var(--ink);background:transparent;
+  border:1px solid var(--lineDim);border-radius:16px;padding:5px 10px;cursor:pointer;margin-left:4px}
+#fchips button.on{border-color:var(--acc);color:var(--accg);box-shadow:0 0 6px var(--accA)}
+.recentBox{margin:2px 0 8px}
+.recentBox .lbl{font-size:.68em;color:var(--hdim);letter-spacing:1.5px;margin-bottom:2px}
+
+/* tabs */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}
+.tabs button{font-family:inherit;font-size:.78em;color:var(--ink);background:transparent;
+  border:1px solid var(--lineDim);border-radius:18px;padding:7px 14px;cursor:pointer}
+.tabs button.on{border-color:var(--acc);color:var(--accg);box-shadow:0 0 6px var(--accA)}
+.pane{display:none}.pane.on{display:block}
+
+/* web view */
+.webbox{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:auto;max-height:70vh}
+.webbox svg{display:block}
+.wlane{fill:var(--hdim);font-size:11px;letter-spacing:1px}
+.wlab{fill:var(--ink);font-size:10.5px}
+.wlabd{fill:var(--inkd);font-size:10.5px;opacity:.75}
+.edgeLit{stroke:var(--chakraEdge)} .edgeDark{stroke:var(--lineDim)}
+.pulse{fill:var(--chakra)}
+.svgChak{stroke:var(--chakra)} .svgChakF{fill:var(--chakraA)} .svgChakHi{stroke:var(--chakraHi)}
+.svgAcc{stroke:var(--acc)} .svgAccF{fill:var(--accA)} .ghost{stroke:var(--hdim)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:.72em;color:var(--inkd);margin-top:8px}
+.legend span{display:flex;align-items:center;gap:5px}
+.ldot{width:10px;height:10px;border-radius:50%;display:inline-block}
+
+/* node panel (bottom sheet) */
+#npanel{position:fixed;left:0;right:0;bottom:0;z-index:70;background:var(--panel);
+  border-top:2px solid var(--acc);max-height:52vh;overflow-y:auto;padding:14px 18px 20px;
+  transform:translateY(105%);transition:transform .3s ease;box-shadow:0 -8px 30px rgba(0,0,0,.5)}
+#npanel.open{transform:none}
+#npanel h3{color:var(--hd);font-size:1em}
+#npanel .st{font-size:.74em;color:var(--accg);margin-bottom:6px}
+#npanel h4{color:var(--acc);font-size:.8em;margin:10px 0 3px;letter-spacing:1px}
+#npanel li{font-size:.8em;color:var(--inkd);margin-left:18px}
+#npanel li b{color:var(--ink)}
+#npanel a{color:var(--chakra)}
+#npClose{position:absolute;top:8px;right:12px;background:none;border:1px solid var(--lineDim);
+  color:var(--ink);border-radius:14px;padding:3px 12px;cursor:pointer;font-family:inherit}
+
+/* items + scrolls (summoning-contract skin — paper constants fixed across palettes) */
+.item{display:flex;align-items:center;gap:9px;padding:7px 6px;border-bottom:1px dashed var(--lineDim);font-size:.83em}
+.item:last-child{border-bottom:none}
+.item a{color:var(--ink);text-decoration:none}
+.item a:hover{color:var(--accg);text-decoration:underline}
+.badge{font-size:.68em;color:var(--inkd);border:1px solid var(--lineDim);border-radius:10px;padding:1px 8px;white-space:nowrap}
+.badge.sess{color:var(--hd)}
+.pin{border:1px dashed var(--gold);border-radius:8px;padding:8px 10px;margin:8px 0 4px;font-size:.8em;color:var(--gold);
+  display:flex;gap:10px;align-items:center;background:var(--panel)}
+.scroll{margin:16px 8px;position:relative}
+.scrollHead{width:100%;display:flex;align-items:center;cursor:pointer;font-family:inherit;
+  position:relative;padding:7px 26px;font-size:.9em;text-align:left;border:1px solid #000;border-radius:13px;
+  background:linear-gradient(90deg,#7e1c14 0 16px,transparent 16px calc(100% - 16px),#7e1c14 calc(100% - 16px)),
+    linear-gradient(180deg,#33333a,#1a1a1f 55%,#0a0a0d);
+  box-shadow:0 4px 10px rgba(0,0,0,.55), inset 0 2px 3px rgba(255,255,255,.10), inset 0 -3px 5px rgba(0,0,0,.6)}
+.scrollHead:hover{box-shadow:0 4px 12px rgba(0,0,0,.55),0 0 8px var(--chakraA),inset 0 2px 3px rgba(255,255,255,.10)}
+.scrollHead::before,.scrollHead::after{content:"";position:absolute;top:50%;transform:translateY(-50%);
+  width:12px;height:78%;border-radius:6px;border:1px solid #000;
+  background:radial-gradient(circle at 35% 28%,#4a4a52,#101014)}
+.scrollHead::before{left:-9px}.scrollHead::after{right:-9px}
+.scroll.open .scrollHead{border-bottom-left-radius:0;border-bottom-right-radius:0}
+.scrollHead .wrapb{flex:1;display:flex;align-items:center;gap:10px;min-width:0;padding:6px 12px;border-radius:4px;color:#2f2415;
+  background:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.30 0 0 0 0 0.24 0 0 0 0 0.14 0 0 0 0.28 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(180deg,#cfc6a8,#efe8d2 30%,#f4eeda 55%,#e6dec2 85%,#c9c0a0);
+  box-shadow:0 1px 4px rgba(0,0,0,.5), inset 0 0 8px rgba(110,90,50,.22)}
+.inkTitle{color:#2f2415;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.inkTitle .when{color:#7e1c14;font-size:.78em;font-weight:normal}
+.unroll{font-size:.64em;color:#6b5a3a;white-space:nowrap;font-style:italic}
+.scrollHead .stat{color:#5c4c2c;font-weight:normal;font-size:.7em;white-space:nowrap}
+.seal{width:29px;height:29px;border-radius:50%;flex:0 0 auto;transform:rotate(-6deg);
+  background:radial-gradient(circle at 38% 32%,#d24a3a,#9b2318 70%,#7a1a10);color:#f7e3c8;
+  display:inline-flex;align-items:center;justify-content:center;font-size:.68em;font-weight:bold;
+  border:2px solid #6e150c;box-shadow:0 1px 3px rgba(0,0,0,.5)}
+.scrollBody{max-height:0;overflow:hidden;transition:max-height .5s ease}
+.scroll.open .scrollBody{max-height:2400px}
+.paper{position:relative;padding:14px 20px 16px;color:#2f2415;
+  border-left:1px solid #6b5a3a;border-right:1px solid #6b5a3a;
+  border-top:7px solid #7e1c14;border-bottom:7px solid #7e1c14;
+  box-shadow:inset 0 2px 0 rgba(0,0,0,.25), inset 0 -2px 0 rgba(0,0,0,.25);
+  background:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.30 0 0 0 0 0.24 0 0 0 0 0.14 0 0 0 0.30 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 18% 8%, rgba(110,88,45,.10), transparent 55%),
+    radial-gradient(ellipse at 85% 92%, rgba(110,88,45,.13), transparent 50%),
+    linear-gradient(90deg,#ded5b8,#efe8d2 8%,#f4eeda 50%,#efe8d2 92%,#d8cfae)}
+.paper>*{position:relative;z-index:1}
+.paper .mark{position:absolute;z-index:0;pointer-events:none}
+.paper .mkArray{inset:0;margin:auto;width:min(72%,320px);height:82%;opacity:.075;color:#241c10}
+.paper .mkNinja{right:12px;bottom:16px;width:80px;height:80px;opacity:.085;color:#241c10}
+.paper .mkKanji{top:14px;right:8px;writing-mode:vertical-rl;font-size:1.1em;font-weight:bold;
+  color:rgba(126,28,20,.26);letter-spacing:7px;font-family:'Hiragino Mincho ProN','Yu Mincho',serif}
+.paper::after{content:"";position:absolute;left:0;right:0;bottom:0;height:14px;z-index:2;
+  background:linear-gradient(180deg,transparent,rgba(50,35,15,.22))}
+.rodBot{position:relative;height:16px;border-radius:8px;border:1px solid #000;
+  background:linear-gradient(90deg,#7e1c14 0 16px,transparent 16px calc(100% - 16px),#7e1c14 calc(100% - 16px)),
+    linear-gradient(180deg,#33333a,#1a1a1f 55%,#0a0a0d);
+  box-shadow:0 4px 8px rgba(0,0,0,.55), inset 0 2px 3px rgba(255,255,255,.08)}
+.rodBot::before,.rodBot::after{content:"";position:absolute;top:50%;transform:translateY(-50%);
+  width:14px;height:24px;border-radius:6px;border:1px solid #000;
+  background:radial-gradient(circle at 35% 28%,#4a4a52,#101014)}
+.rodBot::before{left:-10px}.rodBot::after{right:-10px}
+.paper .item{border-bottom:1px dashed rgba(110,80,40,.4)}
+.paper .item a{color:#41301a;font-weight:bold}
+.paper .item a:hover{color:#8f1f18}
+.paper .badge{color:#6b4f2a;border-color:rgba(110,80,40,.5)}
+.paper .badge.sess{color:#8f1f18}
+.paper .snote{color:#6b4f2a;font-size:.78em;font-style:italic;margin:4px 0}
+.paper .pin{background:rgba(190,40,25,.07);border:2px solid #a8281c;color:#8f1f18;border-radius:6px;transform:rotate(-.5deg)}
+
+.tl .d{color:var(--acc);margin-top:12px;font-weight:bold;font-size:.84em}
+.foot{margin-top:26px;padding-top:10px;border-top:1px solid var(--line);font-size:.72em;color:var(--inkd)}
+
+/* palette bar */
+.palbar{position:fixed;bottom:0;left:0;right:0;z-index:60;background:rgba(6,8,14,.9);backdrop-filter:blur(6px);
+  border-top:1px solid var(--line);padding:8px 10px;display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+.palbar button{font-family:inherit;font-size:.7em;color:var(--ink);background:transparent;
+  border:1px solid var(--lineDim);border-radius:18px;padding:5px 11px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.palbar button.on{border-color:var(--acc);box-shadow:0 0 6px var(--accA)}
+.palbar i{width:9px;height:9px;border-radius:50%;display:inline-block}
+@media(max-width:640px){header{gap:10px}.hero{flex-direction:column;align-items:flex-start}.prow .txt{font-size:.7em}}
+</style>
+</head>
+<body>
+
+<div class="chakra-line"></div>
+<div class="nindo" id="nindo"></div>
+
+<div class="wrap">
+
+<header>
+  <svg class="uzu" viewBox="-30 -30 60 60" aria-label="Uzumaki spiral"><g class="spin">
+    <path class="h1p" d="M0,0 a3,3 0 0 1 6,0 a6,6 0 0 1 -12,0 a9,9 0 0 1 18,0 a12,12 0 0 1 -24,0 a15,15 0 0 1 30,0 a18,18 0 0 1 -36,0 a21,21 0 0 1 42,0" fill="none" stroke-width="2.6" stroke-linecap="round"/>
+    <path class="h2p" d="M0,0 a3,3 0 0 1 6,0 a6,6 0 0 1 -12,0 a9,9 0 0 1 18,0 a12,12 0 0 1 -24,0 a15,15 0 0 1 30,0 a18,18 0 0 1 -36,0 a21,21 0 0 1 42,0" fill="none" stroke-width="2.6" stroke-linecap="round"/>
+  </g></svg>
+  <h1>RASENGAN PATH — AI Learning Hub
+    <small id="builtLine">every deck, note and drill of the journey — one bookmark</small></h1>
+</header>
+
+<!-- TODAY hero -->
+<div class="card hero">
+  <svg class="engrave corner" viewBox="-30 -30 60 60"><path d="M0,0 a3,3 0 0 1 6,0 a6,6 0 0 1 -12,0 a9,9 0 0 1 18,0 a12,12 0 0 1 -24,0 a15,15 0 0 1 30,0 a18,18 0 0 1 -36,0 a21,21 0 0 1 42,0 a24,24 0 0 1 -48,0" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+  <svg width="64" height="64" viewBox="-42 -42 84 84" style="flex:0 0 auto">
+    <circle class="svgChakF" r="30" opacity=".55"/><circle class="svgChak svgChakF" r="23" stroke-width="1.2"/>
+    <g><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="1.5s" repeatCount="indefinite"/>
+      <path class="svgChakHi" d="M0,0 a4,4 0 0 1 8,0 a8,8 0 0 1 -16,0 a12,12 0 0 1 24,0 a16,16 0 0 1 -32,0 a19,19 0 0 1 38,0" fill="none" stroke-width="1.6" stroke-linecap="round"/></g>
+    <circle r="3.2" fill="#fff"/>
+  </svg>
+  <div style="min-width:0">
+    <div class="big">🃏 TODAY'S TRAINING — <b id="dueCount"></b></div>
+    <div class="muted" id="dueList"></div>
+    <a class="cta" href="html/today-recall-deck.html">open today's deck →</a>
+    <span id="deckStat"></span>
+  </div>
+</div>
+
+<!-- Journey -->
+<div class="card">
+  <div class="jstrip" id="jstrip" onclick="jtog()"></div>
+  <div class="jlabel" id="jlabel"></div>
+  <div class="jfull" id="jfull"><div class="ppath" id="ppath"></div></div>
+</div>
+
+<!-- find-it-fast -->
+<div class="searchrow">
+  <input id="csearch" type="search" placeholder="🔍 find a deck… ( / to focus · title, concept, session, date)">
+  <span id="fchips">
+    <button data-st="due">🟠 due</button><button data-st="lrn">💧 learning</button><button data-st="own">🌀 owned</button>
+  </span>
+</div>
+<div class="recentBox"><div class="lbl">🕘 FRESH INK — newest artifacts</div><div id="recent"></div></div>
+
+<!-- tabs -->
+<div class="tabs" id="cattabs">
+  <button data-pane="pW" class="on" id="tW">🕸 Web</button>
+  <button data-pane="pC" id="tC">📚 Concepts</button>
+  <button data-pane="pS" id="tS">🗓 Sessions</button>
+  <button data-pane="pT" id="tT">📆 Timeline</button>
+</div>
+
+<div id="pW" class="pane on">
+  <div class="webbox" id="webbox"></div>
+  <div class="legend">
+    <span><span class="ldot" style="background:var(--chakra)"></span>🌀 owned — chakra flows on</span>
+    <span><span class="ldot" style="background:var(--acc)"></span>🟠 due — under training</span>
+    <span><span class="ldot" style="border:1.5px solid var(--chakra);background:transparent"></span>💧 learning</span>
+    <span><span class="ldot" style="border:1.5px dashed var(--hdim);background:transparent"></span>upcoming — path not yet opened</span>
+    <span>· tap a node for its artifacts + links</span>
+  </div>
+</div>
+<div id="pC" class="pane"></div>
+<div id="pS" class="pane"></div>
+<div id="pT" class="pane"></div>
+
+<div class="foot">Built by the end-of-session routine (<code>tools/build_hub.py</code>) · notes open GitHub-rendered ·
+decks run right here, offline · engravings ≤5% · one quote per page · zero external deps. Theme whispers; math speaks. 🍥</div>
+</div><!-- /wrap -->
+
+<!-- node panel -->
+<div id="npanel">
+  <button id="npClose" onclick="npClose()">✕ close</button>
+  <div id="npBody"></div>
+</div>
+
+<!-- palette bar -->
+<div class="palbar" id="palbar">
+  <button data-pal="midnight"><i style="background:#0a1120"></i><i style="background:#9fe8ff"></i><i style="background:#ff9433"></i>🌀 Midnight</button>
+  <button data-pal="hokage"><i style="background:#171008"></i><i style="background:#ff8c00"></i><i style="background:#ffb054"></i>🍥 Hokage</button>
+  <button data-pal="kurama"><i style="background:#1a0a06"></i><i style="background:#ff7a4d"></i><i style="background:#ffc93c"></i>🦊 Kurama</button>
+  <button data-pal="scroll"><i style="background:#1b150c"></i><i style="background:#e8d5a8"></i><i style="background:#e04e39"></i>📜 Ink</button>
+  <button data-pal="sage"><i style="background:#0e1f0a"></i><i style="background:#a8c87a"></i><i style="background:#ff8c00"></i>🐸 Sage</button>
+</div>
+
+<!-- engraving + torii symbols -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="mkArraySym" viewBox="0 0 200 200">
+  <circle cx="100" cy="100" r="30" fill="none" stroke="currentColor" stroke-width="2.5"/>
+  <circle cx="100" cy="100" r="38" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="100" y="113" text-anchor="middle" font-size="36" fill="currentColor" font-family="'Hiragino Mincho ProN','Yu Mincho',serif">忍</text>
+  <g id="mkRay"><line x1="100" y1="52" x2="100" y2="8" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="5 3 2 3 6 2 3 4"/></g>
+  <use href="#mkRay" transform="rotate(22.5 100 100)"/><use href="#mkRay" transform="rotate(45 100 100)"/>
+  <use href="#mkRay" transform="rotate(67.5 100 100)"/><use href="#mkRay" transform="rotate(90 100 100)"/>
+  <use href="#mkRay" transform="rotate(112.5 100 100)"/><use href="#mkRay" transform="rotate(135 100 100)"/>
+  <use href="#mkRay" transform="rotate(157.5 100 100)"/><use href="#mkRay" transform="rotate(180 100 100)"/>
+  <use href="#mkRay" transform="rotate(202.5 100 100)"/><use href="#mkRay" transform="rotate(225 100 100)"/>
+  <use href="#mkRay" transform="rotate(247.5 100 100)"/><use href="#mkRay" transform="rotate(270 100 100)"/>
+  <use href="#mkRay" transform="rotate(292.5 100 100)"/><use href="#mkRay" transform="rotate(315 100 100)"/>
+  <use href="#mkRay" transform="rotate(337.5 100 100)"/>
+</symbol>
+<symbol id="mkNinjaSym" viewBox="0 0 100 100">
+  <path fill="currentColor" d="M44 36 C45 30 49 23 55 20 L60 10 L64 19 L70 12 L72 22 L79 18 L78 28
+    C82 34 83 40 82 46 C80 54 76 60 70 63 L72 76 L63 70 C59 72 55 73 52 72 L50 80 L46 70
+    C42 66 40 60 40 56 L36 54 L40 51 L37 46 L41 45 C41 42 42 39 44 36 Z"/>
+  <path fill="currentColor" opacity=".5" d="M40 39 L82 41 L82 48 L40 46 Z"/>
+  <rect x="55" y="39.5" width="13" height="8" rx="1.5" fill="currentColor" opacity=".8"/>
+  <path fill="currentColor" d="M82 42 Q94 40 98 34 L92 45 Q87 47 82 47 Z"/>
+  <path fill="currentColor" d="M82 46 Q95 50 99 47 L91 55 Q86 53 82 50 Z"/>
+</symbol>
+<symbol id="toriiSym" viewBox="0 0 60 40">
+  <path d="M3 9 Q30 1 57 9 L57 14 Q30 6.5 3 14 Z" fill="#7e1c14"/>
+  <rect x="10" y="17" width="40" height="4" rx="1" fill="#7e1c14"/>
+  <rect x="14.5" y="13" width="5.5" height="27" rx="1.5" fill="#5a1510"/>
+  <rect x="40" y="13" width="5.5" height="27" rx="1.5" fill="#5a1510"/>
+</symbol>
+</defs></svg>
+
+<script>
+/*__DATA__*/
+
+/* ───────── helpers ───────── */
+const ICO={interactive:'🎬',flashcards:'🃏','daily-deck':'🃏',notes:'📜',map:'🗺',ledger:'📋',consolidated:'📌',primer:'🧭'};
+const nodeBy=Object.fromEntries(HUB.web.nodes.map(n=>[n.slug,n]));
+const S2ST={owned:'own',due:'due',learning:'lrn',upcoming:'up'};
+function statusOf(a){ // artifact status = worst of its concepts' node statuses
+  let sts=(a.concepts||[]).map(c=>nodeBy[c]&&nodeBy[c].status).filter(Boolean);
+  if(sts.includes('due'))return 'due';
+  if(sts.includes('learning'))return 'lrn';
+  if(sts.length)return 'own';
+  return 'own';
+}
+function mini(st){
+  if(st==='own')return `<svg width="15" height="15" viewBox="-20 -20 40 40"><circle class="svgChak svgChakF" r="15" stroke-width="2"/><path class="svgChakHi" d="M0,0 a4,4 0 0 1 8,0 a8,8 0 0 1 -16,0 a12,12 0 0 1 24,0" fill="none" stroke-width="2.4"/></svg>`;
+  if(st==='due')return `<svg width="15" height="15" viewBox="-20 -20 40 40"><g><animateTransform attributeName="transform" type="translate" values="0,0;1.4,-1;-1.2,1;0,0" dur=".8s" repeatCount="indefinite"/><circle class="svgAcc svgAccF" r="14" stroke-width="2.6"/></g></svg>`;
+  return `<svg width="15" height="15" viewBox="-20 -20 40 40"><ellipse class="svgChak svgChakF" rx="15" ry="13" stroke-width="2"><animate attributeName="rx" values="15;16.5;14;15" dur="3s" repeatCount="indefinite"/><animate attributeName="ry" values="13;11.5;14;13" dur="3s" repeatCount="indefinite"/></ellipse></svg>`;
+}
+function row(a){
+  const ext=a.loc==='gh', st=statusOf(a);
+  return `<div class="item">${mini(st)}<span>${ICO[a.kind]||'📄'}</span>`
+    +`<a href="${a.href}"${ext?' target="_blank" rel="noopener"':''}>${a.title}</a><span class="sp"></span>`
+    +`<span class="badge sess">${(a.sessions&&a.sessions[0])||'—'}</span><span class="badge">${(a.date||'').slice(5)}</span></div>`;
+}
+const dueRank={due:0,lrn:1,own:2};
+function orderItems(list){ // due first, then newest
+  return [...list].sort((x,y)=>{
+    const d=dueRank[statusOf(x)]-dueRank[statusOf(y)];
+    return d!==0?d:String(y.date).localeCompare(String(x.date));
+  });
+}
+const MARKS=`<svg class="mark mkArray" viewBox="0 0 200 200"><use href="#mkArraySym"/></svg>`
+ +`<svg class="mark mkNinja" viewBox="0 0 100 100"><use href="#mkNinjaSym"/></svg>`
+ +`<span class="mark mkKanji">忍道</span>`;
+
+/* ───────── hero ───────── */
+document.getElementById('dueCount').textContent=HUB.dueTopics.length+' jutsu due';
+document.getElementById('dueList').textContent=HUB.dueTopics.slice(0,3).join(' · ')+(HUB.dueTopics.length>3?' …':'');
+document.getElementById('builtLine').textContent='every deck, note and drill — one bookmark · rebuilt '+HUB.built;
+fetch('html/today-recall-deck.html',{method:'HEAD'}).then(r=>{
+  document.getElementById('deckStat').textContent=r.ok?' · deck ready ✅':' · not populated yet (routine pending)';
+}).catch(()=>{document.getElementById('deckStat').textContent=' · (open to check — offline mode)';});
+
+/* ───────── journey: strip + pilgrim path ───────── */
+const SESS=HUB.sessions, CURI=SESS.findIndex(s=>s.id===HUB.current);
+function jrenderStrip(){
+  const lanes=[...new Set(SESS.map(s=>s.lane))];
+  document.getElementById('jstrip').innerHTML=lanes.map(l=>{
+    const idx=SESS.map((s,i)=>i).filter(i=>SESS[i].lane===l);
+    const n=idx.length, done=idx.filter(i=>i<CURI).length+(idx.includes(CURI)?0.5:0);
+    const dot=idx.includes(CURI)?`<span class="jdot" style="left:${done/n*100}%"></span>`:'';
+    const nm=l==='f'?'Foundation':l.toUpperCase();
+    return `<div class="jseg" style="flex:${n}"><span class="mtag">${nm}</span>`
+      +`<span class="fill" style="width:${Math.min(done/n*100,100)}%"></span>${dot}</div>`;
+  }).join('');
+  const c=SESS[CURI];
+  document.getElementById('jlabel').innerHTML=
+    `🌀 <b>YOU ARE HERE — ${c.id} · ${c.title}</b> · ${c.date.slice(5)} · ${c.module}`
+    +` <i style="color:var(--hdim)">&nbsp;▸ tap the strip to unfurl the road</i>`;
+}
+function pstone(state){
+  if(state==='cur')return `<svg width="40" height="40" viewBox="-21 -21 42 42">
+    <circle r="17" fill="none" class="svgChak"><animate attributeName="r" values="13;19;13" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" values=".9;.1;.9" dur="1.6s" repeatCount="indefinite"/></circle>
+    <circle class="svgChak svgChakF" r="12" stroke-width="1.4"/>
+    <g><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="1.6s" repeatCount="indefinite"/>
+      <path class="svgChakHi" d="M0,0 a3,3 0 0 1 6,0 a6,6 0 0 1 -12,0 a9,9 0 0 1 18,0" fill="none" stroke-width="1.6"/></g>
+    <circle r="2.4" fill="#fff"/></svg>`;
+  if(state==='done')return `<svg width="30" height="30" viewBox="-16 -16 32 32"><circle class="svgChak svgChakF" r="10" stroke-width="1.4"/><path class="svgChakHi" d="M0,0 a2.5,2.5 0 0 1 5,0 a5,5 0 0 1 -10,0 a7.5,7.5 0 0 1 15,0" fill="none" stroke-width="1.4"/></svg>`;
+  return `<svg width="30" height="30" viewBox="-16 -16 32 32"><circle class="ghost" r="9.5" fill="none" stroke-width="1.4" stroke-dasharray="2.5 2.5"/></svg>`;
+}
+function jrenderPath(){
+  let html='', lastLane=null;
+  SESS.forEach((s,i)=>{
+    if(s.lane!==lastLane){
+      html+=`<div class="ptorii"><svg viewBox="0 0 60 40"><use href="#toriiSym"/></svg><div class="mname">${s.module}</div></div>`;
+      lastLane=s.lane;
+    }
+    const state=i<CURI?'done':(i===CURI?'cur':'fut');
+    const side=i%2?'R':'L';
+    const info=`<b>${s.id} · ${s.title}</b><br>${s.date.slice(5)}${state==='cur'?' · <b style="color:var(--chakra)">TODAY’S GATE</b>':''}`;
+    const sid=s.id.startsWith('F')?'F':s.id;
+    html+=`<div class="prow ${side}${state==='cur'?' cur':''}" ${state==='cur'?'id="curStone"':''}>`
+      +(side==='L'?`<div class="txt left">${info}</div>`:`<div></div>`)
+      +`<div class="stone" onclick="openSession('${sid}')">${pstone(state)}</div>`
+      +(side==='R'?`<div class="txt">${info}</div>`:`<div></div>`)
+      +`</div>`;
+  });
+  document.getElementById('ppath').innerHTML=html;
+}
+window.jtog=function(){
+  const f=document.getElementById('jfull'); f.classList.toggle('open');
+  if(f.classList.contains('open')){
+    if(!document.getElementById('ppath').innerHTML) jrenderPath();
+    setTimeout(()=>{const c=document.getElementById('curStone'); if(c)c.scrollIntoView({behavior:'smooth',block:'center'});},120);
+  }
+};
+
+/* ───────── web view ───────── */
+const LANES=['f','m1','m2','m3','m4','m5','m6'];
+const LANE_NAMES={f:'FOUNDATION',m1:'M1 · ML',m2:'m2 · DEEP LEARNING',m3:'M3 · NLP',m4:'M4 · GENAI',m5:'M5 · RAG',m6:'M6 · AGENTS'};
+LANE_NAMES.m2='M2 · DEEP LEARNING';
+const pos={};
+function nodeSvg(n,x,y){
+  const lab=n.status==='upcoming'?'wlabd':'wlab';
+  let core;
+  if(n.status==='owned')core=`<circle class="svgChak svgChakF" r="14" stroke-width="1.2"/><g><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="1.8s" repeatCount="indefinite"/><path class="svgChakHi" d="M0,0 a3,3 0 0 1 6,0 a6,6 0 0 1 -12,0 a9,9 0 0 1 18,0" fill="none" stroke-width="1.3"/></g>`;
+  else if(n.status==='due')core=`<g><animateTransform attributeName="transform" type="translate" values="0,0;1.2,-0.8;-1,1;0,0" dur=".8s" repeatCount="indefinite"/><circle class="svgAcc svgAccF" r="13" stroke-width="1.8"/></g>`;
+  else if(n.status==='learning')core=`<ellipse class="svgChak svgChakF" rx="13" ry="11.5" stroke-width="1.4"><animate attributeName="rx" values="13;14.5;12;13" dur="3s" repeatCount="indefinite"/><animate attributeName="ry" values="11.5;10;13;11.5" dur="3s" repeatCount="indefinite"/></ellipse>`;
+  else core=`<circle class="ghost" r="12" fill="none" stroke-width="1.3" stroke-dasharray="3 3"/>`;
+  return `<g transform="translate(${x},${y})" style="cursor:pointer" onclick="npOpen('${n.slug}')">${core}`
+    +`<text class="${lab}" y="28" text-anchor="middle">${n.label.length>22?n.label.slice(0,21)+'…':n.label}</text></g>`;
+}
+function renderWeb(){
+  const COLW=150, ROWH=72, TOP=44;
+  const byLane={}; LANES.forEach(l=>byLane[l]=[]);
+  HUB.web.nodes.forEach(n=>{(byLane[n.lane]||byLane.f).push(n);});
+  let maxRows=0; LANES.forEach(l=>maxRows=Math.max(maxRows,byLane[l].length));
+  const W=LANES.length*COLW+40, H=TOP+maxRows*ROWH+30;
+  LANES.forEach((l,li)=>byLane[l].forEach((n,ni)=>{pos[n.slug]=[40+li*COLW+COLW/2-20,TOP+34+ni*ROWH];}));
+  let svg=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+  LANES.forEach((l,li)=>{
+    svg+=`<text class="wlane" x="${40+li*COLW+COLW/2-20}" y="18" text-anchor="middle">${LANE_NAMES[l]}</text>`;
+    if(li)svg+=`<line x1="${30+li*COLW}" y1="8" x2="${30+li*COLW}" y2="${H-10}" stroke="var(--lineDim)" stroke-width="1" opacity=".5"/>`;
+  });
+  HUB.web.edges.forEach((e,i)=>{
+    const a=pos[e.from],b=pos[e.to]; if(!a||!b)return;
+    const lit=nodeBy[e.from].status!=='upcoming'&&nodeBy[e.to].status!=='upcoming';
+    const mx=(a[0]+b[0])/2;
+    const d=`M${a[0]},${a[1]} C ${mx},${a[1]} ${mx},${b[1]} ${b[0]},${b[1]}`;
+    svg+=`<path id="we${i}" class="${lit?'edgeLit':'edgeDark'}" d="${d}" fill="none" stroke-width="${lit?1.6:1.2}" ${lit?'':'stroke-dasharray="4 4"'}/>`;
+    if(nodeBy[e.from].status==='owned')
+      svg+=`<circle class="pulse" r="2.6"><animateMotion dur="${2.5+(i%3)}s" begin="${(i%5)*.6}s" repeatCount="indefinite"><mpath href="#we${i}"/></animateMotion></circle>`;
+  });
+  HUB.web.nodes.forEach(n=>{const p=pos[n.slug]; svg+=nodeSvg(n,p[0],p[1]);});
+  svg+='</svg>';
+  document.getElementById('webbox').innerHTML=svg;
+}
+
+/* node panel */
+window.npOpen=function(slug){
+  const n=nodeBy[slug];
+  const arts=HUB.artifacts.filter(a=>(a.concepts||[]).includes(slug));
+  const into=HUB.web.edges.filter(e=>e.to===slug), out=HUB.web.edges.filter(e=>e.from===slug);
+  const stWord={owned:'🌀 owned — sphere held',due:'🟠 due — under training',learning:'💧 learning — balloon stage',upcoming:'🔒 upcoming — path not yet opened'}[n.status];
+  let h=`<h3>${n.label}</h3><div class="st">${stWord}</div>`;
+  if(arts.length)h+=`<h4>ARTIFACTS</h4>`+arts.map(row).join('');
+  if(into.length)h+=`<h4>BUILDS ON</h4><ul>`+into.map(e=>`<li><b>${nodeBy[e.from].label}</b> — ${e.why}</li>`).join('')+'</ul>';
+  if(out.length)h+=`<h4>FEEDS</h4><ul>`+out.map(e=>`<li><b>${nodeBy[e.to].label}</b> — ${e.why}</li>`).join('')+'</ul>';
+  if(n.res&&n.res.length)h+=`<h4>BEST EXTERNAL EXPLAINERS</h4><ul>`+n.res.map(r=>`<li><a href="${r.url}" target="_blank" rel="noopener">${r.label} ↗</a></li>`).join('')+'</ul>';
+  document.getElementById('npBody').innerHTML=h;
+  document.getElementById('npanel').classList.add('open');
+};
+window.npClose=function(){document.getElementById('npanel').classList.remove('open');};
+
+/* ───────── catalog: search + chips + scrolls ───────── */
+let qy='', stF=null; const OPEN=new Set();
+const hay=a=>(a.title+' '+(a.concepts||[]).join(' ')+' '+(a.sessions||[]).join(' ')+' '+a.date).toLowerCase();
+const hit=a=>(!stF||statusOf(a)===stF)&&(!qy||hay(a).includes(qy));
+function scrollBlock(id,head,inner,extra){
+  const open=OPEN.has(id)||qy||stF;
+  return `<div class="scroll${open?' open':''}" id="scr_${id}"><button class="scrollHead" onclick="tog('${id}')">
+    <span class="wrapb"><span class="inkTitle">${head}</span><span class="sp"></span>${extra||''}
+    <span class="unroll">${open?'▾ roll up':'▸ unroll'}</span></span></button>
+    <div class="scrollBody"><div class="paper">${MARKS}${inner}</div><div class="rodBot"></div></div></div>`;
+}
+window.tog=id=>{OPEN.has(id)?OPEN.delete(id):OPEN.add(id);renderAll();};
+
+function conceptArcs(){ // arcs = nodes (lane order) that have artifacts, + 'meta'
+  const arcs=[];
+  HUB.web.nodes.forEach(n=>{
+    const items=HUB.artifacts.filter(a=>(a.concepts||[]).includes(n.slug));
+    if(items.length)arcs.push({slug:n.slug,label:n.label,items});
+  });
+  const metaItems=HUB.artifacts.filter(a=>(a.concepts||[]).includes('meta'));
+  if(metaItems.length)arcs.push({slug:'meta',label:'🧭 Meta — ledgers & maps',items:metaItems});
+  return arcs;
+}
+function renderC(){
+  document.getElementById('pC').innerHTML=conceptArcs().map(arc=>{
+    const items=orderItems(arc.items.filter(hit));
+    if(!items.length&&(qy||stF))return '';
+    const cons=arc.items.find(a=>a.kind==='consolidated');
+    const pin=cons?`<div class="pin">📌 ${cons.title} — <a href="${cons.href}" target="_blank" rel="noopener">read the consolidated scroll</a></div>`
+      :`<div class="pin">📌 consolidated scroll — <b>PENDING</b> · ${arc.items.length} chunk${arc.items.length>1?'s':''} gathered</div>`;
+    const due=arc.items.filter(a=>statusOf(a)==='due').length;
+    return scrollBlock('c_'+arc.slug,arc.label,pin+items.map(row).join(''),
+      `<span class="stat">${due?due+'🟠 ':''}</span><span class="seal">${arc.items.length}</span>`);
+  }).join('')||'<p class="muted">no scroll matches — loosen the search</p>';
+}
+function sessGroups(){
+  const groups=[{id:'F',title:'Foundation Bridge — the math runway',date:'2026-06-06',module:'Foundation',note:'Python · Prob/Stats · Linear Algebra · Calculus — everything _F extends this'}];
+  HUB.sessions.forEach((s,i)=>{
+    if(s.lane==='f'||s.id==='FIN')return;
+    const arts=HUB.artifacts.filter(a=>(a.sessions||[]).includes(s.id));
+    const idx=HUB.sessions.findIndex(x=>x.id===s.id);
+    if(arts.length||idx<= HUB.sessions.findIndex(x=>x.id===HUB.current)+2)
+      groups.push({id:s.id,title:s.id+' · '+s.title,date:s.date,module:s.module,
+        lock:idx>HUB.sessions.findIndex(x=>x.id===HUB.current)});
+  });
+  return groups;
+}
+function renderS(){
+  document.getElementById('pS').innerHTML=sessGroups().map(g=>{
+    const arts=orderItems(HUB.artifacts.filter(a=>(a.sessions||[]).includes(g.id)&&hit(a)));
+    if(!arts.length&&(qy||stF))return '';
+    const inner=(g.note?`<div class="snote">${g.note}</div>`:'')
+      +(arts.length?arts.map(row).join(''):'<div class="snote">no artifacts yet — the deep-dive is queued</div>');
+    return scrollBlock('s_'+g.id,`${g.lock?'🔒 ':''}${g.title} <span class="when">· ${g.date.slice(5)}</span>`,
+      inner,`<span class="seal">${arts.length}</span>`);
+  }).join('')||'<p class="muted">no scroll matches</p>';
+}
+function renderT(){
+  const arts=HUB.artifacts.filter(hit);
+  const dates=[...new Set(arts.map(a=>a.date))].sort().reverse();
+  document.getElementById('pT').innerHTML='<div class="tl">'+(dates.map(d=>
+    `<div class="d">${d}</div>`+arts.filter(a=>a.date===d).map(row).join('')
+  ).join('')||'<p class="muted">no match</p>')+'</div>';
+}
+function renderRecent(){
+  const rec=[...HUB.artifacts].sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,3);
+  document.getElementById('recent').innerHTML=rec.map(row).join('');
+}
+function counts(){
+  document.getElementById('tW').textContent=`🕸 Web · ${HUB.web.nodes.length}`;
+  document.getElementById('tC').textContent=`📚 Concepts · ${conceptArcs().length}`;
+  document.getElementById('tS').textContent=`🗓 Sessions · ${sessGroups().length}`;
+  document.getElementById('tT').textContent=`📆 Timeline · ${HUB.artifacts.length}`;
+}
+function renderAll(){renderC();renderS();renderT();renderRecent();}
+
+/* session jump from a journey stone */
+window.openSession=function(id){
+  tabTo('pS'); OPEN.add('s_'+id); renderAll();
+  setTimeout(()=>{const el=document.getElementById('scr_s_'+id); if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},60);
+};
+
+/* tabs + search + chips + keys + palette */
+const ct=document.getElementById('cattabs');
+function tabTo(p){
+  ct.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.pane===p));
+  ['pW','pC','pS','pT'].forEach(x=>document.getElementById(x).classList.toggle('on',x===p));
+}
+ct.addEventListener('click',e=>{const b=e.target.closest('button');if(b)tabTo(b.dataset.pane);});
+document.getElementById('csearch').addEventListener('input',e=>{qy=e.target.value.trim().toLowerCase();renderAll();});
+document.getElementById('fchips').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  stF=(stF===b.dataset.st)?null:b.dataset.st;
+  document.querySelectorAll('#fchips button').forEach(x=>x.classList.toggle('on',x.dataset.st===stF));renderAll();});
+document.addEventListener('keydown',e=>{
+  if(e.key==='/'&&document.activeElement.tagName!=='INPUT'){e.preventDefault();document.getElementById('csearch').focus();}
+  if(e.key==='Escape')npClose();
+});
+const NINDO=[["I never go back on my word — that's my ninja way!","Naruto"],
+ ["Hard work is worthless for those that don't believe in themselves.","Naruto"],
+ ["If you don't like your destiny, don't accept it — have the guts to change it.","Naruto"],
+ ["A dropout will beat a genius through hard work.","Rock Lee"],
+ ["Never give up without even trying.","Jiraiya"]];
+const _d=new Date(),_doy=Math.floor((_d-new Date(_d.getFullYear(),0,0))/864e5),_q=NINDO[_doy%NINDO.length];
+document.getElementById('nindo').innerHTML=`“${_q[0]}” — <b>${_q[1]}</b>`;
+const bar=document.getElementById('palbar');
+function setPal(p){document.documentElement.dataset.theme=p;
+  try{localStorage.setItem('hub-pal',p)}catch(e){}
+  bar.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.pal===p));}
+bar.addEventListener('click',e=>{const b=e.target.closest('button');if(b)setPal(b.dataset.pal)});
+let _saved='midnight'; try{_saved=localStorage.getItem('hub-pal')||'midnight'}catch(e){}
+setPal(_saved);
+
+/* boot */
+jrenderStrip(); renderWeb(); renderAll(); counts();
+</script>
+</body>
+</html>

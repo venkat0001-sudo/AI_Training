@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Linear Algebra Fundamentals — Trainer Deck | _F</title>
+<!--HUB {"title": "Linear-algebra trainer deck", "date": "2026-07-02", "sessions": ["F"], "concepts": ["vectors", "covariance", "eigenvectors"], "type": "interactive", "recap": "Trainer edition: 14 validated chapters, 23 plots, counterfactual twins — teach from it"} -->
 <style>
 :root{--card:rgba(20,40,12,.72);--line:rgba(74,122,46,.5);--cream:#f5e6c8;--creamd:#cbbb95;--sage:#a8c87a;--sagem:#7a9e5a;--saged:#4a7a2e;--orange:#ff8c00;--orangeg:#ffb347;--red:#d9534f;--teal:#27c2a8;--gold:#ffce4a}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -32,7 +33,7 @@ body{background:linear-gradient(135deg,#0c1607,#0e1f0a 55%,#171708);color:var(--
 .o{color:var(--orange)}.t{color:var(--teal)}.k{color:var(--gold)}.r{color:var(--red)}.ok{color:var(--sage)}
 .callout{background:rgba(0,0,0,.28);border-left:3px solid var(--orange);border-radius:0 8px 8px 0;padding:8px 12px;margin:8px 0;font-size:.87em;color:var(--sage)}
 .boundary{background:rgba(0,0,0,.28);border:1px solid rgba(217,83,79,.4);border-radius:10px;padding:10px 14px;margin:8px 0;font-size:.86em}
-.viz{background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:10px;padding:8px;margin:8px 0;text-align:center}
+.viz{background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:10px;padding:8px;margin:8px 0;text-align:center;overflow-x:auto}
 .viz .cap{font-size:.76em;color:var(--creamd);margin-top:4px;text-align:center}
 .mat{display:inline-grid;gap:3px;margin:6px 4px;vertical-align:middle}
 .mat .c{border:1px solid var(--line);border-radius:4px;padding:6px 9px;min-width:46px;text-align:center;font-size:.8em;background:rgba(0,0,0,.25)}
@@ -22021,6 +22022,13 @@ z
   window.addEventListener('keydown',function(e){if(e.key==='ArrowLeft')go(cur-1); if(e.key==='ArrowRight')go(cur+1);});
   window.deckGo=go; show();
 })();
+</script>
+<script>/* Gate 2b (2026-07-04): bound every plot to ~1.6x its design width so small
+matplotlib/JS plots can't balloon inside wide panes; centered, aspect kept via viewBox. */
+document.querySelectorAll('svg[width="100%"]').forEach(function(s){
+  var vb=s.viewBox&&s.viewBox.baseVal; if(!vb||!vb.width)return;
+  s.style.maxWidth=Math.round(vb.width*1.6)+'px'; s.style.display='block'; s.style.margin='0 auto';
+});
 </script>
 </body>
 </html>

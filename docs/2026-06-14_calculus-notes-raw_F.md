@@ -1,0 +1,1434 @@
+---
+title: Calculus notes (raw longform source)
+date: 2026-06-14
+sessions: [F]
+concepts: [calculus]
+type: notes
+recap: Raw upGrad session dump the calculus-foundations doc was distilled from
+---
+
+Hour 1 Student Notes
+Session 4 – Hour 1 Student Notes
+Calculus Intuition, Functions, Slope & Derivatives
+Why Are We Learning This?
+In the previous sessions we learned:
+* How to work with data using Python
+* How to summarize uncertainty using statistics
+* How to represent data using vectors and matrices
+Now we will answer a very important question:
+How do machine learning models actually learn?
+When a machine learning model makes mistakes, it needs a way to improve itself.
+To improve, it must answer:
+* Am I getting better or worse?
+* Which direction should I move?
+* How much should I change?
+Calculus provides the mathematical tools to answer these questions.
+You do not need advanced mathematics to understand the intuition.
+The goal of this session is to understand how change is measured.
+________________
+
+
+1. What is Calculus?
+Calculus is the mathematics of change.
+Whenever something changes over time, calculus can help describe and measure that change.
+Examples:
+* Stock prices changing
+* Temperature changing
+* Revenue growing
+* Fuel consumption changing
+* Model error decreasing during training
+________________
+
+
+Real World Example
+Imagine you are driving a car.
+At 10:00 AM:
+Distance = 0 km
+
+
+At 11:00 AM:
+Distance = 60 km
+
+
+At 12:00 PM:
+Distance = 120 km
+
+
+The distance is changing over time.
+Calculus helps us understand:
+How fast is the distance changing?
+This idea eventually leads to derivatives.
+________________
+
+
+ML Connection
+During training, a machine learning model continuously changes its parameters.
+The model's error changes.
+The model's predictions change.
+Calculus helps measure these changes and guides the learning process.
+________________
+
+
+2. Functions
+Before discussing derivatives, we need to understand functions.
+A function is simply a rule that maps an input to an output.
+Example:
+y = 2x
+
+
+If:
+x = 3
+
+
+then:
+y = 6
+
+
+________________
+
+
+Another Example
+y = x²
+
+
+If:
+x = 4
+
+
+then:
+y = 16
+
+
+The function transforms an input into an output.
+________________
+
+
+Real World Example
+Suppose an employee earns:
+₹500 per hour
+
+
+Hours worked:
+x
+
+
+Salary:
+y = 500x
+
+
+Hours become the input.
+Salary becomes the output.
+________________
+
+
+ML Connection
+Machine learning models are essentially complex functions.
+Input:
+House Size
+Bedrooms
+Location
+
+
+↓
+Function
+↓
+Output:
+Predicted House Price
+
+
+A model is simply a sophisticated function that learns from data.
+________________
+
+
+3. Understanding Slope
+Imagine two roads.
+Road A:
+Almost flat.
+Road B:
+Very steep.
+Which road climbs faster?
+Road B.
+The steepness of a road is called its slope.
+________________
+
+
+Simple Formula
+Slope tells us:
+Change in Output
+
+
+÷
+
+
+Change in Input
+
+
+________________
+
+
+Example
+Suppose:
+Hours Studied
+	Marks
+	1
+	50
+	2
+	60
+	Marks increased by:
+10
+
+
+Hours increased by:
+1
+
+
+Slope:
+10 / 1 = 10
+
+
+For every additional hour studied, marks increase by 10.
+________________
+
+
+Why Is Slope Important?
+Slope tells us:
+How sensitive the output is to changes in the input.
+________________
+
+
+ML Connection
+Suppose:
+Increasing house size slightly increases house price.
+The slope measures how strongly house price responds to changes in size.
+Many machine learning models try to learn these relationships.
+________________
+
+
+4. From Slope to Derivative
+Slope works well between two points.
+But what if we want to know:
+What is the slope at one exact point?
+This is where derivatives come in.
+________________
+
+
+Definition
+A derivative measures:
+The rate of change of a function at a specific point.
+Think of it as an instantaneous slope.
+________________
+
+
+Real World Example: Speedometer
+Imagine driving a car.
+Your speedometer says:
+60 km/h
+
+
+That value is essentially telling you:
+How quickly your position is changing right now.
+Speed is the derivative of position.
+________________
+
+
+Another Example
+Suppose a company's revenue is increasing.
+A derivative tells us:
+How fast revenue is growing at this moment.
+Not yesterday.
+Not tomorrow.
+Right now.
+________________
+
+
+5. Understanding Derivatives Intuitively
+Suppose:
+y = x²
+
+
+Let's observe:
+x
+	y
+	1
+	1
+	2
+	4
+	3
+	9
+	4
+	16
+	Notice something interesting.
+As x grows:
+y grows faster and faster.
+The rate of change is not constant.
+A derivative measures this changing growth rate.
+________________
+
+
+Interpretation
+Large Derivative:
+Output changing rapidly
+
+
+Small Derivative:
+Output changing slowly
+
+
+Zero Derivative:
+Output not changing
+
+
+________________
+
+
+6. Why Do Derivatives Matter in ML?
+This is the most important idea of the session.
+Suppose a model predicts:
+₹9,00,000
+
+
+Actual value:
+₹10,00,000
+
+
+The model made a mistake.
+Question:
+How should the model adjust itself?
+If the model changes a parameter slightly:
+* Does error increase?
+* Does error decrease?
+Derivatives answer this question.
+They tell the model:
+Which direction reduces error?
+Without derivatives, the model would not know how to improve.
+________________
+
+
+Real World Analogy
+Imagine you are hiking down a mountain in heavy fog.
+You cannot see the bottom.
+How do you know where to walk?
+You feel the ground.
+You move in the direction that goes downhill.
+Derivatives provide exactly this information.
+They tell us:
+Go this way.
+
+
+Error decreases in this direction.
+
+
+________________
+
+
+7. Basic Differentiation Rules (High Level)
+You do not need to memorize many rules today.
+Just understand that derivatives can be computed systematically.
+Power Rule
+If:
+y = x²
+
+
+Derivative:
+2x
+
+
+________________
+
+
+If:
+y = x³
+
+
+Derivative:
+3x²
+
+
+________________
+
+
+Sum Rule
+Derivative of:
+f(x) + g(x)
+
+
+=
+Derivative of each part added together.
+________________
+
+
+Product Rule
+Used when two functions are multiplied together.
+________________
+
+
+Chain Rule
+Used when one function is nested inside another.
+This rule becomes extremely important for neural networks later.
+________________
+
+
+Why This Matters for AI
+Every modern AI model learns using mathematical optimization.
+Optimization relies on:
+* Derivatives
+* Gradients
+* Gradient Descent
+Today we learned the first building block:
+The derivative.
+Without derivatives, machine learning models would have no way to know whether they are improving or getting worse.
+________________
+
+
+Key Takeaways
+* Calculus is the mathematics of change.
+* Functions map inputs to outputs.
+* Machine learning models can be viewed as functions.
+* Slope measures how quickly outputs change.
+* Derivatives measure the rate of change at a specific point.
+* Large derivatives indicate rapid change.
+* Small derivatives indicate slow change.
+* Derivatives help machine learning models understand how to reduce error.
+* Modern AI systems rely heavily on derivatives during training.
+
+
+Hour 2 Student Notes
+Session 4 – Hour 2 Student Notes
+Partial Derivatives, Gradients & Optimization
+Why Are We Learning This?
+In Hour 1, we learned that derivatives measure how fast something changes.
+We also learned that machine learning models use derivatives to understand whether a prediction is improving or getting worse.
+Now we face a new challenge.
+Real machine learning models do not have just one input.
+They often have:
+* Hundreds of features
+* Thousands of parameters
+* Millions or even billions of weights
+So instead of:
+f(x)
+
+
+we often have:
+f(x,y,z,...)
+
+
+How do we measure change when multiple variables are involved?
+This leads us to:
+* Partial Derivatives
+* Gradients
+* Optimization
+* Gradient Descent
+These concepts form the foundation of how machine learning models learn.
+________________
+
+
+1. Functions with Multiple Variables
+Earlier we saw:
+y = f(x)
+
+
+One input.
+One output.
+Now consider:
+House Price Prediction.
+Inputs:
+* House Size
+* Number of Bedrooms
+* Distance from City Center
+Output:
+* Predicted Price
+This can be represented as:
+Price = f(Size, Bedrooms, Distance)
+
+
+Notice:
+Multiple inputs influence the output.
+This is exactly how most machine learning models work.
+________________
+
+
+Real World Example
+Suppose a student's performance depends on:
+* Study Hours
+* Attendance
+Function:
+Score = f(Study Hours, Attendance)
+
+
+Both variables influence the result.
+If one variable changes, the score changes.
+If both change, the score changes again.
+We need a way to measure the impact of each variable individually.
+________________
+
+
+2. Partial Derivatives
+A partial derivative measures:
+How does the output change if I change only one variable and keep everything else fixed?
+________________
+
+
+Example
+Suppose:
+Salary = f(Experience, Education)
+
+
+Question:
+How much does salary change when experience increases?
+Assume education remains constant.
+This is a partial derivative with respect to experience.
+________________
+
+
+Another Example
+Suppose:
+House Price = f(Size, Location)
+
+
+Question:
+How much does price change if house size increases while location remains unchanged?
+Again, we are measuring the effect of only one variable.
+________________
+
+
+Why Is This Useful?
+In machine learning, a model may contain thousands of parameters.
+We need to know:
+* Which parameter is causing the error?
+* Which parameter should be adjusted?
+* By how much?
+Partial derivatives answer these questions.
+________________
+
+
+ML Connection
+Imagine a house price prediction model.
+Current prediction:
+₹90 Lakhs
+
+
+Actual price:
+₹1 Crore
+
+
+Error exists.
+The model contains many parameters.
+Partial derivatives tell us:
+Which parameter contributed to the error and in what direction should it move?
+Without partial derivatives, the model would not know how to improve.
+________________
+
+
+3. What is a Gradient?
+A gradient is simply a collection of partial derivatives.
+If a function has:
+f(x,y)
+
+
+then:
+Gradient
+
+
+=
+
+
+[
+ ∂f/∂x,
+ ∂f/∂y
+]
+
+
+You do not need to memorize the notation.
+Focus on intuition.
+________________
+
+
+Simple Meaning
+A gradient tells us:
+Which direction causes the fastest increase in the output?
+Think of it as a direction indicator.
+________________
+
+
+Mountain Analogy
+Imagine standing on a mountain.
+You want to know:
+Where is the steepest uphill direction?
+The gradient points exactly there.
+________________
+
+
+Why Does This Matter?
+Machine learning usually wants the opposite.
+We want to reduce error.
+So we move in the opposite direction of the gradient.
+________________
+
+
+4. Gradient = GPS for Learning
+This is often the easiest way to explain gradients.
+Imagine your phone's GPS.
+It tells you:
+Turn left
+
+
+Walk 200 meters
+
+
+Turn right
+
+
+The gradient plays a similar role.
+It tells a machine learning model:
+Move this way.
+
+
+Error decreases in this direction.
+
+
+The model follows this guidance repeatedly.
+Over time, predictions improve.
+________________
+
+
+5. Understanding Optimization
+Optimization means:
+Finding the best possible solution.
+________________
+
+
+Everyday Examples
+Finding:
+* Cheapest flight
+* Fastest route
+* Highest exam score
+* Maximum profit
+All are optimization problems.
+________________
+
+
+Machine Learning Version
+Finding:
+Lowest Prediction Error
+
+
+is also an optimization problem.
+The model wants predictions as close as possible to reality.
+________________
+
+
+6. Cost Function / Loss Function
+How do we measure whether a model is good or bad?
+We use a loss function.
+A loss function measures prediction error.
+________________
+
+
+Example
+Actual House Price:
+₹1,00,00,000
+
+
+Predicted Price:
+₹90,00,000
+
+
+The model made a mistake.
+The loss function converts that mistake into a number.
+Large mistake:
+Large Loss
+
+
+Small mistake:
+Small Loss
+
+
+Perfect prediction:
+Loss = 0
+
+
+________________
+
+
+ML Connection
+During training:
+The goal is always:
+Reduce Loss
+
+
+Every optimization algorithm ultimately tries to minimize a loss function.
+________________
+
+
+7. What is Gradient Descent?
+This is one of the most important concepts in Machine Learning.
+Gradient Descent is an optimization algorithm.
+Its job is:
+Find parameter values that minimize the loss function.
+________________
+
+
+Mountain Analogy
+Imagine standing blindfolded on a mountain.
+You cannot see the bottom.
+You only know:
+* Whether the ground slopes upward
+* Whether the ground slopes downward
+What would you do?
+Take a small step downhill.
+Check again.
+Take another step downhill.
+Eventually you reach the bottom.
+This is exactly how Gradient Descent works.
+________________
+
+
+Learning Process
+Step 1:
+Make a prediction.
+↓
+Step 2:
+Calculate loss.
+↓
+Step 3:
+Compute gradient.
+↓
+Step 4:
+Move in the opposite direction.
+↓
+Step 5:
+Repeat.
+Over time, error decreases.
+________________
+
+
+8. Learning Rate
+A learning rate controls:
+How big a step we take during each update.
+________________
+
+
+Very Small Learning Rate
+Tiny steps.
+Pros:
+* Stable
+Cons:
+* Slow learning
+________________
+
+
+Very Large Learning Rate
+Huge steps.
+Pros:
+* Faster movement
+Cons:
+* May overshoot the solution
+________________
+
+
+Real World Example
+Imagine searching for a key in a dark room.
+Tiny steps:
+Safe but slow.
+Huge jumps:
+Fast but risky.
+A good learning rate balances both.
+________________
+
+
+9. Local Minima (High Level)
+Sometimes optimization is not straightforward.
+Imagine hiking in a valley surrounded by mountains.
+You may find a low point.
+But it might not be the lowest point everywhere.
+This is called a local minimum.
+________________
+
+
+Important Note
+Modern optimization algorithms have many techniques to handle this challenge.
+For this session, simply understand that optimization can be difficult when the landscape becomes complex.
+________________
+
+
+Why This Matters in AI
+Every machine learning model learns by:
+* Measuring error
+* Computing gradients
+* Updating parameters
+* Reducing loss
+Whether it is:
+* Linear Regression
+* Logistic Regression
+* Neural Networks
+* Deep Learning Models
+the fundamental learning idea remains similar.
+________________
+
+
+Key Takeaways
+* Real ML models depend on many variables.
+* Partial derivatives measure the effect of changing one variable at a time.
+* A gradient is a collection of partial derivatives.
+* Gradients point toward the direction of fastest increase.
+* Machine learning moves in the opposite direction to reduce error.
+* Optimization means finding the best solution.
+* Loss functions measure prediction error.
+* Gradient Descent reduces loss step by step.
+* Learning rate controls the size of each update.
+* Modern AI systems learn through repeated optimization.
+Hour 3 Student Notes
+Session 4 – Hour 3 Student Notes
+Chain Rule, Computational Graphs & Backpropagation Intuition
+Why Are We Learning This?
+In Hour 1, we learned:
+* Functions
+* Derivatives
+* Rate of change
+In Hour 2, we learned:
+* Partial derivatives
+* Gradients
+* Optimization
+* Gradient Descent
+Now we answer the final question:
+How does a neural network with thousands or millions of parameters calculate all these gradients efficiently?
+The answer is:
+* Chain Rule
+* Computational Graphs
+* Backpropagation
+These ideas power modern AI systems such as ChatGPT, image generation models, and deep neural networks.
+________________
+
+
+1. Functions Inside Functions
+So far we have seen:
+y = x²
+
+
+A simple function.
+But real machine learning models are not simple.
+They are made of many functions connected together.
+Example:
+Input
+↓
+Feature Transformation
+↓
+Prediction
+↓
+Loss
+
+
+Each stage depends on the previous stage.
+________________
+
+
+Real World Example
+Imagine making coffee.
+Coffee Beans
+↓
+Grinding
+↓
+Brewing
+↓
+Coffee
+
+
+The final coffee depends on every previous step.
+If the beans are poor quality, the final coffee suffers.
+A change at the beginning affects everything afterward.
+This idea is exactly what the Chain Rule helps us measure.
+________________
+
+
+2. What is the Chain Rule?
+The Chain Rule is used when one function is inside another function.
+Example:
+y = f(g(x))
+
+
+Here:
+x
+
+
+affects:
+g(x)
+
+
+which affects:
+f(g(x))
+
+
+which affects:
+y
+
+
+Everything is connected.
+________________
+
+
+Simple Analogy
+Suppose:
+Hours Studied
+↓
+Knowledge Gained
+↓
+Exam Score
+
+
+If study hours increase:
+Knowledge changes.
+If knowledge changes:
+Exam score changes.
+The Chain Rule helps measure how a change at the beginning impacts the final result.
+________________
+
+
+Why It Matters
+In machine learning:
+A parameter may affect:
+* A neuron
+* Which affects another neuron
+* Which affects another layer
+* Which affects the prediction
+* Which affects the loss
+The Chain Rule traces this entire path.
+________________
+
+
+3. Computational Graphs
+A computational graph is simply a visual representation of calculations.
+________________
+
+
+Example
+Suppose:
+z = x² + 3
+
+
+We can draw:
+x
+↓
+x²
+↓
++3
+↓
+z
+
+
+Instead of viewing one large formula, we break it into small steps.
+________________
+
+
+Why Is This Useful?
+Large neural networks may contain millions of calculations.
+Computational graphs organize those calculations.
+They help us:
+* Calculate outputs
+* Track dependencies
+* Compute gradients efficiently
+________________
+
+
+Real World Example
+Imagine a manufacturing plant.
+Raw Material
+↓
+Component A
+↓
+Assembly
+↓
+Final Product
+
+
+If a defect appears in the final product, we can trace backwards through the production process.
+Computational graphs allow us to do the same thing mathematically.
+________________
+
+
+4. Forward Pass
+The forward pass means:
+Compute the prediction.
+________________
+
+
+Example
+Input:
+House Size = 1500 sq ft
+
+
+Model:
+Prediction = ₹95 Lakhs
+
+
+The data moves from input to output.
+This is called the forward pass.
+________________
+
+
+ML Connection
+Every neural network first performs a forward pass.
+Examples:
+* Predict house price
+* Predict spam email
+* Predict image category
+* Generate next word
+All begin with a forward pass.
+________________
+
+
+5. Backward Pass
+After making a prediction, we calculate error.
+Example:
+Actual Price = ₹1 Crore
+
+
+Predicted Price = ₹95 Lakhs
+
+
+Error exists.
+Now we must determine:
+Which parameters caused this error?
+This is called the backward pass.
+________________
+
+
+Real World Example
+Imagine a student receives a poor exam score.
+The teacher investigates:
+* Was attendance poor?
+* Was practice insufficient?
+* Was preparation weak?
+The teacher traces the problem backward.
+Backpropagation works similarly.
+________________
+
+
+6. What is Backpropagation?
+Backpropagation means:
+Propagating error backward through the network.
+The model starts with the final error.
+Then works backward to determine:
+* Which parameters contributed most
+* Which parameters should change
+* How much they should change
+________________
+
+
+Why Is Backpropagation Important?
+Without backpropagation:
+The model would know it made a mistake.
+But it would not know how to fix it.
+Backpropagation provides that information.
+________________
+
+
+7. Chain Rule + Backpropagation
+This is where everything comes together.
+Backpropagation repeatedly applies the Chain Rule.
+Example:
+Input
+↓
+Layer 1
+↓
+Layer 2
+↓
+Prediction
+↓
+Loss
+
+
+A change in Layer 1 affects:
+Layer 2
+↓
+Prediction
+↓
+Loss
+The Chain Rule measures that effect.
+________________
+
+
+Key Intuition
+The Chain Rule answers:
+If I slightly change this parameter, how much will the final loss change?
+That is exactly what machine learning needs to know.
+________________
+
+
+8. Putting Everything Together
+Machine Learning Training Process
+Step 1:
+Forward Pass
+Input → Prediction
+
+
+________________
+
+
+Step 2:
+Calculate Loss
+Prediction vs Actual
+
+
+________________
+
+
+Step 3:
+Backpropagation
+Use Chain Rule to calculate gradients.
+________________
+
+
+Step 4:
+Gradient Descent
+Update parameters.
+________________
+
+
+Step 5:
+Repeat thousands of times.
+Eventually:
+Loss decreases.
+Predictions improve.
+________________
+
+
+Real World Example: Learning to Shoot Basketball
+Imagine learning free throws.
+Attempt 1:
+Missed Left
+
+
+You adjust.
+________________
+
+
+Attempt 2:
+Missed Right
+
+
+You adjust again.
+________________
+
+
+Attempt 3:
+Closer.
+________________
+
+
+Attempt 100:
+Much better.
+Machine learning training works similarly.
+The model:
+* Makes predictions
+* Measures mistakes
+* Learns from mistakes
+* Improves gradually
+________________
+
+
+Why This Matters in AI
+Every modern AI system relies on this process.
+Examples:
+* Neural Networks
+* Deep Learning Models
+* Computer Vision Systems
+* Large Language Models
+* Generative AI Systems
+The exact architectures may differ.
+But the learning process remains similar:
+Forward Pass
+↓
+Loss
+↓
+Backpropagation
+↓
+Gradient Descent
+↓
+Improvement
+
+
+________________
+
+
+Key Takeaways
+* Real machine learning models are chains of connected functions.
+* The Chain Rule measures how changes flow through these chains.
+* Computational graphs represent calculations step by step.
+* Forward pass computes predictions.
+* Loss measures prediction error.
+* Backward pass traces error through the model.
+* Backpropagation uses the Chain Rule to calculate gradients.
+* Gradient Descent updates parameters using those gradients.
+* Modern AI systems learn through repeated cycles of prediction, error measurement, and improvement.
+________________
+
+
+Session 4 Big Picture
+Hour 1
+Derivatives
+↓
+How change is measured
+________________
+
+
+Hour 2
+Gradients & Optimization
+↓
+How models know where to move
+________________
+
+
+Hour 3
+Chain Rule & Backpropagation
+↓
+How models learn efficiently
+________________
+
+
+Final One-Line Summary
+Calculus gives machine learning models a way to measure mistakes, understand how those mistakes were created, and continuously improve their predictions.
+
+
+More Notes
+Q : 
+Parameters, Input, Variables, Features all these words denotes same meaning, Is my understanding correct?
+
+
+A : 
+Input → the data fed into the model.
+Features → individual attributes/columns of the input data.
+Variables → a general term for quantities that can take different values (can refer to features, parameters, etc.).
+Parameters → the model's learned weights and biases that are adjusted during training.
+
+
+Rough PDF for Hour 3
+Tab 5
+Study Hours → Exam Score → Scholarship Amount
+1 extra study hour increases Exam Score by 5 points.
+1 extra Exam Score point increases Scholarship by ₹100.
+“If Study Hours increase by 1, how much does Scholarship change?”
+Chain rule : 
+Study Hours → Exam Score  = +5 / hour
+Exam Score → Scholarship = +₹100/point
+Study hours → scholarship : 5x100
+
+
+
+
+
+
+
+
+Question Set
+Session 1 Practice Questions – Set 2
+Use the following dataset.
+import pandas as pd
+import numpy as np
+
+
+df = pd.DataFrame({
+    "Name":["Amit","Priya","Rahul","Neha","Karan","Sneha","Vikas","Riya"],
+    "Department":["IT","HR","Finance","IT","HR","Finance","IT","Marketing"],
+    "Salary":[65000,50000,85000,72000,np.nan,95000,68000,55000],
+    "Experience":[3,5,8,4,2,10,6,1],
+    "Rating":[4.2,4.0,4.8,4.5,3.9,np.nan,4.3,4.1]
+})
+
+
+df
+
+
+________________
+
+
+Q1
+Create a NumPy array containing:
+[12, 24, 36, 48, 60]
+
+
+Find:
+* Shape
+* Number of dimensions
+* Size
+________________
+
+
+Q2
+Create:
+np.arange(10, 51, 5)
+
+
+Print the output.
+How many elements are present?
+________________
+
+
+Q3
+Create:
+np.linspace(1, 100, 20)
+
+
+Print:
+* First value
+* Last value
+________________
+
+
+Q4
+Given:
+scores = np.array([65, 72, 88, 91, 77])
+
+
+Find:
+* Maximum value
+* Minimum value
+* Mean
+________________
+
+
+Q5
+Create:
+scores = np.array([65,72,88,91,77])
+
+
+Perform:
+* scores + 10
+* scores * 2
+* scores / 5
+What happened to each element?
+________________
+
+
+Q6
+Display:
+* First 4 rows
+* Last 3 rows
+using Pandas functions.
+________________
+
+
+Q7
+Find:
+* Number of rows
+* Number of columns
+* Data types of all columns
+________________
+
+
+Q8
+Display all employees who belong to:
+IT
+
+
+department.
+________________
+
+
+Q9
+Display all employees whose:
+Salary > 70000
+
+
+________________
+
+
+Q10
+Display only:
+Name
+Salary
+Rating
+
+
+columns.
+________________
+
+
+Q11
+Find the number of missing values in each column.
+Which columns contain missing values?
+________________
+
+
+Q12
+Fill missing values in:
+Salary
+
+
+using the average salary.
+________________
+
+
+Q13
+Find:
+Average Salary by Department
+
+
+using groupby().
+________________
+
+
+Q14
+Find:
+Average Experience by Department
+
+
+using groupby().
+________________
+
+
+Q15
+Sort employees by:
+Experience
+
+
+from highest to lowest.
+Who has the most experience?
+________________
+
+
+Without using Excel, answer using Pandas:
+Challenge 1
+How many employees belong to each department?
+________________
+
+
+Challenge 2
+Which department has the highest average salary?
+________________
+
+
+Challenge 3
+Which employee has the highest salary?
+________________
+
+
+Challenge 4
+Which employee has the highest rating?
+________________
+
+
+Challenge 5
+Find all employees with:
+Experience > 5
+
+
+and
+Salary > 70000
+
+
+at the same time.
+
+
+Matrix Input -> [MODEL ] -> weights 
+
+
+
+
+
+
+
+
+
+
+
+

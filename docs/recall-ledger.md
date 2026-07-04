@@ -1,3 +1,12 @@
+---
+title: Recall ledger — spaced-repetition tracker
+date: 2026-07-02
+sessions: []
+concepts: [meta]
+type: ledger
+recap: What is due when — the interval-ladder table the daily deck builds from
+---
+
 # Recall ledger — spaced-repetition tracker
 
 > One row per topic. Ladder: learn → +1d → +3d → +7d → +16d → +35d → +60d → graduated.

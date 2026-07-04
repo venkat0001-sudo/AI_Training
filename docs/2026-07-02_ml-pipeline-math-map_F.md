@@ -1,3 +1,12 @@
+---
+title: The ML pipeline × math map
+date: 2026-07-02
+sessions: [F]
+concepts: [ml-pipeline]
+type: map
+recap: 6-box pipeline; which math powers which box; house-price flow with the label-entry line
+---
+
 # The Whole Picture — Where Each Math Piece Plugs Into Machine Learning
 
 > The master map. One page that answers: *"I'm learning linear algebra / calculus / probability /
