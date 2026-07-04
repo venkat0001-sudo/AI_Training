@@ -460,7 +460,8 @@ function nodeSvg(n,x,y){
   else if(n.status==='due')core=`<g><animateTransform attributeName="transform" type="translate" values="0,0;1.2,-0.8;-1,1;0,0" dur=".8s" repeatCount="indefinite"/><circle class="svgAcc svgAccF" r="13" stroke-width="1.8"/></g>`;
   else if(n.status==='learning')core=`<ellipse class="svgChak svgChakF" rx="13" ry="11.5" stroke-width="1.4"><animate attributeName="rx" values="13;14.5;12;13" dur="3s" repeatCount="indefinite"/><animate attributeName="ry" values="11.5;10;13;11.5" dur="3s" repeatCount="indefinite"/></ellipse>`;
   else core=`<circle class="ghost" r="12" fill="none" stroke-width="1.3" stroke-dasharray="3 3"/>`;
-  return `<g transform="translate(${x},${y})" style="cursor:pointer" onclick="npOpen('${n.slug}')">${core}`
+  const star=n.edge===3?`<text x="13" y="-9" font-size="10">⭐</text>`:'';
+  return `<g transform="translate(${x},${y})" style="cursor:pointer" onclick="npOpen('${n.slug}')">${core}${star}`
     +`<text class="${lab}" y="28" text-anchor="middle">${n.label.length>22?n.label.slice(0,21)+'…':n.label}</text></g>`;
 }
 function renderWeb(){
@@ -495,7 +496,8 @@ window.npOpen=function(slug){
   const arts=HUB.artifacts.filter(a=>(a.concepts||[]).includes(slug));
   const into=HUB.web.edges.filter(e=>e.to===slug), out=HUB.web.edges.filter(e=>e.from===slug);
   const stWord={owned:'🌀 owned — sphere held',due:'🟠 due — under training',learning:'💧 learning — balloon stage',upcoming:'🔒 upcoming — path not yet opened'}[n.status];
-  let h=`<h3>${n.label}</h3><div class="st">${stWord}</div>`;
+  const eWord=['','⭐ course-only — honest exam pass, no deep-dive','⭐⭐ supporting — solid understanding + decision boundary','⭐⭐⭐ CORE EDGE SKILL — drill until you can rebuild it'][n.edge||1];
+  let h=`<h3>${n.label}</h3><div class="st">${stWord} &nbsp;·&nbsp; edge-career relevance: ${eWord}</div>`;
   if(arts.length)h+=`<h4>ARTIFACTS</h4>`+arts.map(row).join('');
   if(into.length)h+=`<h4>BUILDS ON</h4><ul>`+into.map(e=>`<li><b>${nodeBy[e.from].label}</b> — ${e.why}</li>`).join('')+'</ul>';
   if(out.length)h+=`<h4>FEEDS</h4><ul>`+out.map(e=>`<li><b>${nodeBy[e.to].label}</b> — ${e.why}</li>`).join('')+'</ul>';

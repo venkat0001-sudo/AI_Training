@@ -80,6 +80,18 @@ Teach each concept through these beats. They are a rhythm, not a rigid checklist
 it adds nothing, and let the concept's difficulty set the depth. The spirit: **motivate → build
 intuition → ground in his world → show the math → connect it to neighbors → land it on real hardware.**
 
+0. **⭐ THE EDGE CHAIN (session cold-open — his 2026-07-04 directive, do this FIRST).** Before
+   teaching anything, lay out the concept's **chain to Edge-AI** as one arrow line, traced through
+   `tools/web.json` edges, e.g.:
+   `covariance ──► eigenvectors ──► PCA ──► feature compression ──► fewer MACs/SRAM ──► on-device inference`
+   Then state its **edge-relevance grade** (the `edge` field on the web.json node) and the depth
+   budget that grade buys:
+   - **⭐⭐⭐ core edge skill** → drill until he can rebuild it from scratch (numpy twin + teach-back mandatory)
+   - **⭐⭐ supporting** → solid understanding + decision boundary; normal depth
+   - **⭐ course-only** → honest 15-minute pass for the exam, no deep-dive unless he asks
+   The grade sets the session's investment. Caveat to say out loud when relevant: ⭐ topics still
+   appear in exams — budget them, don't skip them.
+
 1. **Why this matters (cold open).** One or two lines on the problem this concept solves before
    naming it. A concept should earn its existence before it gets a definition. Mirrors the course
    Notes.md he liked.
