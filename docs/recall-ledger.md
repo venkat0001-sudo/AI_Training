@@ -25,6 +25,7 @@ recap: What is due when — the interval-ladder table the daily deck builds from
 | Covariance→eigen→PCA bridge (20 sensors → 3 numbers) | `html/2026-06-28_pca-20-sensors-walkthrough_F.html`, notebook cells 4.1b/4.6 | 2026-06-29 | 2026-06-30 | +3d | 2026-07-03 |
 | MCU deployment + decision-tree geometry | `html/2026-06-26_mcu-deployment-flashcards_s1.html` | 2026-06-26 | 2026-06-26 | +3d | **2026-07-02 — DUE (overdue)** |
 | Gradient descent (numeric loss-shrinking example) | `docs/2026-06-25_bayes-and-ml-taxonomy_s1.md` (GD example) | 2026-06-28 | 2026-06-28 | +1d | **2026-07-02 — DUE (overdue)** |
+| Chain rule → training gradient `2(P−T)·x` (u-sub, credit assignment, thermal cycle) | `docs/2026-07-05_chain-rule-to-gradient_F.md` | 2026-07-05 | 2026-07-05 (depth-gated, rebuilt from scratch) | +1d | 2026-07-06 |
 
 **Legend:** DUE items are batched into the next recall sprint / due-cards deck. Snap a due date to a
 pre-class Saturday slot when the weekend session builds on that topic.

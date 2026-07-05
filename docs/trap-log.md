@@ -15,6 +15,10 @@ recap: Every trap I fell into, one line each — the strongest recall hooks I ow
 
 | Date | The trap (what I believed) | The correction (what's true) | Full story |
 |---|---|---|---|
+| 2026-07-05 | "∂p/∂w = w" (for p = w·x + b) | It's **x** — the coefficient of the variable is the rate. `w` is the knob you turn, `x` is the fixed dial reading | [chain-rule §4](2026-07-05_chain-rule-to-gradient_F.md) |
+| 2026-07-05 | "8(2x+1)³ simplifies to 8(4x+2)³" | Can't slide a coefficient into a power: (4x+2)³ = 2³(2x+1)³ = 8(2x+1)³ (it gets **cubed**). **Leave it factored** | [chain-rule §2](2026-07-05_chain-rule-to-gradient_F.md) |
+| 2026-07-05 | "(5x−2)³ → derivative is 20x−4" | Dropped the cube (used u² not u³). **Degree-check:** deriv of a cubic must be a quadratic — a line means an exponent was lost. Correct: 15(5x−2)² | [chain-rule §2](2026-07-05_chain-rule-to-gradient_F.md) |
+| 2026-07-05 | "just expand it, then power-rule" | Works for a bare polynomial, but you **can't expand** sigmoid(w·x+b) — the chain rule is the only way for compositions (= every ML gradient) | [chain-rule §6](2026-07-05_chain-rule-to-gradient_F.md) |
 | 2026-07-03 | "PCA gives me the price-prediction weights" | PCA gives **recipe weights (loadings)** — how to *blend* features. Prediction weights come later, from gradient descent, using the label | [linear-algebra §21](2026-06-28_linear-algebra-vectors-dot-cosine_F.md) |
 | 2026-07-03 | "PCA is like gradient descent — it also reduces a loss" | PCA has **no loss and no label** — it reshapes features. They live on opposite sides of the label-entry line | [pipeline map §1b](2026-07-02_ml-pipeline-math-map_F.md) |
 | 2026-07-03 | "PCA can't be used in my supervised project — it's unsupervised" | The label rule is about the **method, not the pipeline**: PCA-the-step never sees the label, so it's unsupervised *even inside* a supervised project | [taxonomy notes](2026-06-25_bayes-and-ml-taxonomy_s1.md) |
