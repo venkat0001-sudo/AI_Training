@@ -411,6 +411,23 @@
      "url": "https://arxiv.org/abs/2509.05365"
     }
    ]
+  },
+  {
+   "slug": "entropy",
+   "label": "Entropy · information gain",
+   "lane": "m1",
+   "status": "learning",
+   "edge": 3,
+   "res": [
+    {
+     "label": "StatQuest — Entropy, Clearly Explained",
+     "url": "https://www.youtube.com/watch?v=YtebGVx-Fxw"
+    },
+    {
+     "label": "Aurélien Géron — Entropy, Cross-Entropy, KL (gem)",
+     "url": "https://www.youtube.com/watch?v=ErfnhcEV1O8"
+    }
+   ]
   }
  ],
  "edges": [
@@ -643,6 +660,21 @@
    "from": "edge-ai",
    "to": "thermal-project",
    "why": "INT8-quantized inference on the SSD controller"
+  },
+  {
+   "from": "probability",
+   "to": "entropy",
+   "why": "entropy = expected surprise / how mixed a bucket is"
+  },
+  {
+   "from": "entropy",
+   "to": "trees-svm",
+   "why": "information gain (Δentropy) picks each tree split"
+  },
+  {
+   "from": "entropy",
+   "to": "ensembles",
+   "why": "boosting leans on entropy/log-odds to weight learners"
   }
  ]
 }
