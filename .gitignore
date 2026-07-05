@@ -1,8 +1,19 @@
 # OS cruft
 .DS_Store
 
+# Python virtual environment (machine-specific, never publish)
+.venv/
+
 # Private / personal docs (employer + personal schedule — repo is public)
 *.docx
 
 # Raw uploaded session resource bundles (kept locally, not published)
 *_resources/
+
+# Obsidian: keep vault CONFIG (the *.json), drop the regenerable bulk.
+# NOTE: gitignore has no inline comments — patterns must stand alone.
+# .smart-env = embeddings cache (regenerable) · plugins/ = binaries (reinstall from community-plugins.json)
+**/.smart-env/
+**/.obsidian/plugins/
+**/.obsidian/workspace.json
+**/.obsidian/workspace-mobile.json
