@@ -55,7 +55,7 @@ actually happened in session.
 
 - **Every notes doc starts with YAML front-matter** (Obsidian-native; `tools/build_hub.py` scans it):
   `title`, `date`, `sessions: [F|s1..s32]`, `concepts: [slugs matching tools/web.json]`,
-  `type: notes|consolidated|map|ledger|primer`, `recap:` one-line reactivation hook (shows on hub cards).
+  `type: notes|consolidated|map|ledger|primer|research`, `recap:` one-line reactivation hook (shows on hub cards).
 - **Consolidated docs:** when a concept arc completes (e.g. linear algebra after s5), distill its
   chunks into `docs/00_<concept>-consolidated.md` (`00_` sorts first; `type: consolidated` pins it as
   the arc's cover scroll in the hub). It must END with a **one-page formula card** (one screen,

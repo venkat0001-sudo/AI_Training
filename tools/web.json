@@ -390,6 +390,27 @@
    "lane": "m6",
    "status": "upcoming",
    "edge": 1
+  },
+  {
+   "slug": "thermal-project",
+   "label": "🎯 Thermal-ML (rung project)",
+   "lane": "m2",
+   "status": "learning",
+   "edge": 3,
+   "res": [
+    {
+     "label": "Project map — course→project + readiness timeline",
+     "url": "https://github.com/venkat0001-sudo/AI_Training/blob/main/docs/2026-07-04_thermal-ml-project-map_F.md"
+    },
+    {
+     "label": "Research survey (40 papers)",
+     "url": "https://github.com/venkat0001-sudo/AI_Training/blob/main/docs/2026-07-04_ssd-thermal-ml-research.md"
+    },
+    {
+     "label": "Waltz — temp-aware cooperative compression (arXiv)",
+     "url": "https://arxiv.org/abs/2509.05365"
+    }
+   ]
   }
  ],
  "edges": [
@@ -592,6 +613,36 @@
    "from": "alignment",
    "to": "governance",
    "why": "the safety layer, scaled to autonomy"
+  },
+  {
+   "from": "regression",
+   "to": "thermal-project",
+   "why": "baseline: predict 'throttle in next N seconds'"
+  },
+  {
+   "from": "ensembles",
+   "to": "thermal-project",
+   "why": "XGBoost = the exact thermal-forecaster family in the papers"
+  },
+  {
+   "from": "kmeans",
+   "to": "thermal-project",
+   "why": "data-hotness clustering cuts write-amp heat (HAML-SSD)"
+  },
+  {
+   "from": "pca",
+   "to": "thermal-project",
+   "why": "20 telemetry channels → 3 for a controller-sized model"
+  },
+  {
+   "from": "rnn",
+   "to": "thermal-project",
+   "why": "LSTM transient forecaster: heat now → die-temp in 10 s"
+  },
+  {
+   "from": "edge-ai",
+   "to": "thermal-project",
+   "why": "INT8-quantized inference on the SSD controller"
   }
  ]
 }

@@ -81,9 +81,12 @@ cover?") rather than guessing. Today's date plus the curriculum dates usually pi
 - **Weekly rhythm he committed to:** Sat/Sun deep-dive (1.5–2 h, artifacts same day) → Sun/Mon
   Jupyter lab in `labs/` (run + modify every numpy twin, predict-before-run) → Tue+Thu daily recall
   deck → **Friday voice teach-back** (Feynman check on the week's core concept) before the next primer.
-- **Module-boundary ritual (e.g. M1 ends 19 Jul):** open `docs/2026-07-02_edge-ai-roadmap.md` →
-  write the arc's `docs/00_<concept>-consolidated.md` → pick the next project-ladder rung → queue the
-  next external unit (after M1: the dev board + Warden's *TinyML*; from M2: HarvardX TinyML).
+- **Module-boundary ritual (e.g. M1 ends 19 Jul):** open `docs/2026-07-02_edge-ai-roadmap.md` +
+  the **readiness timeline** in `docs/2026-07-04_thermal-ml-project-map_F.md` §0 → check the dated
+  gate is met (skills owned) → write the arc's `docs/00_<concept>-consolidated.md` → pick the next
+  **thermal-project rung (R0–R6)** → queue the next external unit AND the next paper on the reading
+  ladder (project-map §4: now=smarter-SSDs survey, after-s4=fast-prediction, M2=Waltz, after-s8=MPC,
+  M5=KORAL). After M1: dev board + Warden's *TinyML*; from M2: HarvardX TinyML.
 - **End-of-session artifact routine now includes the hub:** update `tools/web.json` (the day's
   nodes/edges/statuses/res) + `docs/recall-ledger.md` + `docs/trap-log.md` (if a trap happened) →
   run `python3 tools/build_hub.py` → commit `index.html` with the inputs → push.
@@ -94,12 +97,20 @@ Teach each concept through these beats. They are a rhythm, not a rigid checklist
 it adds nothing, and let the concept's difficulty set the depth. The spirit: **motivate → build
 intuition → ground in his world → show the math → connect it to neighbors → land it on real hardware.**
 
-0. **⭐ THE EDGE CHAIN (session cold-open — his 2026-07-04 directive, do this FIRST).** Before
-   teaching anything, lay out the concept's **chain to Edge-AI** as one arrow line, traced through
-   `tools/web.json` edges, e.g.:
+0. **⭐ THE DAILY COMPASS (session cold-open — his 2026-07-04/05 directive, do this FIRST, EVERY session).**
+   Before teaching anything, orient him three ways in ~4 lines — this is the "remind ourselves before
+   starting anything" ritual he asked for:
+   (a) **The Edge chain** — the concept's arrow line to Edge-AI, traced through `tools/web.json` edges:
    `covariance ──► eigenvectors ──► PCA ──► feature compression ──► fewer MACs/SRAM ──► on-device inference`
-   Then state its **edge-relevance grade** (the `edge` field on the web.json node) and the depth
-   budget that grade buys:
+   (b) **⭐ The PROJECT hook** — map the concept to the specific brick it builds in his rung-1
+   thermal-throttle project, via the concept→thermal-project edges in web.json and the concept→piece
+   table in `docs/2026-07-04_thermal-ml-project-map_F.md` §2. (e.g. "ensembles → XGBoost = the exact
+   thermal-forecaster family in the papers"). Not generic "edge AI" — HIS engine.
+   (c) **⭐ The dated GATE** — name where he is on the readiness timeline (project-map §0) and the
+   NEXT dated gate: "we're at s3; by **Jul 18** you must OWN k-means+PCA to build R1." Keep the finish
+   line and the countdown in view daily.
+   Then state the concept's **edge-relevance grade** (the `edge` field on the web.json node) and the
+   depth budget it buys:
    - **⭐⭐⭐ core edge skill** → drill until he can rebuild it from scratch (numpy twin + teach-back mandatory)
    - **⭐⭐ supporting** → solid understanding + decision boundary; normal depth
    - **⭐ course-only** → honest 15-minute pass for the exam, no deep-dive unless he asks
@@ -181,6 +192,11 @@ intuition → ground in his world → show the math → connect it to neighbors 
 9. **The Edge-AI bridge.** End each topic with how it shows up when you put AI on constrained
    silicon: fixed-point vs float, INT8 quantization, RAM/flash budget, real-time deadlines,
    throughput-vs-latency, thermal/power limits. This is *why he is here* — keep it in view.
+   **⭐ Prefer THERMAL-PROJECT examples now (2026-07-05):** the research doc grounds every bridge in his
+   rung-1 project — end topics with the concrete thermal-throttle brick they build (per
+   `docs/2026-07-04_thermal-ml-project-map_F.md` §2), not a generic edge example. E.g. gradient
+   descent → "this is what trains the R2 temperature forecaster"; PCA → "20 telemetry channels → 3
+   for a controller-sized model." Generic edge framing only when a topic genuinely doesn't touch the project.
 
 10. **Predict before you run (active recall).** Close with a quick question he should answer before
     moving on — "what happens to the std-dev if I add one huge outlier?" Retrieval beats re-reading

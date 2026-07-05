@@ -56,6 +56,10 @@ Live evidence that his exact home turf is an AI frontier:
   closed-loop systems integrating sensors + algorithms + firmware, analyzing workload patterns to
   **preemptively throttle/cool** — which IS his planned capstone project.
 - Datasets to practice on exist publicly (e.g. Backblaze drive-stats SMART data).
+- **Named, cited proof (2026-07-04):** the field has *real* frameworks — **Waltz** (temperature-aware
+  cross-layer compression, arXiv 2509.05365), **KORAL** (LLM+knowledge-graph SSD telemetry reasoning,
+  arXiv 2602.10246), **HAML-SSD** (hotness-aware ML FTL), **MPC thermal throttling** in flash, and
+  **DPB** (temperature-resilient NN weights in V-NAND, +10.5pp). See `2026-07-04_ssd-thermal-ml-research.md`.
 
 **Positioning statement (the resume line to grow into):** *"I put ML inside the SSD controller —
 predictive thermal management and failure prediction running in firmware under real-time budgets."*
@@ -73,28 +77,31 @@ predictive thermal management and failure prediction running in firmware under r
 
 ---
 
-## 5. The project ladder (each rung unlocked by a course module)
+## 5. The project ladder — RESEARCH-GROUNDED (each rung dated + unlocked by a module)
+
+> Rebuilt 2026-07-04 from `2026-07-04_ssd-thermal-ml-research.md`. The **dated readiness timeline**
+> (by DATE X own skills Y) lives in `2026-07-04_thermal-ml-project-map_F.md` §0 — check it daily.
 
 ```
-Rung 0  NOW           → notebook fluency: NumPy pipelines (done: covariance→eigen→PCA capstone)
-Rung 1  after Sess 2-3 → SMART-data failure prediction, classic ML (logistic regression / tree)
-        (Jul 2026)       on the Backblaze public dataset — HIS domain, laptop-only, no hardware
-Rung 2  after Sess 5   → PCA + anomaly detection on SSD telemetry (synthetic or bench logs):
-        (Jul 2026)       20-channel → 3-feature pipeline he already built, now productionized
-Rung 3  after Sess 7-8 → first neural net: thermal time-series → throttle-event predictor (Python)
-        (Aug 2026)
-Rung 4  after Sess 11  → DEPLOY IT: quantize to INT8, run on a Cortex-M dev board (TFLite-Micro
-        (Aug 2026)       or Edge Impulse); classic starter alternatives: keyword spotting /
-                         gesture recognition / anomaly detection on ESP32 or Arduino BLE33
-Rung 5  Module 4-5     → compress smarter (QLoRA ideas), evaluate properly, drift monitoring
-        (Oct-Dec 2026)
-Rung 6  CAPSTONE       → predictive thermal-throttle model architected for SSD-controller
-        (Jan 2027 →)     constraints (SRAM-size model, deterministic latency, INT8) — the
-                         portfolio centerpiece + the work story
+R0  NOW (M1)      → rule-based throttle SIMULATOR + synthetic telemetry generator (temp/IOPS/QD).
+    ~Jul '26        The baseline to beat; doubles as NumPy practice.
+R1  M1 end (s5)   → classical "throttle in next N s?" classifier (logistic/tree/forest)
+    Jul 18          + k-means data-hotness + PCA on 20 channels. Laptop-only, HIS telemetry.
+R2  M2 (s10/s11)  → MLP temperature regressor → LSTM transient FORECASTER; INT8-quantize,
+    Aug '26          measure size/latency on the dev board (buy before Jul 25).
+R3  M2→M3         → 18-gear granular control demo vs bang-bang baseline: p99 / jitter plots
+    ~Aug 29         (his QoS language) — proof the ML tapers smoother than the step-function.
+R4  M4 (s20)      → 4–8-bit quantization deep-dive (NPU-style, DPB-aware) + PUBLIC write-up;
+    Oct '26          MPC bridge reading (control step beyond his PID knowledge).
+R5  M5 (s24)      → KORAL-style LLM-over-telemetry mini (knowledge-graph fleet reasoning);
+    Nov–Dec '26      DRL channel/GC concept study (paper-level, research-stage).
+R6  CAPSTONE      → predictive thermal-throttle model architected for SSD-controller constraints
+    Jan '27 →        (SRAM-size, deterministic latency, INT8). Portfolio centerpiece + work story.
 ```
 
 Free structured back-up tracks: HarvardX TinyML (edX), Edge Impulse university courseware (GitHub),
-MLSysBook (Harvard's ML-systems textbook), awesome-tinyml list.
+MLSysBook (Harvard's ML-systems textbook), awesome-tinyml list. **Full concept→rung mapping + the
+40-paper reading ladder: `2026-07-04_thermal-ml-project-map_F.md`.**
 
 ---
 
