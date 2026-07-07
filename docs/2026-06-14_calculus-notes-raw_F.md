@@ -5,6 +5,7 @@ sessions: [F]
 concepts: [calculus]
 type: notes
 recap: Raw upGrad session dump the calculus-foundations doc was distilled from
+up: "[[MOC-foundation-math]]"
 ---
 
 Hour 1 Student Notes

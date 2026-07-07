@@ -83,15 +83,20 @@ def parse_front_matter(text):
 
 def scan_artifacts():
     arts = []
-    for p in sorted(DOCS.glob("*.md")):
+    # docs/ root + the Obsidian Atlas layers (concepts/ atoms, maps/ MOCs)
+    md_paths = sorted(DOCS.glob("*.md")) + sorted(DOCS.glob("concepts/*.md")) + sorted(DOCS.glob("maps/*.md"))
+    for p in md_paths:
+        rel = p.relative_to(DOCS).as_posix()
         meta = parse_front_matter(p.read_text(encoding="utf-8"))
         if not meta:
-            warnings.append(f"no front-matter: docs/{p.name}")
+            warnings.append(f"no front-matter: docs/{rel}")
             continue
+        # concept atoms: the atom's own slug is its concept; front-matter has no concepts: list
+        concepts = meta.get("concepts", [p.stem] if rel.startswith("concepts/") else [])
         arts.append({
-            "file": p.name, "href": GH + p.name, "kind": meta.get("type", "notes"),
+            "file": rel, "href": GH + rel, "kind": meta.get("type", "notes"),
             "title": meta.get("title", p.name), "date": meta.get("date", ""),
-            "sessions": meta.get("sessions", []), "concepts": meta.get("concepts", []),
+            "sessions": meta.get("sessions", []), "concepts": concepts,
             "recap": meta.get("recap", ""), "loc": "gh",
         })
     for p in sorted(HTML.glob("*.html")):

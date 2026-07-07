@@ -5,6 +5,7 @@ sessions: []
 concepts: [meta]
 type: ledger
 recap: What is due when — the interval-ladder table the daily deck builds from
+up: "[[HOME]]"
 ---
 
 # Recall ledger — spaced-repetition tracker

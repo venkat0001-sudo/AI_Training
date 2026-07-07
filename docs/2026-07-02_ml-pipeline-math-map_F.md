@@ -5,6 +5,7 @@ sessions: [F]
 concepts: [ml-pipeline]
 type: map
 recap: 6-box pipeline; which math powers which box; house-price flow with the label-entry line
+up: "[[MOC-foundation-math]]"
 ---
 
 # The Whole Picture — Where Each Math Piece Plugs Into Machine Learning

@@ -5,6 +5,7 @@ sessions: []
 concepts: [thermal-project]
 type: map
 recap: The daily north-star. Dated readiness milestones (by DATE X, own skills Y) + every course concept mapped to a piece of the in-storage thermal-throttle ML project. Read the top strip before every session.
+up: "[[MOC-thermal-project]]"
 ---
 
 # 🎯 Thermal-ML Project Map — the course, assembling MY project

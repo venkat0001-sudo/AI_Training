@@ -5,6 +5,7 @@ sessions: []
 concepts: [thermal-project]
 type: research
 recap: The rung-1 project's research base — why rule-based throttling fails, LSTM/XGBoost forecasting, MPC, DRL scheduling, Waltz, KORAL; 40 citations. Read via the project map, not cover-to-cover.
+up: "[[MOC-thermal-project]]"
 ---
 
 # **The Paradigm Shift in Solid-State Drive Thermal Management: Transitioning from Rule-Based Firmware to In-Storage Machine Learning**

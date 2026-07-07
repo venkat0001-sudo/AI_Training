@@ -5,6 +5,7 @@ sessions: []
 concepts: [edge-ai]
 type: map
 recap: Goal, market data, storage×AI unfair advantage, the 6-rung project ladder
+up: "[[MOC-thermal-project]]"
 ---
 
 # Edge-AI Roadmap — from SSD-firmware engineer to exceptional Edge-AI engineer
