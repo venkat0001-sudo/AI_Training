@@ -2,12 +2,15 @@
 title: Session 2 — Linear & Logistic Regression (deck + transcript master notes)
 date: 2026-06-27
 sessions: [s2]
-concepts: [regression, gradient-descent, neural-nets]
+concepts: [regression, gradient-descent, cross-entropy, neural-nets]
 type: notes
+up: "[[MOC-m1-ml-fundamentals]]"
 recap: The full 62-slide deck (incl. every handwritten annotation) + transcript — perceptron→dot product→linear/logistic regression→regularization→gradient descent (batch/SGD/mini-batch)
 ---
 
 # Session 2 — Supervised Learning: Linear & Logistic Regression
+
+> **Permanent homes (Atlas concept atoms):** [[regression]] · [[cross-entropy]] · [[gradient-descent]] (§10/§12 layered there) — the atoms hold the distilled anchors + typed links; this scroll stays the slide-by-slide record.
 
 > **Master notes, aggressively extracted from the slide deck (all 62 slides, including the
 > professor's live handwritten ink) + the class transcript.** Lecturer: **Mahesh Mohan M R, Dept of

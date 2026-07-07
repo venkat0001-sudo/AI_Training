@@ -85,6 +85,7 @@ scroll:: [[2026-06-14_calculus-foundations_F]] — Hour 2 (gradient, loss, learn
 
 - **2026-06-14 (F):** fog-mountain intuition, gradient = GPS, learning rate, local minima. → [[2026-06-14_calculus-foundations_F]]
 - **2026-06-28 (F):** first numeric loss-shrinking example (in the Bayes-session notes). → [[2026-06-25_bayes-and-ml-taxonomy_s1]]
+- **2026-06-27 (s2):** the update rule DERIVED (h = −λf′ ⇒ loss must drop), batch vs SGD vs mini-batch, epochs vs iterations. → [[2026-06-27_s2-linear-logistic-regression-ppt-notes_s2]] §10, §12
 - **2026-07-05 (depth-gated):** derived the training rule BY HAND from the chain rule; the full 2-sensor thermal cycle; credit assignment owned. → [[2026-07-05_chain-rule-to-gradient_F]]
 
 ## Project brick

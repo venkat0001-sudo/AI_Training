@@ -428,6 +428,19 @@
      "url": "https://www.youtube.com/watch?v=ErfnhcEV1O8"
     }
    ]
+  },
+  {
+   "slug": "cross-entropy",
+   "label": "Cross-entropy · MLE",
+   "lane": "m1",
+   "status": "learning",
+   "edge": 3,
+   "res": [
+    {
+     "label": "Aurélien Géron — Entropy, Cross-Entropy, KL (gem)",
+     "url": "https://www.youtube.com/watch?v=ErfnhcEV1O8"
+    }
+   ]
   }
  ],
  "edges": [
@@ -675,6 +688,21 @@
    "from": "entropy",
    "to": "ensembles",
    "why": "boosting leans on entropy/log-odds to weight learners"
+  },
+  {
+   "from": "entropy",
+   "to": "cross-entropy",
+   "why": "same −Σp·log machinery: entropy scores one distribution, cross-entropy scores predictions vs true labels"
+  },
+  {
+   "from": "regression",
+   "to": "cross-entropy",
+   "why": "maximize the logistic likelihood → log → cross-entropy falls out (S53–56)"
+  },
+  {
+   "from": "cross-entropy",
+   "to": "neural-nets",
+   "why": "THE classification loss the whole DL half trains against"
   }
  ]
 }
