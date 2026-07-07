@@ -2,16 +2,21 @@
 title: Bayes' Theorem & The ML Bloodline
 date: 2026-06-25
 session: Sage Scroll II
+sessions: [s1]
+concepts: [bayes, ml-taxonomy, probability]
+type: notes
+up: "[[MOC-m1-ml-fundamentals]]"
+recap: "The 200-cycle table (18/18/2/162 → 50% trust), the base-rate trap, the AI→ML→classic/deep bloodline, trained-tree-vs-firmware, features-vs-weights."
 domain: SSD thermal throttling
 tags: [bayes, probability, machine-learning, taxonomy, decision-tree, edge-ai]
 goal: on-device predictive thermal-throttle ML model (Edge AI)
 ---
 
-# 🐸 Sage Scroll II — Bayes' Theorem & The ML Bloodline
+# 🍥 Sage Scroll II — Bayes' Theorem & The ML Bloodline
 
 > Running example throughout: **SSD thermal throttling** — a sensor reads temperature, fires HOT, and firmware must decide whether to throttle.
 
-**Concepts mastered today:** [[Bayes' Theorem]] · [[AI vs ML vs Deep Learning]] · [[Classic ML vs Deep Learning Models]] · [[Decision Tree]] · [[Features vs Weights]]
+**Concepts mastered today (Atlas atoms):** [[bayes|Bayes' Theorem]] · [[ml-taxonomy|AI vs ML vs Deep Learning]] · [[trees-svm|Decision Tree]] · [[ml-taxonomy|Features vs Weights]] · [[probability]]
 
 ---
 
