@@ -106,6 +106,10 @@ clickable via §5 rules in the body).
 
 Statuses/edge/lane MUST stay in sync with web.json — they are the same fact in two mirrors (§8).
 
+**Parseability rule:** front-matter must stay readable by `build_hub.py`'s minimal parser —
+single-line values only, lists as `[a, b, c]`, no multiline/nested YAML. Quoted scalars are fine
+(the parser strips quotes).
+
 ## 4. The concept-atom template (the required skeleton)
 
 ```markdown
@@ -134,6 +138,9 @@ The ONE worked example that owns this concept — exact session values, never ch
 ## Numpy twin
 One Jupyter-ready cell (imports included). If the concept has a shape, it PLOTS the shape
 and prints the anchor numbers as the check. (Recipe: markdown-notes-recipe.md §2b.)
+⛔ EXECUTE the twin before committing — inline `# comments` must match the ACTUAL printed
+output, not the intended one (numpy eigenvectors may come out sign-flipped; rounding differs
+from hand-math: say "±[0.447, 0.894]" and tie prints back to the anchor's precision).
 
 ## Where it came from / where it goes (typed links — the web, see §5)
 builds-on:: [[mean]] — σ measures distance *from the mean*; no mean, no σ
@@ -201,7 +208,9 @@ node that severs it.
    - `trap::` (links into trap-log entries)
    - `project-brick::` (the thermal-project piece it builds)
    - `scroll::` (the session scroll(s) where the journey happened)
-   - `twin-page::` (the interactive HTML recap in `html/` that animates this concept)
+   - `twin-page::` (the interactive HTML recap in `html/` that animates this concept — ⚠️ `html/`
+     sits OUTSIDE the docs vault, so twin-page uses a relative **markdown** link
+     `[label](../html/page.html)`, never a wikilink)
    - `lab::` (the Jupyter notebook in `labs/` where the numpy twin runs)
    - `video::` (the ONE matched external unit — StatQuest/3B1B, mirrors web.json `res`)
    - `paper::` (reading-ladder papers, M2+ — Waltz, KORAL, MPC…)
@@ -223,13 +232,22 @@ node that severs it.
    `[[attention]]` NOW. Obsidian tracks unresolved links; when s14 arrives the atom is created and
    every prior mention lights up retroactively. Sprinkle forward-links deliberately at the
    "feeds::" beat — future sessions inherit a pre-built inbound web.
-6. **Aliases make links happen.** Concepts get every surface form in `aliases:` (σ, std-dev,
-   "amount of say", log-odds…). **Collision rule:** an alias must be unambiguous vault-wide — σ
-   may alias standard-deviation only until sigmoid claims overlap; then keep the alias on the
-   dominant owner and always link the other explicitly (`[[sigmoid|σ(z)]]`).
+6. **Aliases make links happen — via autocomplete, NOT bare links.** Concepts get every surface
+   form in `aliases:` (σ, std-dev, "amount of say", log-odds…). ⚠️ A bare `[[z-score]]` does NOT
+   resolve to the note aliased as z-score — Obsidian aliases only power autocomplete/search. To
+   link an alias, write `[[normal-distribution|z-score]]`. A bare alias-link is just an
+   unresolved seed. **Collision rule:** an alias must be unambiguous vault-wide — σ may alias
+   standard-deviation only until sigmoid claims overlap; then keep the alias on the dominant
+   owner and always link the other explicitly (`[[sigmoid|σ(z)]]`).
 7. **⛔ The matrix-literal hazard.** `A = [[2,0],[0,3]]` outside a code span IS a wikilink to a
    note named "2,0],[0,3". Every matrix/list literal must sit in backticks or a fenced block. When
    migrating old notes, grep for `[[` that isn't a real link and fence it.
+7b. **Wikilinks inside markdown tables escape the pipe:** `[[slug\|Display]]` — a bare `|` ends
+   the cell. Corollary for machine parsers (`build_hub.py`'s ledger parser already complies):
+   split table rows on UNESCAPED `|` only, and render `[[slug\|Display]]` down to its display text.
+7c. **Heading links break on exotic headings.** If a target heading contains backticks, brackets,
+   or quotes, link the FILE (+ "§n" as plain text) or stamp a block ID instead — a heading link
+   containing nested `[[`/backticks will not resolve.
 8. **MOC membership.** Every atom links up (`up:` field) and every MOC lists the atom. No orphans:
    a note reachable only by search is a note lost by October.
 
@@ -295,6 +313,9 @@ When asked to convert existing notes (may run file-by-file across weeks):
 
 ## 10. Weekly hygiene (5 minutes that saves the web — run at the module-boundary ritual too)
 
+- **Run the auditor first:** `python3 tools/atlas_audit.py` (add `--twins` in the project venv).
+  It machine-checks broken links/heading anchors/block embeds, alias collisions, matrix-literal
+  hazards, and vault↔web.json mirror drift. Zero problems is the bar.
 - **Orphan sweep:** any concept atom with zero inlinks? Wire or merge it.
 - **Unresolved-link triage:** which seeds are due to become atoms this module?
 - **Stub debt:** `#incomplete` notes (like the entropy stub) — resurface before the session that
@@ -308,7 +329,9 @@ When asked to convert existing notes (may run file-by-file across weeks):
 - [ ] every first mention of a known concept is a wikilink; typed links each carry a why
 - [ ] builds-on chain bottoms out at foundation atoms (stubs seeded if not)
 - [ ] anchor numbers block-anchored once, embedded elsewhere (never re-typed)
-- [ ] matrix/list literals fenced (§5.7)
+- [ ] numpy twin EXECUTED; inline comments match the actual output (§4)
+- [ ] matrix/list literals fenced (§5.7); table wikilinks use `\|` (§5.7b)
+- [ ] `python3 tools/atlas_audit.py` reports clean
 - [ ] `up:` set + listed in its MOC; depth-layer entry added if this was a re-encounter
 - [ ] web.json + hub updated in the same session; recall-ledger row touched if learning happened
 - [ ] pedagogy bar still met (markdown-notes-recipe: journey, traps, boundary, twin, analogies)
