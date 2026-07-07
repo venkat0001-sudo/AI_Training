@@ -115,10 +115,14 @@ Statuses/edge/lane MUST stay in sync with web.json — they are the same fact in
 
 # {Title}
 
-> **Recap:** {the one-breath reactivation hook — same text as front-matter recap}
+> **Recap:** {a DECLARATIVE CLAIM, not a topic label — "σ is the average distance from the mean;
+> jitter, not center", never "about standard deviation". The claim is the note's API (evergreen-notes
+> standard); front-matter recap = same text}
 
 **Chain:** [[variance-sigma]] ──► **σ** ──► [[normal-distribution]] ──► [[z-score]]
-*(the concept's place in the arrow-line, every link real — this is the Daily Compass edge chain, written down)*
+*(the concept's place in the arrow-line — this is the Daily Compass edge chain, written down.
+⛔ NEVER put the chain in a code fence: wikilinks do not resolve inside fences. Plain markdown
+line(s), `──►` arrows, real links. Multi-branch chains = one plain line per branch.)*
 
 ## What it is (plain words)
 One-to-three lines, zero symbols. A stranger follows it.
@@ -153,6 +157,10 @@ used-by:: [[pca]] — scale features first or the big-σ feature hijacks the axe
 Which piece of the rung-1 thermal model this builds (project-map §2 language) —
 e.g. "σ of the temperature channel = the jitter the forecaster must not confuse with trend."
 
+## Formula
+The formula LAST, every symbol decoded (standard heading name — exam-time queries and the
+module formula card harvest every atom's `## Formula` section by heading).
+
 ## Flashcards
 #flashcards/standard-deviation
 Q :: A cards (3–6, per flashcards-spaced-recall.md card rules) — optional but preferred.
@@ -160,6 +168,23 @@ Q :: A cards (3–6, per flashcards-spaced-recall.md card rules) — optional bu
 
 Skip a section only when it honestly has nothing (a `type: moc` link dump needs no numpy twin).
 **Anchor numbers, decision boundary, and typed links are NEVER optional** in a concept atom.
+
+**The skim layer (progressive summarization):** bold exactly ONE keystone sentence per section —
+the sentence future-him reads when skimming at 2× before an exam. Bold nothing else in prose.
+
+**Systems concepts (M3–M6: attention, RAG, agents, MLOps…) adapt two sections, keep the rest:**
+- *anchor numbers* → **the anchor TRACE**: one minimal end-to-end walk with concrete values
+  (query → top-k=3 chunks → prompt of 412 tokens → answer), block-anchored the same way;
+- *numpy twin* → the **smallest runnable snippet** (a 10-line attention score compute, a 15-line
+  toy RAG loop). Decision boundary, typed links, depth layers apply unchanged — an agent loop has
+  prerequisites and wrong-tool zones exactly like σ does.
+
+**Source-of-record rule:** an atom may distill from an HTML teaching page (some Foundation
+concepts live only in `html/*.html`) — link it `twin-page::` and lift the SAME anchor numbers the
+page animates. If a concept has NO written source yet (taught in chat only), the atom is born a
+STUB: front-matter `tags: [incomplete]`, intuition + whatever anchors exist, plus a "still owed"
+checklist — exactly the entropy pattern. A stub atom that holds the web together beats a missing
+node that severs it.
 
 ## 5. The linking law (the heart of the skill — enforce ruthlessly)
 
@@ -175,6 +200,10 @@ Skip a section only when it honestly has nothing (a `type: moc` link dump needs 
    - `trap::` (links into trap-log entries)
    - `project-brick::` (the thermal-project piece it builds)
    - `scroll::` (the session scroll(s) where the journey happened)
+   - `twin-page::` (the interactive HTML recap in `html/` that animates this concept)
+   - `lab::` (the Jupyter notebook in `labs/` where the numpy twin runs)
+   - `video::` (the ONE matched external unit — StatQuest/3B1B, mirrors web.json `res`)
+   - `paper::` (reading-ladder papers, M2+ — Waltz, KORAL, MPC…)
    Every typed link carries a trailing `— why` clause, same discipline as web.json edges. **A link
    without a why is noise; a why without a link is rot.**
 3. **`builds-on::` chains must bottom out.** Follow any concept's builds-on chain and you reach
@@ -185,6 +214,10 @@ Skip a section only when it honestly has nothing (a `type: moc` link dump needs 
    `[[trap-log#^cov-sign]]`. Give every numeric anchor a block ID (`^anchor`, `^cov-3x3`) and
    **embed** (`![[covariance#^anchor]]`) instead of re-typing numbers — anchors then live in ONE
    file, and the "notes and twins must agree" rule becomes structurally guaranteed.
+   **Heading-freeze corollary:** the moment any atom links `[[scroll#heading]]`, that heading is
+   frozen (renaming silently breaks the link). During migration, prefer stamping block IDs
+   (`^la-4cases`) on a scroll's keystone blocks and linking those instead of headings.
+   **Every trap-log line carries a block ID** (`^cov-sign`) so atoms embed traps, never copy them.
 5. **Unresolved links are seeds, not errors.** Teaching regression and attention comes up? Write
    `[[attention]]` NOW. Obsidian tracks unresolved links; when s14 arrives the atom is created and
    every prior mention lights up retroactively. Sprinkle forward-links deliberately at the
@@ -228,6 +261,9 @@ merely shares a name (cross-entropy is not entropy) gets its own atom + `builds-
   and three live queries: due recalls (`status = "due"`), stubs/half-taught
   (`contains(tags,"incomplete")`), and recently touched (`sort file.mtime desc limit 10`).
 - MOCs are curated by hand; queries supplement, never replace, the curated order.
+- **Each MOC ends with a `## Seeds pending` line-list** — the unresolved links this arc has
+  promised (e.g. `[[cross-entropy]]`, `[[gini-impurity]]`), so weekly hygiene (§10) has one place
+  to triage which seeds are due to become atoms before the session that needs them.
 
 ## 8. The web.json sync contract (two mirrors, one truth)
 

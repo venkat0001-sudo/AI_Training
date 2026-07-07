@@ -2,14 +2,17 @@
 title: Linear algebra — vectors → dot → cosine → covariance → eigen → PCA
 date: 2026-06-28
 sessions: [F]
-concepts: [vectors, covariance, eigenvectors, pca]
+concepts: [vectors, variance-sigma, normal-distribution, covariance, eigenvectors, pca]
 type: notes
+up: "[[MOC-foundation-math]]"
 recap: The 860-line spine: walk 3E-4N=5 → dot's two lies → cosine → covariance votes → eigen stretch → the two weights (§21)
 ---
 
 # Linear Algebra Foundations — Vectors, Magnitude, Dot Product & Cosine Similarity
 
 > Revision notes for the **2026-06-28 hands-on lab** — a NumPy practical built on top of the earlier Foundation classes (hence the `_F` tag, not a session number). Spine = **dot product + cosine similarity**; everything else (matrices, covariance, eigen) is recognition-level. This doc captures the magnitude → dot → cosine arc and the A/D/C recommendation example that shows *when each tool wins*.
+>
+> **Permanent homes (Atlas concept atoms):** [[vectors]] · [[variance-sigma]] · [[normal-distribution]] · [[covariance]] · [[eigenvectors]] · [[pca]] — this scroll stays the full journey record; the atoms hold the distilled anchors + the connection web.
 
 ---
 
