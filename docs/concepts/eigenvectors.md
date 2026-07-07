@@ -51,9 +51,9 @@ sensors rise together"); the repeated λ=1 leaves a 2-D differential plane. Sani
 import numpy as np
 C = np.array([[100, 200], [200, 400]])
 lam, V = np.linalg.eig(C)
-print(lam)                       # [0, 500] — the two stretch factors
+print(lam)                       # [0. 500.] — the two stretch factors
 v1 = V[:, np.argmax(lam)]
-print(v1)                        # [0.447, 0.894] = [1,2] normalized — same direction
+print(v1)                        # ±[0.447, 0.894] = [1,2] normalized (numpy may flip the sign — direction is what matters)
 print(C @ v1, lam.max() * v1)    # equal ✓  C·v = λ·v, stretch-not-rotate
 ```
 

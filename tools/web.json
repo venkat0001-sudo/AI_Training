@@ -509,7 +509,7 @@
   {
    "from": "ml-workflow",
    "to": "cross-validation",
-   "why": "never trust one lucky split"
+   "why": "the validation slice is the workflow's overfitting alarm (train error only falls; val error turns up)"
   },
   {
    "from": "regression",

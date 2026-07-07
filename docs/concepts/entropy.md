@@ -23,7 +23,7 @@ recap: "How mixed is the bucket? Pure bin → no suspense → H=0; 50/50 → nee
 > boundary. **Do not spoil the parked gut-check below.**
 
 **Chain:** [[probability]] ──► **entropy** ──► information gain ──► [[trees-svm]] splits ──► tiny tabular MCU models
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──► [[cross-entropy]] ──► THE loss of every neural net (incl. QLoRA on-device) ──► 🎯 [[thermal-project]]
+**Chain:** **entropy** ──► [[cross-entropy]] ──► THE loss of every neural net (incl. QLoRA on-device) ──► 🎯 [[thermal-project]]
 
 **Grade: ⭐⭐⭐ — drill deep.** Not tree-trivia: entropy is the measuring-stick for
 "wrongness/mixedness" that the whole DL half trains against (cross-entropy). Owning it once makes

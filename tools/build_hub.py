@@ -77,6 +77,9 @@ def parse_front_matter(text):
             inner = v[1:-1].strip()
             meta[k.strip()] = [x.strip() for x in inner.split(",") if x.strip()]
         else:
+            # strip optional surrounding quotes (YAML-quoted scalars, e.g. recap: "...")
+            if len(v) >= 2 and v[0] == v[-1] and v[0] in "'\"":
+                v = v[1:-1]
             meta[k.strip()] = v
     return meta
 
@@ -122,10 +125,13 @@ def parse_ledger():
     for line in text.splitlines():
         if not line.startswith("|") or line.startswith("|--") or "Anchor artifacts" in line:
             continue
-        cells = [c.strip() for c in line.strip("|").split("|")]
+        # split on unescaped | only — Obsidian wikilinks inside tables use [[slug\|Display]]
+        cells = [c.strip() for c in re.split(r"(?<!\\)\|", line.strip("|"))]
         if len(cells) < 6 or cells[0] in ("Topic", "---"):
             continue
-        rows.append({"topic": cells[0], "next": cells[5],
+        # render "[[slug\|Display]]" (or plain "[[slug]]") down to its display text
+        topic = re.sub(r"\[\[(?:[^\]\\]+\\\|)?([^\]]+)\]\]", r"\1", cells[0])
+        rows.append({"topic": topic, "next": cells[5],
                      "due": "DUE" in cells[5].upper()})
     return rows
 

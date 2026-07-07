@@ -49,8 +49,8 @@ tr = rng.permutation(30)[:20]; va = np.setdiff1d(np.arange(30), tr)
 degs = range(1, 15); tr_e, va_e = [], []
 for d in degs:
     c = np.polyfit(x[tr], y[tr], d)
-    tr_e.append(np.mean((np.polyval(c, x[tr]) - y[tr])**2))
-    va_e.append(np.mean((np.polyval(c, x[va]) - y[va])**2))
+    tr_e.append(np.mean((np.polyval(c, x[tr]) - y[tr])**2) + 1e-12)   # ε keeps log-scale happy at perfect fits
+    va_e.append(np.mean((np.polyval(c, x[va]) - y[va])**2) + 1e-12)
 plt.semilogy(degs, tr_e, label='train (only falls)'); plt.semilogy(degs, va_e, label='validation (falls, then RISES)')
 plt.axvline(degs[int(np.argmin(va_e))], ls='--'); plt.legend(); plt.xlabel('model complexity (degree)')
 plt.title('pick the model at the validation dip'); plt.show()

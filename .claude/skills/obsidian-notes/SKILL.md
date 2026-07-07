@@ -197,6 +197,7 @@ node that severs it.
    - `feeds::` (points UP at what this unlocks next)
    - `contrasts-with::` (the decision-boundary sibling: mean↔median, L1↔L2, RNN↔attention)
    - `used-by::` (algorithms/projects that consume it)
+   - `trained-by::` (the optimizer/procedure that fits this model — regression trained-by gradient-descent)
    - `trap::` (links into trap-log entries)
    - `project-brick::` (the thermal-project piece it builds)
    - `scroll::` (the session scroll(s) where the journey happened)

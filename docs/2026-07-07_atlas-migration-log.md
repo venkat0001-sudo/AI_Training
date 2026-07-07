@@ -63,6 +63,29 @@ first session.
   pass 3 (bayes) → pass 4 (s2 + web.json) → pass 5 (s1 + metrics node) → pass 6 (nav + hub).
   `git log --oneline` shows the full trail; each pass is independently revertible.
 
+## Adversarial review — 2026-07-07 (post-migration audit, all fixes applied)
+
+Full audit run as if reviewing a stranger's work. **Verified clean:** diff integrity (every
+deletion accounted for — zero narrative loss), all wikilinks/heading anchors/block embeds resolve
+(0 broken), 0 alias collisions, all 16 numpy twins execute without failure, atom
+statuses/lanes/edges mirror web.json exactly. **Defects found and fixed (9):**
+
+1. Hub parser kept surrounding quotes on YAML-quoted recaps → literal `\"` on hub cards. Fixed in `build_hub.py`.
+2. **Regression I introduced:** wikilinking the recall-ledger topics broke the hub's due-parser
+   (`\|` fragmented the cells; due count 6 → 0). Parser now splits on unescaped `|` only and
+   renders link display text. Due=6 restored.
+3. Eigenvectors twin comment claimed `[0.447, 0.894]`; numpy prints the sign-flipped vector. Comment now says ± (sign is free — the atom's own lesson).
+4. Normal-distribution twin printed −1.27 (2-dp rounding) vs the scroll's −1.26σ anchor. Now prints −1.265 with the anchor tie-in.
+5. Cross-validation twin hit a log-scale warning at perfect fits — ε added.
+6. `trained-by::` was used in regression.md but missing from the skill vocabulary — added to the skill (it will recur for neural nets/LSTM).
+7. MOC-foundation claimed a bare `[[z-score]]` "alias-resolves" — it does not (aliases don't resolve bare links); rephrased with the correct `[[normal-distribution|z-score]]` form.
+8. web.json edge why had an unbalanced paren. Fixed.
+9. Entropy atom's chain used an `&nbsp;` indentation hack — normalized to the standard two-chain-lines form.
+
+**Accepted-by-design (reviewed, not changed):** anchors exist in both atom and scroll (atom =
+distilled home, scroll = journey; embeds source from atoms); depth layers use heading links
+rather than block IDs (§-numbered headings are stable; the heading-freeze rule is in force).
+
 ## Known debts (deliberate, tracked)
 
 - **Stubs:** [[entropy]] (resume before s4, 11 Jul — T-minus-3 map) · [[probability]] (own worked

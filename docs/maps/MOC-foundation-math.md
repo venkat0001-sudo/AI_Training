@@ -44,7 +44,7 @@ TABLE status, edge, recap FROM "concepts" WHERE lane = "f" SORT edge DESC
 
 ## Seeds pending
 
-[[z-score]] (alias-resolved into [[normal-distribution]] for now) · [[correlation]] (Pearson/Spearman — taught only in passing) · [[attention]] (forward seed from [[vectors]])
+[[z-score]] — currently lives INSIDE [[normal-distribution]]; link it as `[[normal-distribution|z-score]]` (a bare `[[z-score]]` stays unresolved until it earns its own atom) · [[correlation]] (Pearson/Spearman — taught only in passing) · [[attention]] (forward seed from [[vectors]])
 
 ## Arc consolidation
 

@@ -51,7 +51,7 @@ for k, c in ((1,'gold'), (2,'orange'), (3,'red')):
     plt.axvspan(mu-k*sigma, mu+k*sigma, alpha=.12, color=c, label=f'±{k}σ')
 plt.axvline(80, ls='--'); plt.title('Drive B latency bell: μ=100, σ=15.81 — 80µs is only −1.26σ')
 plt.legend(); plt.show()
-print("z(80) =", round((80-mu)/sigma, 2))   # −1.26 ✓ inside ±2σ → not an outlier
+print("z(80) =", round((80-mu)/sigma, 3))   # −1.265 ≈ the −1.26σ anchor ✓ inside ±2σ → not an outlier
 ```
 
 ## Where it came from / where it goes
