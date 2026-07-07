@@ -6,6 +6,7 @@ concepts: [calculus, gradient-descent]
 type: notes
 recap: The chain rule, drilled from "I get it" to "I can build it" — 3 worked examples (with my real traps), the ∂p/∂w=x apple analogy, and deriving 2(P−T)·x = my thermal model's training rule, ending in a full 2-sensor thermal cycle.
 tags: [calculus, chain-rule, gradient-descent, thermal-project]
+up: "[[MOC-foundation-math]]"
 ---
 
 # Chain rule → the training gradient
@@ -13,7 +14,8 @@ tags: [calculus, chain-rule, gradient-descent, thermal-project]
 > [!abstract] What this doc holds
 > Self-study session (3B1B *Essence of Calculus* ch 2–4) run through the **Depth Gate**: pushed from
 > "conceptual understanding" to *deriving my thermal model's training rule by hand*. The traps I fell
-> into ARE the value — they're the recall hooks. Related: [[2026-06-14_calculus-foundations_F]] ·
+> into ARE the value — they're the recall hooks. Permanent homes: [[calculus]] · [[gradient-descent]].
+> Related: [[2026-06-14_calculus-foundations_F]] ·
 > [[2026-06-27_s2-linear-logistic-regression-ppt-notes_s2]] (slide 52) · [[2026-07-04_thermal-ml-project-map_F]] · [[trap-log]]
 
 ## 0. Revision ladder (recall, don't re-read)

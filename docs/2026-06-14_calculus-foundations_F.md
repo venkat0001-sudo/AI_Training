@@ -2,12 +2,19 @@
 title: Calculus Foundations — Derivatives, Gradients & Backpropagation
 date: 2026-06-14
 session: Session 4 (3-hour block)
+sessions: [F]
+concepts: [calculus, gradient-descent]
+type: notes
+up: "[[MOC-foundation-math]]"
+recap: "The 3-hour foundation walk: slope → derivative → gradient-as-GPS → gradient descent + learning rate → chain rule → backprop preview."
 tags: [calculus, derivatives, gradient-descent, chain-rule, backpropagation, optimization]
 ---
 
 # Calculus Foundations — Derivatives, Gradients & Backpropagation
 
 > Foundation notes (_F) for Session 4. Three hours: Hour 1 = what a derivative is; Hour 2 = gradients + optimization + gradient descent; Hour 3 = chain rule + computational graphs + backpropagation. These are the mathematical tools that let an ML model learn from its mistakes.
+>
+> **Permanent homes (Atlas concept atoms):** [[calculus]] · [[gradient-descent]] — the atoms hold the distilled anchors + typed links; this scroll stays the full walk.
 
 ---
 
