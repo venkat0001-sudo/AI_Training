@@ -135,6 +135,13 @@
    "edge": 2
   },
   {
+   "slug": "metrics",
+   "label": "Confusion matrix · P/R/F1",
+   "lane": "m1",
+   "status": "learning",
+   "edge": 2
+  },
+  {
    "slug": "regression",
    "label": "Linear & logistic regression",
    "lane": "m1",
@@ -703,6 +710,16 @@
    "from": "cross-entropy",
    "to": "neural-nets",
    "why": "THE classification loss the whole DL half trains against"
+  },
+  {
+   "from": "bayes",
+   "to": "metrics",
+   "why": "the confusion matrix IS the 200-cycle table; precision = the posterior; imbalance = the base-rate trap"
+  },
+  {
+   "from": "metrics",
+   "to": "cross-validation",
+   "why": "CV averages one of these metrics across folds — pick which one before tuning"
   }
  ]
 }

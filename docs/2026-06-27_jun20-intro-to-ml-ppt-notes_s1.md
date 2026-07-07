@@ -2,10 +2,17 @@
 title: Jun 20 Session 1 — Intro to ML (PPT lecture notes)
 date: 2026-06-27
 source: session1_jun20 Session-PPT.pdf (77 slides)
+sessions: [s1]
+concepts: [ml-workflow, cross-validation, metrics, cross-entropy, gradient-descent]
+type: notes
+up: "[[MOC-m1-ml-fundamentals]]"
+recap: "The 77-slide s1 master walk: 4-step workflow (Y=F(X,W)), losses, data challenges, the elephant, complexity/validation U-curve, K-fold, confusion matrix + P/R/F1, inductive bias."
 tags: [ml-workflow, preprocessing, cross-validation, metrics, foundations]
 ---
 
 # Jun 20 Session 1 — Introduction to Machine Learning (PPT lecture notes)
+
+> **Permanent homes (Atlas concept atoms):** [[ml-workflow]] · [[cross-validation]] · [[metrics]] — plus layers into [[cross-entropy]] and [[gradient-descent]]. The atoms hold the distilled anchors + typed links; this scroll stays the slide-by-slide record.
 
 Lecturer: Mahesh Mohan M R, Department of AI, IIT Kharagpur.
 
