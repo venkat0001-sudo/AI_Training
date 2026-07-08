@@ -25,8 +25,8 @@ up: "[[HOME]]"
 | [[eigenvectors\|Eigenvectors/eigenvalues (matrix = rotate+stretch machine)]] | notes doc §10–§11, capstone HTML | 2026-06-29 | 2026-06-30 (capstone) | +3d | 2026-07-03 |
 | [[pca\|Covariance→eigen→PCA bridge (20 sensors → 3 numbers)]] | `html/2026-06-28_pca-20-sensors-walkthrough_F.html`, notebook cells 4.1b/4.6 | 2026-06-29 | 2026-06-30 | +3d | 2026-07-03 |
 | [[mcu-deployment\|MCU deployment + decision-tree geometry]] | `html/2026-06-26_mcu-deployment-flashcards_s1.html` | 2026-06-26 | 2026-06-26 | +3d | **2026-07-02 — DUE (overdue)** |
-| [[gradient-descent\|Gradient descent (numeric loss-shrinking example)]] | `docs/2026-06-25_bayes-and-ml-taxonomy_s1.md` (GD example) | 2026-06-28 | 2026-06-28 | +1d | **2026-07-02 — DUE (overdue)** |
-| [[calculus\|Chain rule → training gradient 2(P−T)·x (u-sub, credit assignment, thermal cycle)]] | `docs/2026-07-05_chain-rule-to-gradient_F.md` | 2026-07-05 | 2026-07-05 (depth-gated, rebuilt from scratch) | +1d | 2026-07-06 |
+| [[gradient-descent\|Gradient descent (numeric loss-shrinking example)]] | `docs/2026-06-25_bayes-and-ml-taxonomy_s1.md` (GD example) | 2026-06-28 | 2026-07-08 (worked weight-update by hand: w 2→2.24, thermostat direction, credit-assignment) | +3d | 2026-07-11 |
+| [[calculus\|Derivative=limit → chain rule → training gradient 2(P−T)·x (credit assignment, thermal cycle)]] | `docs/2026-07-05_chain-rule-to-gradient_F.md` | 2026-07-05 | 2026-07-08 (depth-gate: rebuilt derivative-as-limit + chain-rule multiply + full gradient teach-back, after early stumbles) | +3d | 2026-07-11 |
 
 **Legend:** DUE items are batched into the next recall sprint / due-cards deck. Snap a due date to a
 pre-class Saturday slot when the weekend session builds on that topic.

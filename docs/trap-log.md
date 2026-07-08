@@ -17,6 +17,14 @@ recap: Every trap I fell into, one line each — the strongest recall hooks I ow
 > trap carries a block ID (`^id`) — concept atoms EMBED these lines (`![[trap-log#^id]]`) instead
 > of copying them. The trap lives once, here.
 
+- **2026-07-08** · I believed *"the derivative IS the approximate value dy/dx reaches (2.01…)"* → No — 2.01 is the **approximation**; the derivative is the **limit** those approximations home in on, and it's **exact** (=2). Cancel `dx` first, *then* send `dx→0`. Full story: [[calculus]] ^deriv-is-limit
+
+- **2026-07-08** · I believed *"0/0 is infinite"* → **0/0 is indeterminate**, not infinite. `1/0` blows up; `0/0` leaves room for a real finite answer — which is *why* a slope can come out to a clean 2. Full story: [[calculus]] ^zero-over-zero
+
+- **2026-07-08** · I believed *"as dx→0, the slope also →0"* → Two different axes: the **nudge** →0, the **slope** →2 (the limit). A parabola isn't flat at x=1, so its slope can't be 0. Full story: [[calculus]] ^nudge-vs-slope
+
+- **2026-07-08** · I believed *"the chain rule multiplies because the du's cancel"* → That's the **mnemonic, not the mechanism**. It multiplies because rates are nested "per" counts: pizzas-per-box × slices-per-pizza = slices-per-box. Series multipliers multiply. Full story: [[calculus]] ^chain-cancel-mnemonic
+
 - **2026-07-05** · I believed *"∂p/∂w = w" (for p = w·x + b)* → It's **x** — the coefficient of the variable is the rate. `w` is the knob you turn, `x` is the fixed dial reading. Full story: [[2026-07-05_chain-rule-to-gradient_F]] §4 ^dpdw-w
 
 - **2026-07-05** · I believed *"8(2x+1)³ simplifies to 8(4x+2)³"* → Can't slide a coefficient into a power: (4x+2)³ = 2³(2x+1)³ = 8(2x+1)³ (it gets **cubed**). **Leave it factored.** Full story: [[2026-07-05_chain-rule-to-gradient_F]] §2 ^coeff-power

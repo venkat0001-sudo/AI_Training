@@ -5,7 +5,7 @@ date: 2026-06-14
 sessions: [F, s2]
 lane: f
 edge: 3
-status: due
+status: learning
 type: concept
 up: "[[MOC-foundation-math]]"
 recap: "Fog on a mountain: feel the slope, step downhill, repeat. The training rule ∂L/∂w = 2(P−T)·x = error × input — and the ×x is credit assignment: a silent sensor's weight is never punished."
@@ -69,6 +69,7 @@ contrasts-with:: closed-form least squares — one-shot, exact, but only exists 
 contrasts-with:: [[pca]] — PCA has no loss and no label; GD is loss-driven with the label in hand (opposite sides of the label-entry line)
 scroll:: [[2026-07-05_chain-rule-to-gradient_F]] — §5–§7, the derivation + the thermal cycle
 scroll:: [[2026-06-14_calculus-foundations_F]] — Hour 2 (gradient, loss, learning rate, local minima)
+scroll:: [[2026-07-08_derivative-limit-to-gradient-descent_F]] — single-weight step by hand + the what-if tables (vary T / x / λ)
 
 ## Decision boundary
 
@@ -87,6 +88,7 @@ scroll:: [[2026-06-14_calculus-foundations_F]] — Hour 2 (gradient, loss, learn
 - **2026-06-28 (F):** first numeric loss-shrinking example (in the Bayes-session notes). → [[2026-06-25_bayes-and-ml-taxonomy_s1]]
 - **2026-06-27 (s2):** the update rule DERIVED (h = −λf′ ⇒ loss must drop), batch vs SGD vs mini-batch, epochs vs iterations. → [[2026-06-27_s2-linear-logistic-regression-ppt-notes_s2]] §10, §12
 - **2026-07-05 (depth-gated):** derived the training rule BY HAND from the chain rule; the full 2-sensor thermal cycle; credit assignment owned. → [[2026-07-05_chain-rule-to-gradient_F]]
+- **2026-07-08 (recall + depth-gate):** rebuilt the single-weight step from scratch after early stumbles (thermostat direction + credit assignment), and produced **what-if tables** — vary `T` (sign/direction), vary `x` (blame), vary `λ` (overshoot). Still owed: ONE→MANY weights = partial derivatives / gradient vector (watched, not rebuilt). → [[2026-07-08_derivative-limit-to-gradient-descent_F]]
 
 ## Project brick
 

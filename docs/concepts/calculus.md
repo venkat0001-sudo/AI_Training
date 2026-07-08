@@ -63,6 +63,7 @@ feeds:: [[regression]] — the s2 update rule (Slide 52's 2(F−y)·x) is this, 
 used-by:: every trained model — "which direction reduces error" is a derivative question
 scroll:: [[2026-06-14_calculus-foundations_F]] — the 3-hour foundation walk (slope → derivative → gradient → chain rule)
 scroll:: [[2026-07-05_chain-rule-to-gradient_F]] — the depth-gated drill, traps included
+scroll:: [[2026-07-08_derivative-limit-to-gradient-descent_F]] — derivative-as-limit rebuilt + chain-rule "why multiply" + what-if tables
 video:: 3B1B — Essence of Calculus ch 2–4 (layer-1 intuition ONLY; deliberately stops before SOLVE)
 
 ## Decision boundary
@@ -77,11 +78,16 @@ video:: 3B1B — Essence of Calculus ch 2–4 (layer-1 intuition ONLY; deliberat
 ![[trap-log#^expand-everything]]
 ![[trap-log#^degree-drop]]
 ![[trap-log#^coeff-power]]
+![[trap-log#^deriv-is-limit]]
+![[trap-log#^zero-over-zero]]
+![[trap-log#^nudge-vs-slope]]
+![[trap-log#^chain-cancel-mnemonic]]
 
 ## Depth layers
 
 - **2026-06-14 (F, 3-hour block):** slope → derivative (speedometer) → partial derivatives → gradient-as-GPS → chain rule → computational graphs → backprop preview. → [[2026-06-14_calculus-foundations_F]]
 - **2026-07-05 (self-study, depth-gated):** pushed from SEE to SOLVE+BUILD — 3 worked examples with my real traps, each rep's mistake smaller and more downstream ("can't start" → "just tidy-up" = what learning for real looks like). → [[2026-07-05_chain-rule-to-gradient_F]]
+- **2026-07-08 (self-study, depth-gated):** rebuilt the **foundation below the chain rule** — derivative = the LIMIT (exact), not the small-nudge approximation; `0/0` is indeterminate not infinite; cancel-`dx`-then-limit escapes the `0/0`; and the chain rule multiplies because rates are **nested "per" counts** (pizza box→pizzas→slices), not because "the du's cancel". Four traps caught. → [[2026-07-08_derivative-limit-to-gradient-descent_F]]
 
 ## Project brick
 
