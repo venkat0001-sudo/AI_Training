@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="midnight">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Line vs Curve — tilt, lift & where slope stops being constant | _F</title>
+<!--HUB {"title": "Line vs curve — tilt, lift & the slope divide", "date": "2026-07-09", "sessions": ["F"], "concepts": ["linear-equation", "calculus"], "type": "interactive", "recap": "y=mx+c decoded live: drag m to tilt, c to lift; a line's slope is READ off m (constant), a curve's must be DERIVED (2x, a function)"} -->
+<style>
+:root{
+  --bgA:#070b14; --bgB:#0a1120; --bgC:#0c0f1c;
+  --card:rgba(16,26,48,.72); --panel:#080d1a;
+  --line:rgba(90,143,191,.35); --lineDim:rgba(90,143,191,.2);
+  --ink:#e9eff7; --inkd:#a9b6c9;
+  --hd:#9fe8ff; --hdim:#5f7d9a;
+  --acc:#ff9433; --accg:#ffb347; --accDim:#5a3a14; --accA:rgba(255,148,51,.15);
+  --gold:#ffd75e; --num2:#7fd4c0;
+  --teal:#7fd4c0; --red:#ff6b6b; --chakra:#9fe8ff;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:linear-gradient(135deg,var(--bgA),var(--bgB) 55%,var(--bgC));color:var(--ink);
+  font-family:'Courier New',monospace;line-height:1.6;min-height:100vh;overflow-x:hidden}
+.chakra-line{position:fixed;top:0;left:0;right:0;height:3px;z-index:50;
+  background:linear-gradient(90deg,var(--accDim),var(--acc),var(--chakra),var(--acc),var(--accDim));
+  background-size:300% 100%;animation:chakraflow 9s linear infinite;box-shadow:0 0 8px var(--accA)}
+@keyframes chakraflow{to{background-position:300% 0}}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 24px 150px}
+.header{text-align:center;padding:22px 10px 6px}
+.swirl{font-size:50px;animation:pulse 3s ease-in-out infinite;display:inline-block}
+@keyframes pulse{0%,100%{text-shadow:0 0 18px var(--acc);transform:scale(1) rotate(0deg)}50%{text-shadow:0 0 34px var(--chakra);transform:scale(1.07) rotate(8deg)}}
+.title{font-size:1.9em;color:var(--acc);text-shadow:0 0 22px var(--accA);letter-spacing:1.5px;margin:8px 0 4px}
+.subtitle{color:var(--hd);font-size:.8em;letter-spacing:1.4px}
+.tag{display:inline-block;font-size:.62em;color:var(--accg);border:1px solid var(--accDim);border-radius:20px;padding:2px 12px;letter-spacing:2px;margin-top:8px}
+.opener{max-width:760px;margin:16px auto 0;font-size:.9em;font-style:italic;color:var(--gold);line-height:1.7;border-top:1px solid var(--lineDim);border-bottom:1px solid var(--lineDim);padding:12px 8px}
+.opener b{color:var(--chakra);font-style:normal}
+
+.stage{margin-top:14px}
+.step{display:none;animation:rise .4s ease both}
+.step.on{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.concept{background:var(--accA);border:1px solid rgba(255,148,51,.35);border-radius:14px;padding:16px 22px;margin-bottom:16px}
+.concept .sn{color:var(--acc);font-weight:bold;font-size:1.2em}
+.concept h2{color:var(--accg);font-size:1.2em;display:inline;margin-left:8px}
+.concept p{margin:7px 0;font-size:.93em;color:var(--ink)}
+.joke{color:var(--gold);font-style:italic}
+.ssd{color:var(--teal)}
+.why{background:rgba(0,0,0,.3);border-left:3px solid var(--acc);padding:8px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:.9em;color:var(--hd)}
+
+.split{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.pane{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;position:relative;backdrop-filter:blur(5px)}
+.pane h3{font-size:1em;margin-bottom:10px;color:var(--hd);display:flex;align-items:center;gap:8px}
+.chip{font-size:.62em;border-radius:12px;padding:2px 9px;letter-spacing:1px;background:var(--accA);color:var(--accg);border:1px solid var(--accDim)}
+
+canvas{background:var(--panel);border-radius:12px;border:1px solid var(--line);display:block;max-width:100%;margin:6px auto}
+table{width:100%;border-collapse:collapse;margin:6px 0;font-size:.82em}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:center;font-variant-numeric:tabular-nums}
+th{background:rgba(90,143,191,.18);color:var(--accg)}
+.muted{color:var(--inkd)}
+.k{color:var(--gold)} .t{color:var(--teal)} .o{color:var(--acc)} .g{color:var(--hd)} .r{color:var(--red)}
+.eq{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:8px 0;font-size:.84em;color:var(--hd);white-space:pre;overflow-x:auto}
+
+/* what-if controls */
+.ctl{background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:10px 0}
+.ctl label{display:flex;align-items:center;gap:10px;font-size:.85em;color:var(--hd);margin:8px 0}
+.ctl label .nm{min-width:74px}
+.ctl input[type=range]{flex:1;accent-color:var(--acc);height:6px}
+.ctl .val{min-width:58px;text-align:right;color:var(--gold);font-weight:bold;font-variant-numeric:tabular-nums}
+.readout{background:rgba(0,0,0,.4);border-left:3px solid var(--acc);border-radius:0 8px 8px 0;padding:8px 12px;margin:8px 0;font-size:.86em;color:var(--ink)}
+.readout b{color:var(--gold)}
+.pbtns{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.pbtn{background:rgba(90,143,191,.16);color:var(--ink);border:1px solid var(--accDim);border-radius:9px;padding:6px 12px;cursor:pointer;font-family:inherit;font-size:.82em;transition:.15s}
+.pbtn:hover,.pbtn.on{background:var(--acc);color:#0a0d15}
+
+.nav{position:fixed;left:0;right:0;bottom:0;background:rgba(8,12,22,.94);backdrop-filter:blur(8px);
+  border-top:1px solid var(--line);padding:11px 16px;display:flex;align-items:center;gap:14px;justify-content:center;z-index:20}
+.bn{background:rgba(90,143,191,.2);color:var(--ink);border:1px solid var(--accDim);border-radius:9px;padding:8px 16px;cursor:pointer;font-family:inherit;font-size:.9em;transition:.15s}
+.bn:hover{background:var(--acc);color:#0a0d15}
+.bn:disabled{opacity:.35;cursor:default}
+.dots{display:flex;gap:6px;flex-wrap:wrap;max-width:46%}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--accDim);cursor:pointer;transition:.2s}
+.dot.on{background:var(--acc);transform:scale(1.3)}
+.steplabel{color:var(--hd);font-size:.78em;min-width:170px;text-align:center}
+@media(max-width:900px){.split{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="chakra-line"></div>
+<div class="wrap">
+  <div class="header">
+    <div class="swirl">🍥</div>
+    <div class="title">LINE vs CURVE — TILT, LIFT & THE SLOPE DIVIDE</div>
+    <div class="subtitle">drag the knobs · watch the line move like a movie · ← → to travel</div>
+    <div class="tag">y = mx + c  →  where a curve's slope stops being a number</div>
+    <div class="opener">In real time, <b>everything is a curve — nothing is truly a straight line</b>. Zoom into any curve far enough and the bend disappears: your tiny patch looks straight. The <b>derivative</b> is the slope of that straight patch — the straight line the curve is pretending to be, <b>right here</b>.</div>
+  </div>
+
+  <div class="stage" id="stage"></div>
+
+  <div class="nav">
+    <button class="bn" id="prev">← Back</button>
+    <div class="steplabel" id="slabel"></div>
+    <div class="dots" id="dots"></div>
+    <button class="bn" id="next">Next →</button>
+  </div>
+</div>
+
+<script>
+// ============================ GRAPH CORE (canvas plotter) ============================
+// One flexible renderer: axes over a math window + functions + points + segments + arrows.
+function draw(cv, o){
+  const ctx=cv.getContext('2d'), W=cv.width, H=cv.height, pad=34;
+  const {xmin,xmax,ymin,ymax}=o;
+  const X=v=>pad+(v-xmin)/(xmax-xmin)*(W-2*pad);
+  const Y=v=>(H-pad)-(v-ymin)/(ymax-ymin)*(H-2*pad);
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle=getCss('--panel'); ctx.fillRect(0,0,W,H);
+  // grid
+  ctx.strokeStyle='rgba(90,143,191,0.16)'; ctx.lineWidth=1; ctx.font='10px monospace';
+  ctx.fillStyle=getCss('--inkd'); ctx.textAlign='center';
+  for(let gx=Math.ceil(xmin);gx<=xmax;gx++){ const sx=X(gx);
+    ctx.beginPath();ctx.moveTo(sx,pad-6);ctx.lineTo(sx,H-pad+6);ctx.stroke();
+    if(gx!==0)ctx.fillText(gx,sx,H-pad+18); }
+  ctx.textAlign='right';
+  for(let gy=Math.ceil(ymin);gy<=ymax;gy++){ const sy=Y(gy);
+    ctx.beginPath();ctx.moveTo(pad-6,sy);ctx.lineTo(W-pad+6,sy);ctx.stroke();
+    if(gy!==0)ctx.fillText(gy,pad-9,sy+3); }
+  // axes
+  ctx.strokeStyle='rgba(90,143,191,0.7)'; ctx.lineWidth=1.6;
+  ctx.beginPath();ctx.moveTo(pad,Y(0));ctx.lineTo(W-pad,Y(0));ctx.stroke();
+  ctx.beginPath();ctx.moveTo(X(0),pad);ctx.lineTo(X(0),H-pad);ctx.stroke();
+  ctx.fillStyle=getCss('--hdim');ctx.textAlign='left';ctx.fillText('x',W-pad+2,Y(0)+14);
+  ctx.fillText('y',X(0)+6,pad-2);
+  // functions
+  (o.funcs||[]).forEach(fn=>{
+    ctx.strokeStyle=fn.color; ctx.lineWidth=fn.width||2.4; ctx.setLineDash(fn.dash||[]);
+    ctx.beginPath(); let started=false;
+    for(let px=0;px<=W-2*pad;px+=2){ const xv=xmin+px/(W-2*pad)*(xmax-xmin); const yv=fn.f(xv);
+      if(yv<ymin-6||yv>ymax+6){started=false;continue;}
+      const sx=X(xv), sy=Y(yv); started?ctx.lineTo(sx,sy):ctx.moveTo(sx,sy); started=true; }
+    ctx.stroke(); ctx.setLineDash([]);
+    if(fn.label){ctx.fillStyle=fn.color;ctx.font='bold 12px monospace';ctx.textAlign='left';
+      const lx=xmax-(xmax-xmin)*0.02, ly=Math.max(ymin+0.4,Math.min(ymax-0.4,fn.f(lx)));
+      ctx.fillText(fn.label,X(lx)-ctx.measureText(fn.label).width,Y(ly)-6);}
+  });
+  // segments (secant/tangent/gap)
+  (o.segs||[]).forEach(s=>{
+    ctx.strokeStyle=s.color;ctx.lineWidth=s.width||2;ctx.setLineDash(s.dash||[]);
+    ctx.beginPath();ctx.moveTo(X(s.x1),Y(s.y1));ctx.lineTo(X(s.x2),Y(s.y2));ctx.stroke();ctx.setLineDash([]);
+    if(s.label){ctx.fillStyle=s.color;ctx.font='11px monospace';ctx.textAlign='center';
+      ctx.fillText(s.label,X((s.x1+s.x2)/2)+(s.lox||0),Y((s.y1+s.y2)/2)+(s.loy||0));}
+  });
+  // points
+  (o.pts||[]).forEach(p=>{
+    ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(X(p.x),Y(p.y),p.r||5,0,7);ctx.fill();
+    if(p.label){ctx.fillStyle=p.color;ctx.font='bold 11px monospace';ctx.textAlign='left';
+      ctx.fillText(p.label,X(p.x)+8,Y(p.y)-6);}
+  });
+}
+function getCss(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+const ACC=()=>getCss('--acc'), HD=()=>getCss('--hd'), TEAL=()=>getCss('--teal'),
+      GOLD=()=>getCss('--gold'), RED=()=>getCss('--red'), CH=()=>getCss('--chakra');
+
+// ============================ STEPS ============================
+const steps=[
+// ---------- 1: where lines come from ----------
+{ label:'1 · Where a line is born',
+  concept:`<span class="sn">1.</span><h2>Rise over run — the whole line, from one triangle</h2>
+    <p>A straight line is the one shape whose <b>steepness never changes</b>. Pick <i>any</i> two points on it, draw the little step-triangle between them — <b>rise ÷ run</b> — and you get the same number every single time. That number is the <b>slope</b>.</p>
+    <p class="joke">😄 A line is the world's most boring staircase: every step is the exact same height. Bring a tape measure to step #2 or step #900 — identical. A curve is the drunk staircase where every step is a different height (that's step 5+).</p>
+    <p class="ssd">SSD: think of a perfectly linear DAC ramp — every code increment adds the <i>same</i> millivolt. Rise/run = mV-per-code, constant across the whole range.</p>
+    <div class="why">Below: the line <b>y = 2x + 3</b>. Anchor at (0,3). Walk to (2,7): <b>run = 2</b> across, <b>rise = 4</b> up → slope = 4/2 = <b>2</b>. Drag the run slider — the triangle grows, but rise÷run stays glued to 2.</div>`,
+  mount:(host)=>{
+    host.innerHTML=`<div class="pane"><h3><span class="chip">rise / run</span> the birth triangle</h3>
+      <canvas id="c1" width="480" height="360"></canvas>
+      <div class="ctl"><label><span class="nm">run</span><input id="s1" type="range" min="1" max="4" step="1" value="2"><span class="val" id="v1">2</span></label></div>
+      <div class="readout" id="r1"></div></div>`;
+    const cv=document.getElementById('c1'), s=document.getElementById('s1');
+    function render(){
+      const run=+s.value, rise=2*run;
+      document.getElementById('v1').textContent=run;
+      draw(cv,{xmin:-1,xmax:6,ymin:-1,ymax:15,
+        funcs:[{f:x=>2*x+3,color:ACC(),label:'y = 2x + 3'}],
+        segs:[{x1:0,y1:3,x2:run,y2:3,color:TEAL(),width:3,label:'run '+run,loy:16},
+              {x1:run,y1:3,x2:run,y2:3+rise,color:GOLD(),width:3,label:'rise '+rise,lox:26}],
+        pts:[{x:0,y:3,color:CH(),label:'(0, 3) anchor'},{x:run,y:3+rise,color:ACC(),label:'('+run+', '+(3+rise)+')'}]});
+      document.getElementById('r1').innerHTML=`slope = rise ÷ run = <b>${rise} ÷ ${run} = 2</b> — same answer at every run. The line's steepness is a <b>constant</b>.`;
+    }
+    s.oninput=render; render();
+  }},
+
+// ---------- 2: the two knobs ----------
+{ label:'2 · The two knobs: tilt & lift',
+  concept:`<span class="sn">2.</span><h2>y = mx + c — <span class="o">m</span> tilts, <span class="g">c</span> lifts (they never touch)</h2>
+    <p>Every straight line hides <b>two independent knobs</b>: <b class="o">m</b> = the <b>tilt</b> (how steep), and <b class="g">c</b> = the <b>lift</b> (where it crosses the y-axis, its start height at x=0). Turn one, the other doesn't flinch.</p>
+    <p class="joke">😄 Tilt is the <i>attitude</i>, lift is the <i>altitude</i>. m is how aggressively the roller-coaster climbs; c is how high the station platform sits before it even starts. Raising the platform never makes the climb steeper — and revving the climb never moves the platform.</p>
+    <div class="why">⭐ Drag both. Watch <b class="o">m</b> <b>rotate</b> the line about the y-axis crossing; watch <b class="g">c</b> <b>slide the whole line up/down</b> with zero rotation. The readout proves the slope is <b>m everywhere</b>.</div>`,
+  mount:(host)=>{
+    host.innerHTML=`<div class="pane"><h3><span class="chip">live</span> tilt m · lift c</h3>
+      <canvas id="c2" width="480" height="360"></canvas>
+      <div class="ctl">
+        <label><span class="nm o">m (tilt)</span><input id="m2" type="range" min="-3" max="4" step="0.5" value="2"><span class="val" id="mv2">2</span></label>
+        <label><span class="nm g">c (lift)</span><input id="c2r" type="range" min="-4" max="6" step="1" value="0"><span class="val" id="cv2">0</span></label>
+      </div>
+      <div class="readout" id="r2"></div></div>`;
+    const cv=document.getElementById('c2'), mS=document.getElementById('m2'), cS=document.getElementById('c2r');
+    function render(){
+      const m=+mS.value, c=+cS.value;
+      document.getElementById('mv2').textContent=m; document.getElementById('cv2').textContent=c;
+      const eqn=`y = ${m}x ${c<0?'− '+(-c):'+ '+c}`;
+      draw(cv,{xmin:-5,xmax:5,ymin:-8,ymax:12,
+        funcs:[{f:x=>m*x+c,color:ACC(),label:eqn}],
+        segs:[{x1:0,y1:0,x2:1,y2:0,color:TEAL(),width:2,dash:[4,3]},
+              {x1:1,y1:c,x2:1,y2:c+m,color:GOLD(),width:2.4,label:'+'+m,lox:20}],
+        pts:[{x:0,y:c,color:CH(),label:'crosses at (0, '+c+')'},{x:1,y:c+m,color:ACC()}]});
+      document.getElementById('r2').innerHTML=`<b>${eqn}</b> &nbsp;→&nbsp; tilt = <b>${m}</b> at x=0, at x=100, everywhere · lift = <b>${c}</b> (height when x=0). Step 1 across → up by <b>${m}</b>.`;
+    }
+    mS.oninput=render; cS.oninput=render; render();
+  }},
+
+// ---------- 3: many tilts ----------
+{ label:'3 · Many tilts at once',
+  concept:`<span class="sn">3.</span><h2>Same lift, different tilt — a fan through the origin</h2>
+    <p>Freeze the lift at c=0 (all lines pinned to the origin) and change only <b class="o">m</b>. You get a <b>fan of lines</b> — the bigger the m, the steeper the climb. m is literally the "how many up per one across" dial.</p>
+    <p class="joke">😄 Five roller-coasters all leaving the same station (0,0): the m=1 kiddie ramp, the m=2 fun climb, the m=3 "hold your snacks", the m=5 "why did I ride this". Same start, wildly different attitude.</p>
+    <div class="ssd">SSD: same origin, different gain. m=2 vs m=5 is a 2×-vs-5× sensitivity on the same zeroed signal.</div>
+    <div class="why">Tap a preset to spotlight one line, or drag the slider to sweep m smoothly and watch the single line swing like a clock hand.</div>`,
+  mount:(host)=>{
+    host.innerHTML=`<div class="pane"><h3><span class="chip">fan</span> y = m·x  (c fixed = 0)</h3>
+      <canvas id="c3" width="480" height="360"></canvas>
+      <div class="pbtns" id="p3">
+        <button class="pbtn" data-m="1">y=x</button>
+        <button class="pbtn on" data-m="2">y=2x</button>
+        <button class="pbtn" data-m="3">y=3x</button>
+        <button class="pbtn" data-m="5">y=5x</button></div>
+      <div class="ctl"><label><span class="nm o">sweep m</span><input id="s3" type="range" min="-4" max="6" step="0.5" value="2"><span class="val" id="v3">2</span></label></div>
+      <div class="readout" id="r3"></div></div>`;
+    const cv=document.getElementById('c3'), s=document.getElementById('s3');
+    const ghosts=[1,2,3,5];
+    function render(hot){
+      const m=+s.value; document.getElementById('v3').textContent=m;
+      const funcs=ghosts.map(g=>({f:x=>g*x,color:'rgba(127,212,192,0.28)',width:1.4,label:'y='+g+'x'}));
+      funcs.push({f:x=>m*x,color:ACC(),width:3,label:'y='+m+'x'});
+      draw(cv,{xmin:-5,xmax:5,ymin:-10,ymax:10,funcs,
+        pts:[{x:0,y:0,color:CH(),label:'origin'},{x:1,y:m,color:ACC(),label:'(1, '+m+')'}]});
+      document.getElementById('r3').innerHTML=`at x=1, y = <b>${m}</b> · at x=2, y = <b>${2*m}</b> · at x=3, y = <b>${3*m}</b> — every step of 1 adds exactly <b>${m}</b>.`;
+    }
+    s.oninput=()=>{document.querySelectorAll('#p3 .pbtn').forEach(b=>b.classList.remove('on'));render();};
+    document.querySelectorAll('#p3 .pbtn').forEach(b=>b.onclick=()=>{
+      document.querySelectorAll('#p3 .pbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+      s.value=b.dataset.m; render();});
+    render();
+  }},
+
+// ---------- 4: tilt vs lift, parallel ----------
+{ label:'4 · Lift moves it — no tilt',
+  concept:`<span class="sn">4.</span><h2>y = 2x vs y = 2x + 3 — parallel, gap +3 <i>everywhere</i></h2>
+    <p>Keep the tilt fixed at m=2 and raise only the lift c. The line <b>slides straight up</b>, staying perfectly parallel to y=2x. The gap between them is <b>+c at every x</b> — no rotation, ever. This is your ⚠️ trap: the lift and the tilt <b>never multiply</b>.</p>
+    <p class="joke">😄 Your trap earlier: "for y=5x+7, from 7 the line moves by 35." Nope! The +7 is the <i>platform height</i>, the 5 is the <i>climb rate</i> — you don't multiply the platform by the climb. Per step, y rises by <b>5</b>, not 5×7. The +7 just sets where you board.</p>
+    <div class="why">Drag c. Both lines climb at slope 2 in lockstep; the dashed gap-arrows stay a constant <b>+c</b> tall at x=1, x=3, x=5 alike. Tilt-knob untouched.</div>`,
+  mount:(host)=>{
+    host.innerHTML=`<div class="pane"><h3><span class="chip">parallel</span> lift only (m locked = 2)</h3>
+      <canvas id="c4" width="480" height="360"></canvas>
+      <div class="ctl"><label><span class="nm g">c (lift)</span><input id="s4" type="range" min="0" max="6" step="1" value="3"><span class="val" id="v4">3</span></label></div>
+      <div class="readout" id="r4"></div></div>`;
+    const cv=document.getElementById('c4'), s=document.getElementById('s4');
+    function render(){
+      const c=+s.value; document.getElementById('v4').textContent=c;
+      const segs=[1,3,5].map(x=>({x1:x,y1:2*x,x2:x,y2:2*x+c,color:GOLD(),width:2,dash:[3,3],label:'+'+c,lox:16}));
+      draw(cv,{xmin:-1,xmax:6,ymin:-2,ymax:18,
+        funcs:[{f:x=>2*x,color:TEAL(),label:'y = 2x'},{f:x=>2*x+c,color:ACC(),label:'y = 2x+'+c}],
+        segs,
+        pts:[{x:0,y:0,color:TEAL(),label:'(0,0)'},{x:0,y:c,color:ACC(),label:'(0,'+c+')'}]});
+      document.getElementById('r4').innerHTML=`gap at x=1: <b>${c}</b> · at x=3: <b>${c}</b> · at x=5: <b>${c}</b> — identical. Slope of BOTH lines = <b>2</b>. Lift shifted, tilt untouched. (And d/dx(2x+${c}) = <b>2</b>: the +${c} vanishes.)`;
+    }
+    s.oninput=render; render();
+  }},
+
+// ---------- 5: read the slope off m ----------
+{ label:'5 · A line: slope is READ',
+  concept:`<span class="sn">5.</span><h2>A line advertises its slope — you just read m</h2>
+    <p>Because a line is already in <b>y = mx + c</b> form, the slope is <b>sitting right there</b> as the coefficient of x. No work. Compute rise/run at x=1, at x=50, at x=−200 — you keep getting the same m. The slope is a single <b>constant number</b>.</p>
+    <p class="joke">😄 The line wears its slope on a name-tag: "Hi, I'm 2x+3, my slope is 2, ask me anywhere." A curve wears a mask — you have to <i>interrogate</i> it point by point (next step).</p>
+    <div class="why">The table computes rise/run for y=2x+3 between neighbouring x's. Every row = 2. Drag the "spotlight x" to see the local triangle plotted — it never changes shape's ratio.</div>`,
+  mount:(host)=>{
+    host.innerHTML=`<div class="split-inner"></div>`;
+    host.innerHTML=`<div class="pane"><h3><span class="chip">constant</span> y = 2x + 3</h3>
+      <canvas id="c5" width="480" height="330"></canvas>
+      <div class="ctl"><label><span class="nm o">spotlight x</span><input id="s5" type="range" min="0" max="4" step="1" value="1"><span class="val" id="v5">1</span></label></div>
+      <table id="t5"></table>
+      <div class="readout">Read straight off the equation: <b>slope = m = 2</b>. Every triangle, every x, forever.</div></div>`;
+    const cv=document.getElementById('c5'), s=document.getElementById('s5');
+    function render(){
+      const x0=+s.value; document.getElementById('v5').textContent=x0;
+      draw(cv,{xmin:-1,xmax:6,ymin:-1,ymax:15,
+        funcs:[{f:x=>2*x+3,color:ACC(),label:'y = 2x + 3'}],
+        segs:[{x1:x0,y1:2*x0+3,x2:x0+1,y2:2*x0+3,color:TEAL(),width:3,label:'run 1',loy:15},
+              {x1:x0+1,y1:2*x0+3,x2:x0+1,y2:2*(x0+1)+3,color:GOLD(),width:3,label:'rise 2',lox:22}],
+        pts:[{x:x0,y:2*x0+3,color:CH()},{x:x0+1,y:2*(x0+1)+3,color:ACC()}]});
+      let rows='<tr><th>x</th><th>y=2x+3</th><th>Δy</th><th>Δx</th><th>slope</th></tr>';
+      for(let x=0;x<=4;x++){const y=2*x+3, hot=(x===x0)?' style="background:rgba(255,148,51,.18)"':'';
+        rows+=`<tr${hot}><td>${x}</td><td>${y}</td><td class="t">${x<4?'+2':'—'}</td><td class="t">${x<4?'+1':'—'}</td><td class="o"><b>${x<4?'2':'—'}</b></td></tr>`;}
+      document.getElementById('t5').innerHTML=rows;
+    }
+    s.oninput=render; render();
+  }},
+
+// ---------- 6: the curve, slope is a function ----------
+{ label:'6 · A curve: slope is DERIVED',
+  concept:`<span class="sn">6.</span><h2>y = x² — the slope changes at every point (so it's a <i>function</i>: 2x)</h2>
+    <p>A parabola has <b>no single slope</b>. It's flat at the bottom, gently rising at x=1, steep at x=5. So its "slope" can't be one number — it's a <b>rule that spits out the slope for whatever x you feed it</b>. For y=x² that rule is <b class="o">2x</b> (we'll derive it next step).</p>
+    <p class="joke">😄 The curve is a mood-swing staircase: baby steps near the bottom, giant leaps up top. Ask "what's your slope?" and it snaps "depends where you're standing!" Feed x=1 → slope 2. x=3 → slope 6. x=5 → slope 10.</p>
+    <p class="ssd">SSD: like read-latency vs queue-depth — the sensitivity itself grows as you go deeper. One global "slope" would be a lie; you need the <i>local</i> one.</p>
+    <div class="why">🌍 <b>Zoom trick:</b> Earth is a giant ball, but stand in a parking lot and it looks dead flat. Same with any curve — zoom into one spot until the bend vanishes and it looks straight. That tiny straight patch is the <b>tangent</b>, and its steepness is the derivative. So the slope at a point = "what straight line is this curve pretending to be, right here?"<br>⭐ Drag the point along the parabola. The <b class="o">orange tangent</b> is the line just kissing the curve there — its steepness IS the slope at that x. Read the box: slope = <b>2x</b>, live.</div>`,
+  mount:(host)=>{
+    host.innerHTML=`<div class="pane"><h3><span class="chip">varying</span> y = x²  ·  tangent slope = 2x</h3>
+      <canvas id="c6" width="480" height="360"></canvas>
+      <div class="ctl"><label><span class="nm o">point x</span><input id="s6" type="range" min="-4" max="5" step="0.5" value="1"><span class="val" id="v6">1</span></label></div>
+      <div class="pbtns" id="p6">
+        <button class="pbtn on" data-x="1">x=1 → 2</button>
+        <button class="pbtn" data-x="3">x=3 → 6</button>
+        <button class="pbtn" data-x="5">x=5 → 10</button></div>
+      <div class="readout" id="r6"></div></div>`;
+    const cv=document.getElementById('c6'), s=document.getElementById('s6');
+    function render(){
+      const x0=+s.value, y0=x0*x0, m=2*x0;
+      document.getElementById('v6').textContent=x0;
+      draw(cv,{xmin:-5,xmax:6,ymin:-3,ymax:26,
+        funcs:[{f:x=>x*x,color:CH(),label:'y = x²'},
+               {f:x=>m*(x-x0)+y0,color:ACC(),width:2.4,dash:[6,4],label:'slope '+m}],
+        pts:[{x:x0,y:y0,color:ACC(),label:'('+x0+', '+y0+')'}]});
+      document.getElementById('r6').innerHTML=`at x=<b>${x0}</b>: slope = 2·(${x0}) = <b>${m}</b>. Same curve, different steepness — the slope is the <b>function 2x</b>, not a constant.`;
+    }
+    s.oninput=()=>{document.querySelectorAll('#p6 .pbtn').forEach(b=>b.classList.remove('on'));render();};
+    document.querySelectorAll('#p6 .pbtn').forEach(b=>b.onclick=()=>{
+      document.querySelectorAll('#p6 .pbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+      s.value=b.dataset.x;render();});
+    render();
+  }},
+
+// ---------- 7: first principles / limit ----------
+{ label:'7 · First principles — shrink h',
+  concept:`<span class="sn">7.</span><h2>Where 2x comes from — the secant collapses into the tangent</h2>
+    <p>How do we <i>derive</i> the slope of a curve? Take two points a gap <b>h</b> apart, compute their rise/run — that's a <b>secant</b> line. Now shrink h toward 0: the secant swings until it just <b>kisses</b> the curve. That limiting slope is the derivative.</p>
+    <p class="eq">slope = [f(x+h) − f(x)] / h   →   for x²:  [ (1+h)² − 1 ] / h  =  (2h + h²)/h  =  <b class="o">2 + h</b>   →  as h→0,  <b>2</b></p>
+    <p class="joke">😄 h = 0.1 → 2.1. h = 0.01 → 2.01. h = 0.001 → 2.001. The number is <i>homing in</i> on 2 like a sniper — never overshooting, the target IS 2 (and it's exact, not "about 2"). Cancel the h first, <b>then</b> let it vanish — that dodges the 0/0 trap.</p>
+    <div class="why">⭐ Drag h from big to tiny. Watch the <b class="g">teal secant</b> rotate down onto the <b class="o">orange tangent</b>, and the slope readout crawl 2.1 → 2.01 → 2.001 → 2.</div>`,
+  mount:(host)=>{
+    host.innerHTML=`<div class="pane"><h3><span class="chip">limit</span> secant → tangent at x=1</h3>
+      <canvas id="c7" width="480" height="360"></canvas>
+      <div class="ctl"><label><span class="nm g">gap h</span><input id="s7" type="range" min="0.05" max="2" step="0.05" value="1"><span class="val" id="v7">1.00</span></label></div>
+      <div class="readout" id="r7"></div></div>`;
+    const cv=document.getElementById('c7'), s=document.getElementById('s7');
+    function render(){
+      const h=+s.value, x0=1, y0=1, x1=x0+h, y1=x1*x1;
+      const sec=(y1-y0)/h; // = 2+h
+      document.getElementById('v7').textContent=h.toFixed(2);
+      draw(cv,{xmin:-1,xmax:4,ymin:-2,ymax:14,
+        funcs:[{f:x=>x*x,color:CH(),label:'y = x²'},
+               {f:x=>2*(x-1)+1,color:'rgba(255,148,51,0.45)',width:2,label:'tangent (2)'},
+               {f:x=>sec*(x-x0)+y0,color:TEAL(),width:2.4,dash:[6,4]}],
+        pts:[{x:x0,y:y0,color:ACC(),label:'(1, 1)'},{x:x1,y:y1,color:TEAL(),label:'(1+h, (1+h)²)'}]});
+      document.getElementById('r7').innerHTML=`secant slope = (2h+h²)/h = 2 + h = <b>${sec.toFixed(3)}</b> &nbsp;(h=${h.toFixed(2)}) → as h→0 it locks onto the <b>exact</b> tangent slope <b>2</b>.`;
+    }
+    s.oninput=render; render();
+  }},
+
+// ---------- 8: side by side ----------
+{ label:'8 · Line vs curve, side by side',
+  concept:`<span class="sn">8.</span><h2>The whole divide in one frame</h2>
+    <p>Left = a <b>line</b>: slope is a <b>constant you READ</b> off m. Right = a <b>curve</b>: slope is a <b>function you DERIVE</b> (2x). Same question ("how steep?"), two completely different kinds of answer — and that gap is <b>the entire reason calculus has to exist</b>.</p>
+    <p class="joke">😄 Line = a fixed-rate mortgage (same payment forever, read it off the contract). Curve = a variable-rate loan (the rate depends on where you are — you must compute it fresh each month). Calculus is the calculator for the variable one.</p>`,
+  mount:(host)=>{
+    host.innerHTML=`<div class="split">
+      <div class="pane"><h3><span class="chip">LINE</span> slope is READ</h3>
+        <canvas id="c8a" width="420" height="300"></canvas>
+        <table><tr><th>x</th><th>slope of y=2x</th></tr>
+          <tr><td>1</td><td class="o"><b>2</b></td></tr><tr><td>3</td><td class="o"><b>2</b></td></tr><tr><td>5</td><td class="o"><b>2</b></td></tr></table>
+        <div class="readout">slope = m = <b>2</b>, a single number, no zoom needed. d/dx(2x) = <b>2</b> (constant).</div></div>
+      <div class="pane"><h3><span class="chip">CURVE</span> slope is DERIVED</h3>
+        <canvas id="c8b" width="420" height="300"></canvas>
+        <table><tr><th>x</th><th>slope of y=x² (=2x)</th></tr>
+          <tr><td>1</td><td class="o"><b>2</b></td></tr><tr><td>3</td><td class="o"><b>6</b></td></tr><tr><td>5</td><td class="o"><b>10</b></td></tr></table>
+        <div class="readout">slope = <b>2x</b>, a function — different at every point. d/dx(x²) = <b>2x</b>.</div></div></div>`;
+    draw(document.getElementById('c8a'),{xmin:-1,xmax:6,ymin:-1,ymax:13,
+      funcs:[{f:x=>2*x,color:ACC(),label:'y = 2x'}],
+      pts:[1,3,5].map(x=>({x,y:2*x,color:CH(),label:'slope 2'}))});
+    draw(document.getElementById('c8b'),{xmin:-1,xmax:6,ymin:-2,ymax:26,
+      funcs:[{f:x=>x*x,color:CH(),label:'y = x²'},
+        ...[1,3,5].map(x0=>({f:x=>2*x0*(x-x0)+x0*x0,color:'rgba(255,148,51,0.5)',width:1.6}))],
+      pts:[1,3,5].map(x=>({x,y:x*x,color:ACC(),label:'slope '+(2*x)}))});
+  }},
+
+// ---------- 9: two hats of 2x ----------
+{ label:'9 · The two hats of "2x"',
+  concept:`<span class="sn">9.</span><h2>Watch out — "2x" wears two totally different hats</h2>
+    <p>The same scribble <b>2x</b> shows up in two unrelated roles. Don't confuse them just because the algebra matches by coincidence.</p>
+    <p>🎩 <b>Hat 1 — the LINE y = 2x:</b> here 2x is <i>the output height</i>. Its own slope is the constant <b>2</b>.</p>
+    <p>🎩 <b>Hat 2 — the DERIVATIVE of y = x²:</b> here 2x is <i>the slope-reporter</i> of a different curve. Feed it an x, it hands back the parabola's steepness there.</p>
+    <p class="joke">😄 Same face, two jobs: like your coworker "Sam" who's the barista on weekdays and the bouncer on weekends. Same name, do NOT order a latte from weekend-Sam.</p>
+    <div class="why">Left: <b>y = 2x</b> the line (its slope, the flat orange, is 2). Right: <b>2x as the slope-curve</b> OF y=x² — a rising line whose <i>height</i> at each x equals the parabola's slope there.</div>`,
+  mount:(host)=>{
+    host.innerHTML=`<div class="split">
+      <div class="pane"><h3><span class="chip">HAT 1</span> the line y = 2x</h3>
+        <canvas id="c9a" width="420" height="300"></canvas>
+        <div class="readout">2x is the <b>height</b>. This line's own slope is the constant <b>2</b>.</div></div>
+      <div class="pane"><h3><span class="chip">HAT 2</span> 2x = slope-reporter of x²</h3>
+        <canvas id="c9b" width="420" height="300"></canvas>
+        <div class="readout">2x's <b>height</b> here = the <b>slope of y=x²</b> at that x. At x=3 it reads 6 → parabola's steepness at x=3 is 6.</div></div></div>`;
+    draw(document.getElementById('c9a'),{xmin:-4,xmax:4,ymin:-8,ymax:8,
+      funcs:[{f:x=>2*x,color:ACC(),label:'y = 2x'},{f:x=>2,color:'rgba(255,215,94,0.5)',width:1.6,dash:[5,4],label:'its slope = 2'}],
+      pts:[{x:1,y:2,color:CH()},{x:3,y:6,color:CH()}]});
+    draw(document.getElementById('c9b'),{xmin:-4,xmax:4,ymin:-8,ymax:8,
+      funcs:[{f:x=>2*x,color:GOLD(),label:'2x = d/dx(x²)'}],
+      pts:[{x:3,y:6,color:ACC(),label:"x²'s slope at 3 = 6"},{x:1,y:2,color:ACC(),label:'= 2 at x=1'}]});
+  }},
+
+// ---------- 10: takeaways + numpy + project ----------
+{ label:'10 · Land it',
+  concept:`<span class="sn">10.</span><h2>Takeaways, the numpy twin & the project brick</h2>
+    <p><b>The one-breath version:</b> a line = <b>y = mx + c</b>, two knobs — m tilts, c lifts, they never multiply. Its slope is a <b>constant you read off m</b>. A curve's slope is a <b>function you derive</b> (x² → 2x), because it changes at every point — and deriving it is exactly what calculus is for.</p>
+    <p class="joke">😄 If you remember nothing else: <b>lines READ, curves DERIVE.</b> And the +7 never multiplies the 5 — it just picks the platform.</p>
+    <div class="why"><b>Project brick (R1 thermal predictor):</b> your first temperature model IS a line — <code>temp = w·load + b</code>. The <b class="o">tilt w</b> is the weight (how hard load pushes temp), the <b class="g">lift b</b> is the bias (baseline temp at zero load). Fitting the line = finding the best w and b — and gradient descent uses the <i>derivative</i> to get there. This page is the geometry under that whole engine.</div>`,
+  mount:(host)=>{
+    host.innerHTML=`<div class="split">
+      <div class="pane"><h3><span class="chip">formula sheet</span></h3>
+        <div class="eq">LINE   y = m·x + c
+  m = tilt (slope), READ off the equation, constant
+  c = lift (intercept), height at x=0
+  slope everywhere = m ;  d/dx(mx+c) = m  (+c vanishes)
+
+CURVE  y = x²
+  slope is a FUNCTION: 2x  (derive it)
+  x=1→2   x=3→6   x=5→10
+
+FIRST PRINCIPLES
+  slope = [f(x+h) − f(x)] / h   (cancel h, then h→0)
+  x²: (2h+h²)/h = 2+h → 2
+
+TWO HATS of 2x
+  y=2x (a line, slope 2)  ≠  2x (the derivative of x²)</div></div>
+      <div class="pane"><h3><span class="chip">numpy twin</span> run it, see it</h3>
+        <div class="eq">import numpy as np, matplotlib.pyplot as plt
+x = np.linspace(-1, 4, 100)
+fig,(axL,axR)=plt.subplots(1,2,figsize=(11,4))
+
+# lines: same lift, different tilt + a parallel shift
+for m,c,lbl in [(2,0,'y=2x'),(2,3,'y=2x+3'),(3,0,'y=3x')]:
+    axL.plot(x, m*x+c, label=f'{lbl} (slope {m})')
+axL.legend(); axL.set_title('lines: slope is constant')
+
+# curve + tangents whose slope = 2x
+axR.plot(x, x**2, label='y=x²')
+for pt in (1,3):
+    s = 2*pt                      # derivative 2x
+    axR.plot(x, s*(x-pt)+pt**2,'--',label=f'x={pt}: slope {s}')
+axR.legend(); axR.set_title('curve: slope is 2x')
+plt.show()</div>
+        <div class="readout">Same numbers as every plot on this page: lines stay parallel, tangent slopes come out <b>2, 6</b> at x=1, 3. Sketch → hand-math → plot, all agreeing.</div></div></div>`;
+  }}
+];
+
+// ============================ ENGINE ============================
+const stage=document.getElementById('stage'), dotsEl=document.getElementById('dots'), slabel=document.getElementById('slabel');
+steps.forEach((s,i)=>{
+  const sec=document.createElement('section'); sec.className='step'+(i?'':' on');
+  sec.innerHTML=`<div class="concept">${s.concept}</div><div class="mount"></div>`;
+  stage.appendChild(sec);
+  const d=document.createElement('div'); d.className='dot'+(i?'':' on'); d.onclick=()=>go(i); dotsEl.appendChild(d);
+});
+const secs=[...document.querySelectorAll('.step')], dots=[...document.querySelectorAll('.dot')];
+const mounted=new Array(steps.length).fill(false);
+let cur=0;
+function mount(i){ if(mounted[i])return; const host=secs[i].querySelector('.mount');
+  if(steps[i].mount){steps[i].mount(host);} mounted[i]=true; }
+function go(i){
+  if(i<0||i>=secs.length)return;
+  secs[cur].classList.remove('on'); dots[cur].classList.remove('on');
+  cur=i;
+  secs[cur].classList.add('on'); dots[cur].classList.add('on');
+  document.getElementById('prev').disabled=cur===0;
+  document.getElementById('next').disabled=cur===secs.length-1;
+  slabel.textContent=steps[cur].label;
+  mount(cur);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.getElementById('prev').onclick=()=>go(cur-1);
+document.getElementById('next').onclick=()=>go(cur+1);
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT')return;
+  if(e.key==='ArrowRight')go(cur+1);if(e.key==='ArrowLeft')go(cur-1);});
+slabel.textContent=steps[0].label; mount(0);
+document.getElementById('prev').disabled=true;
+</script>
+</body>
+</html>
