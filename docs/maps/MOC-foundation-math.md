@@ -12,8 +12,9 @@ recap: "The math everything stands on: vectors → σ → the bell → covarianc
 > **The arc in five lines:** vectors give you the objects and the dot product ([[vectors]]).
 > Spread gives you σ ([[variance-sigma]]) and its shape, the bell ([[normal-distribution]]).
 > Two spreads together give covariance ([[covariance]]), whose special arrows are the
-> eigenvectors ([[eigenvectors]]) that power [[pca]]. Meanwhile calculus ([[calculus]]) builds
-> the slope machinery that [[gradient-descent]] turns into training. The whole shelf is arranged
+> eigenvectors ([[eigenvectors]]) that power [[pca]]. Meanwhile a line's constant slope
+> ([[linear-equation]]) is the base that calculus ([[calculus]]) extends into a *varying* slope —
+> the machinery that [[gradient-descent]] turns into training. The whole shelf is arranged
 > on [[ml-pipeline]].
 
 ## Concepts in learning order
@@ -25,9 +26,10 @@ recap: "The math everything stands on: vectors → σ → the bell → covarianc
 5. [[bayes]] — flip the conditional; the base-rate trap · ⭐⭐ · **atom live**
 6. [[covariance]] — the vote engine + the matrix · ⭐⭐ · **atom live**
 7. [[eigenvectors]] — stretch-not-rotate; det(C−λI)=0 · ⭐⭐ · **atom live**
-8. [[calculus]] — derivative + chain rule (depth-gated) · ⭐⭐ · **atom live**
-9. [[gradient-descent]] — the training rule 2(P−T)·x · ⭐⭐⭐ · **atom live**
-10. [[ml-pipeline]] — the six-box map + the label-entry line · ⭐⭐ · **atom live**
+8. [[linear-equation]] — y=mx+c; tilt vs lift; a line's *constant* slope vs a curve's *derived* one · ⭐⭐ · **atom live**
+9. [[calculus]] — derivative + chain rule (depth-gated) · ⭐⭐ · **atom live**
+10. [[gradient-descent]] — the training rule 2(P−T)·x · ⭐⭐⭐ · **atom live**
+11. [[ml-pipeline]] — the six-box map + the label-entry line · ⭐⭐ · **atom live**
 
 ## The scrolls of this arc
 

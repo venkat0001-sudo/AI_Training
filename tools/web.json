@@ -94,6 +94,13 @@
    "edge": 2
   },
   {
+   "slug": "linear-equation",
+   "label": "Line eqn y=mx+c",
+   "lane": "f",
+   "status": "learning",
+   "edge": 2
+  },
+  {
    "slug": "gradient-descent",
    "label": "Gradient descent",
    "lane": "f",
@@ -490,6 +497,21 @@
    "from": "eigenvectors",
    "to": "pca",
    "why": "rank directions by λ, keep the top — that IS PCA"
+  },
+  {
+   "from": "linear-equation",
+   "to": "calculus",
+   "why": "the derivative generalizes a line's CONSTANT slope m to a curve's varying slope (x²→2x); first principles is the extractor"
+  },
+  {
+   "from": "linear-equation",
+   "to": "regression",
+   "why": "linear regression IS y=mx+c fit to data: slope=weight, intercept=bias"
+  },
+  {
+   "from": "linear-equation",
+   "to": "gradient-descent",
+   "why": "GD tunes the line's slope & intercept (w,b) to cut the loss (§7 reconciliation)"
   },
   {
    "from": "calculus",

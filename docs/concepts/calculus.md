@@ -56,6 +56,7 @@ for x in [0, 1, 2]:
 
 ## Where it came from / where it goes
 
+builds-on:: [[linear-equation]] — the derivative generalizes a line's *constant* slope `m` to a curve's *varying* slope (a function like `2x`); first principles is the machine that extracts it
 builds-on:: slope — rise-over-run is the whole idea; the derivative just shrinks the run to a point
 feeds:: [[gradient-descent]] — the gradient (vector of partial derivatives) is computed BY the chain rule; ∂L/∂w = 2(P−T)·x is a two-link chain
 feeds:: [[neural-nets]] — backprop = this chain rule stacked across layers, computed thousands of times numerically
@@ -88,6 +89,7 @@ video:: 3B1B — Essence of Calculus ch 2–4 (layer-1 intuition ONLY; deliberat
 - **2026-06-14 (F, 3-hour block):** slope → derivative (speedometer) → partial derivatives → gradient-as-GPS → chain rule → computational graphs → backprop preview. → [[2026-06-14_calculus-foundations_F]]
 - **2026-07-05 (self-study, depth-gated):** pushed from SEE to SOLVE+BUILD — 3 worked examples with my real traps, each rep's mistake smaller and more downstream ("can't start" → "just tidy-up" = what learning for real looks like). → [[2026-07-05_chain-rule-to-gradient_F]]
 - **2026-07-08 (self-study, depth-gated):** rebuilt the **foundation below the chain rule** — derivative = the LIMIT (exact), not the small-nudge approximation; `0/0` is indeterminate not infinite; cancel-`dx`-then-limit escapes the `0/0`; and the chain rule multiplies because rates are **nested "per" counts** (pizza box→pizzas→slices), not because "the du's cancel". Four traps caught. → [[2026-07-08_derivative-limit-to-gradient-descent_F]]
+- **2026-07-09 (self-study, first-principles):** derived the slope-function **from scratch** with the difference quotient `[f(x+h)−f(x)]/h` — kept `x` **symbolic** so `x² → 2x` comes out a *function* (plug a number first and you only get a point-slope); saw the same machine give a **line**'s slope with the `h` vanishing *before* the limit (`5x+7 → 5`). Grounded the whole line-vs-curve origin — see the new [[linear-equation]] atom. → [[2026-07-08_derivative-limit-to-gradient-descent_F]] §0
 
 ## Project brick
 

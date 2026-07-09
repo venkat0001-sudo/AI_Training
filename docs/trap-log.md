@@ -17,6 +17,10 @@ recap: Every trap I fell into, one line each — the strongest recall hooks I ow
 > trap carries a block ID (`^id`) — concept atoms EMBED these lines (`![[trap-log#^id]]`) instead
 > of copying them. The trap lives once, here.
 
+- **2026-07-09** · I believed *"for y = 5x + 7, from 7 the line moves by 35"* → The slope and the intercept **never multiply**: per step y rises by the slope **5**, not 5×7. The `+7` is the *lift* (start height), the `5` is the *tilt* — and the `+7` **vanishes** when you differentiate (`d/dx(5x+7)=5`). Full story: [[linear-equation]] ^tilt-times-lift
+
+- **2026-07-09** · I believed *"subbing 5x+7 into (f(x+h)−f(x))/h gives −14"* → The minus hits the **whole** second bracket, but only `f(x)`'s `+7` flips: `+7 − 7 = 0`, **not** `−7 − 7 = −14`. `f(x+h)`'s `+7` stays positive. Result is `5h/h = 5`. Full story: [[linear-equation]] ^minus-distribute
+
 - **2026-07-08** · I believed *"the derivative IS the approximate value dy/dx reaches (2.01…)"* → No — 2.01 is the **approximation**; the derivative is the **limit** those approximations home in on, and it's **exact** (=2). Cancel `dx` first, *then* send `dx→0`. Full story: [[calculus]] ^deriv-is-limit
 
 - **2026-07-08** · I believed *"0/0 is infinite"* → **0/0 is indeterminate**, not infinite. `1/0` blows up; `0/0` leaves room for a real finite answer — which is *why* a slope can come out to a clean 2. Full story: [[calculus]] ^zero-over-zero
