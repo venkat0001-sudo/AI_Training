@@ -5,7 +5,7 @@ sessions: [F]
 concepts: [calculus, gradient-descent]
 type: scroll
 up: "[[MOC-foundation-math]]"
-recap: "Depth-gate self-study check. Rebuilt: derivative = the LIMIT (exact, not the 2.01 approximation), chain rule multiplies because rates are nested 'per' counts, and the training rule 2(P−T)x = error × input. Anchored with what-if tables: nudge one number, watch the step change."
+recap: "Depth-gate self-study check. Rebuilt: derivative = the LIMIT (exact, not the 2.01 approximation), chain rule multiplies because rates are nested 'per' counts, and the training rule 2(P−T)x = error × input. Anchored with what-if tables: nudge one number, watch the step change. Then (2026-07-09) closed the one→many jump: partial derivatives, the bias partial, and the gradient vector — reconciling StatQuest's line fit as the same machine (slope=weight, intercept=bias)."
 tags: [calculus, gradient-descent, depth-gate]
 ---
 
@@ -25,11 +25,65 @@ intro), then a depth-gate check where I narrated and got corrected. I kept defau
 
 ---
 
+## §0 · A line's slope is constant — a curve's is not (why calculus has to exist)
+
+**Cold open:** before you can ask "what's the slope of a *curve*," you have to own the slope of a
+**line** — because a line is the one shape whose slope never changes, and that single fact is what
+makes the line easy and the curve hard.
+
+### `y = mx + c` — the master recipe for every straight line
+
+```
+   y = m·x + c
+        │     └─ c = INTERCEPT = the LIFT  → where the line starts (its height at x = 0)
+        └─────── m = SLOPE     = the TILT  → how fast it climbs, SAME everywhere = the derivative
+```
+
+Two independent knobs, two different jobs — **the tilt and the lift never touch each other.**
+
+### The four cases, side by side  ^line-vs-curve
+
+| equation | m (tilt) | c (lift) | derivative `dy/dx` | a line? |
+|---|---|---|---|---|
+| `y = 2x` | 2 | 0 | **2** (constant) | yes — through the origin |
+| `y = 3x` | 3 | 0 | **3** (constant) | yes — steeper, still origin |
+| `y = 5x + 7` | 5 | 7 | **5** (constant) | yes — lifted 7 off the floor |
+| `y = x²` | — | — | **2x** (CHANGES) | **no** — a curve |
+
+- `y = 2x` and `y = 3x` are just `mx + c` with `c = 0` → both launch from the origin; 3 climbs
+  faster than 2. Their slope is `m` itself — one number, true at x=1, at x=100, forever.
+- `y = x²` is **not** `mx + c`. There's no single `m` to write down, because its slope is
+  **different at every point** — its derivative is `2x`, a *formula*, not a number (x=1→2, x=3→6).
+
+### What the `+7` does — and what it does NOT do
+
+Start at 7, add the slope (5) each step — the lift sets the launchpad, the tilt flies the plane:
+
+```
+   x:   0     1     2     3
+   y:   7    12    17    22
+        └──5──┘──5──┘──5──┘     ← every step +5, forever  (the tilt)
+        ↑ start at 7             (the lift)
+```
+
+> ⚠️ **The slip I hit:** I said "from 7 it moves by 35." The 5 and the 7 **don't multiply** —
+> that's fusing the tilt with the lift, two things that never touch. Per step y rises by **5**,
+> not 35. And when you differentiate, **the +7 vanishes**: a constant has zero slope, so the lift
+> can't affect the tilt. `d/dx (5x + 7) = 5`.
+
+**The punchline that sets up the whole session:** a line's derivative is a *constant* (`m`) — read
+it straight off the equation, no zooming needed. A curve's derivative is a *function* (`2x`) — a
+different slope hiding at every point — so you must zoom into ONE point to pin it down. **That zoom
+is the limit, and the limit is §1.**
+
+---
+
 ## §1 · The derivative is the LIMIT (not the approximation)
 
-**Cold open:** on a straight line the slope is the same everywhere — easy. On a curve, two points
-give you the slope of the line *between* them (the **secant** = an average), not the slope *at* a
-point (the **tangent**). Zoom in until the curve looks pixelated-straight, and the tangent appears.
+**Cold open:** §0 leaves us here — a line's slope is one constant number, a curve's changes at
+every point, so "the slope of a curve" is ill-posed until you name a point. Two points give you the
+slope of the line *between* them (the **secant** = an average), not the slope *at* a point (the
+**tangent**). Zoom in until the curve looks pixelated-straight, and the tangent appears.
 
 ```
  y│           ,Q          secant P→Q = AVERAGE slope over the gap (an APPROXIMATION)
@@ -261,6 +315,95 @@ on 3. Change `T` to 1 and it descends to 0.5 instead — Table A, live.
 
 ---
 
+## §7 · One knob → many: partial derivatives & the gradient vector  *(added 2026-07-09)*
+
+**Cold open — the StatQuest reconciliation.** The video optimized a *line's* slope and intercept to
+fit data points (linear regression); our example tuned a *weight* to predict a temperature. They
+felt like two different worlds. They are **the same machine in two costumes** — gradient descent is
+a general optimizer; fitting a line and forecasting a temperature are just two things you aim it at.
+
+### Same rows, different labels  ^lr-map
+
+| StatQuest (linear regression) | Our thermal / pizza example | what it is |
+|---|---|---|
+| `y = m·x + c` | `P = w·x + b` | the model (a line) |
+| x = body weight | x = sensor reading / guests | the INPUT |
+| y = predicted height | P = predicted temp / pizzas | the PREDICTION |
+| actual height (the dot) | T (measured temp / plates eaten) | the TRUTH |
+| residual = actual − predicted | error = (P − T) | how wrong (sign flipped, same thing) |
+| SSR = Σ residual² | L = (P − T)² | the LOSS |
+| m (slope), c (intercept) | w (weight), b (bias) | the KNOBS |
+| ∂SSR/∂m , ∂SSR/∂c | ∂L/∂w , ∂L/∂b | the GRADIENT |
+
+`y = mx + c` **is** `P = wx + b`: **slope = weight, intercept = bias.** Same algebra, different jargon.
+
+> ⚠️ **Landmine — "weight" is overloaded.** In the video the x-axis "weight" is a person's *body
+> weight* = the INPUT. In ML, "weight" = the tunable *knob* = the slope. Same word, opposite jobs.
+
+### Partial derivative = freeze every knob but one
+
+The video froze the slope at 0.64 and wiggled ONLY the intercept to draw its U-curve. That
+freeze-all-but-one IS the definition of a **partial derivative** (`∂`).
+
+**Why freeze? The shower of death. 🚿** Two taps, hot + cold. To measure the hot tap's effect alone
+you hold cold dead still and wiggle only hot — crank both, get scalded, and learn nothing (you
+can't tell which tap did it). Firmware twin: change ONE register at a time or you don't know which
+caused the bug. One variable at a time, or the experiment is garbage.
+
+### The geometry — the loss is a BOWL, freezing = a slice
+
+The loss isn't a U-curve; it's a **bowl** over a floor with two axes (weight × bias):
+
+```
+        L (error, up)
+          │      ___
+          │    _/   \_        ← the full bowl: floor = (weight, bias)
+          │   /   ●   \       ● = the bottom (best w AND best b together)
+          │  /____|____\
+   weight ┼───────┼─────── bias
+                  |
+   freeze weight  →  slice straight down along bias  →  that ONE slice is a clean U-curve,
+                     an honest single-variable derivative (the §1 machine)
+```
+
+Freeze one knob = take a 1-D **slice** through the bowl; on that slice only one variable moves, so
+it's an ordinary derivative. Don't freeze, and you're wandering the 2-D surface — "the slope" stops
+meaning anything.
+
+### The two partials for our model
+
+```
+   freeze b, wiggle w  →  ∂L/∂w = 2(P−T)·x      error × INPUT
+   freeze w, wiggle b  →  ∂L/∂b = 2(P−T)·1      error × 1   (b's coefficient is 1 — no input attached)
+```
+
+**The tell:** the weight's gradient carries an `x`; the bias's does not. So the **weight** reacts to
+the *input* (loud sensor → big correction — credit assignment), while the **bias** absorbs the *raw*
+leftover error, blind to any input. Physically `b` is the **baseline offset** — the prediction when
+every input is 0 (the idle/ambient temperature the controller reads at zero load; §0's "lift" now
+living inside the model while the weights are the "tilt").
+
+### The sleeping-sensor case — `x = 0`
+
+```
+   P = w·0 + b = b            ← prediction collapses to JUST the bias
+   ∂L/∂w = 2·err·0 = 0        ← weight FROZEN (asleep sensor earns no blame)
+   ∂L/∂b = 2·err  ≠ 0         ← bias still corrects
+   error = P − T = b − T      ← true ONLY here: x=0 wiped out w·x; the general case stays P − T
+```
+
+### Stack them → the gradient vector
+
+```
+   ∇L = [ ∂L/∂w , ∂L/∂b ] = [ 2(P−T)·x , 2(P−T) ]
+```
+
+Each partial is one knob's downhill slope; stacked, they're the **compass that points straight
+downhill on the whole bowl at once.** Update every knob together: `w ← w − λ·∂L/∂w` and
+`b ← b − λ·∂L/∂b`. **That is the one→many jump — from a single derivative to the gradient vector.**
+
+---
+
 ## Traps I hit today
 
 ![[trap-log#^deriv-is-limit]]
@@ -289,9 +432,10 @@ This is the literal training engine of the **R1 throttle predictor** and **R2 LS
 temperature → negative gradient → weights pushed up → predicts hotter next tick → throttles
 earlier. The what-if tables are the knobs I'll actually turn when the forecaster mis-calibrates.
 
-**Still owed before this is fully owned (depth-gate honesty):** the jump from ONE weight to MANY
-— **partial derivatives → the gradient vector** (each knob's partial, stacked into the downhill
-compass). Watched it today; not yet rebuilt. Next brick.
+**Closed 2026-07-09 (§7):** the one→MANY jump is owned — partial derivatives (freeze-all-but-one),
+the two model partials (`∂L/∂w = 2·err·x`, `∂L/∂b = 2·err`), and the gradient vector
+`∇L = [∂L/∂w, ∂L/∂b]` as the downhill compass. Reconciled with StatQuest's linear-regression line
+fit: **slope = weight, intercept = bias, SSR = the loss** — same machine, two costumes.
 
 ---
 
@@ -303,6 +447,9 @@ compass). Watched it today; not yet rebuilt. Next brick.
 4. The chain rule **multiplies** because rates are **nested "per" counts** — not because "du's cancel".
 5. `2(P−T)·x` = **error × input**: the error steers the **direction**, the input sets the **blame**.
 6. Descent **subtracts** the gradient — step *opposite* the uphill arrow.
+7. A **partial derivative** freezes every knob but one → a 1-D slice through the loss **bowl** (an honest single-variable derivative on that slice).
+8. **Weight vs bias:** `∂L/∂w = 2·err·x` scales with the input (credit assignment); `∂L/∂b = 2·err` is blind to input — it absorbs the raw error (the baseline offset).
+9. **Gradient vector** = stack the partials → the compass pointing straight downhill; linear regression and the thermal predictor are the **same machine** (slope=weight, intercept=bias).
 
 ## Formula sheet
 
@@ -311,4 +458,6 @@ derivative   f'(x) = lim(dx→0) [f(x+dx) − f(x)] / dx      (cancel dx, THEN d
 chain rule   dy/dx = dy/du · du/dx                        (nested "per" rates multiply)
 training     dL/dw = 2(P−T)·x = error × input
 update       w ← w − λ·dL/dw                              (minus = step downhill)
+partials     ∂L/∂w = 2(P−T)·x     ∂L/∂b = 2(P−T)·1        (freeze the OTHER knob)
+grad vector  ∇L = [∂L/∂w, ∂L/∂b]                          (stack the partials = downhill compass)
 ```

@@ -89,6 +89,7 @@ scroll:: [[2026-07-08_derivative-limit-to-gradient-descent_F]] — single-weight
 - **2026-06-27 (s2):** the update rule DERIVED (h = −λf′ ⇒ loss must drop), batch vs SGD vs mini-batch, epochs vs iterations. → [[2026-06-27_s2-linear-logistic-regression-ppt-notes_s2]] §10, §12
 - **2026-07-05 (depth-gated):** derived the training rule BY HAND from the chain rule; the full 2-sensor thermal cycle; credit assignment owned. → [[2026-07-05_chain-rule-to-gradient_F]]
 - **2026-07-08 (recall + depth-gate):** rebuilt the single-weight step from scratch after early stumbles (thermostat direction + credit assignment), and produced **what-if tables** — vary `T` (sign/direction), vary `x` (blame), vary `λ` (overshoot). Still owed: ONE→MANY weights = partial derivatives / gradient vector (watched, not rebuilt). → [[2026-07-08_derivative-limit-to-gradient-descent_F]]
+- **2026-07-09 (depth-gate, brick closed):** the ONE→MANY jump owned — **partial derivative = freeze-all-but-one** (a 1-D slice through the loss **bowl**), the two model partials (∂L/∂w = 2·err·x scales with input; ∂L/∂b = 2·err absorbs the raw error, blind to input — the baseline offset), and the **gradient vector** ∇L = [∂L/∂w, ∂L/∂b] as the downhill compass. Reconciled with StatQuest's linear-regression line fit: **slope = weight, intercept = bias, SSR = the loss** — same machine. → [[2026-07-08_derivative-limit-to-gradient-descent_F]] §7
 
 ## Project brick
 
