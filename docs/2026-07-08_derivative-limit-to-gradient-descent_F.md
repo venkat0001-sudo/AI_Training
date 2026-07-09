@@ -404,6 +404,52 @@ downhill on the whole bowl at once.** Update every knob together: `w ← w − �
 
 ---
 
+## §8 · Practice — cold start, two knobs, roll to the bottom  *(TO SOLVE — set 2026-07-09)*
+
+The BUILD-level exercise: run the whole loop by hand from a random start until **both** partials
+hit zero. Two knobs ⇒ **two data points** (one point leaves `w`,`b` underdetermined — no unique
+bottom).
+
+```
+   model   P = w·x + b
+   data    point 1: (x=1, T=3)     point 2: (x=2, T=5)      ← both on the hidden line y = 2x + 1
+   loss    L = (P₁−T₁)² + (P₂−T₂)²                          (SSR — summed over BOTH points)
+   partials  ∂L/∂w = 2(P₁−T₁)·x₁ + 2(P₂−T₂)·x₂
+             ∂L/∂b = 2(P₁−T₁)     + 2(P₂−T₂)
+   start   w = 0, b = 0   (cold)         stride  λ = 0.05
+   FINISH  w = 2, b = 1, loss = 0   ← the bowl's bottom, where BOTH partials = 0
+```
+
+**Step 0 by hand (predict before code) — my working:**
+1. `P₁`, `P₂` at `w=0, b=0`  →  ______
+2. `∂L/∂w` = ______   ,   `∂L/∂b` = ______
+3. `w ← w − λ·∂L/∂w` = ______   ,   `b ← b − λ·∂L/∂b` = ______
+
+**Numpy twin — ⚠️ build your OWN first, then verify against this:**
+
+```python
+import numpy as np, matplotlib.pyplot as plt
+X = np.array([1.0, 2.0]);  T = np.array([3.0, 5.0])      # two points on y = 2x + 1
+w, b, lr = 0.0, 0.0, 0.05
+w_hist, b_hist, loss_hist = [], [], []
+for step in range(200):
+    P   = w * X + b
+    err = P - T
+    gw  = 2 * np.sum(err * X)        # ∂L/∂w
+    gb  = 2 * np.sum(err)            # ∂L/∂b
+    w -= lr * gw;  b -= lr * gb
+    w_hist.append(w); b_hist.append(b); loss_hist.append(np.sum(err**2))
+print('final w,b =', round(w,3), round(b,3), ' loss =', round(loss_hist[-1],6))  # → 2.0, 1.0, → 0
+plt.plot(w_hist, label='w → 2'); plt.plot(b_hist, label='b → 1')
+plt.plot(loss_hist, label='loss → 0')
+plt.xlabel('step'); plt.legend(); plt.grid(alpha=.3); plt.title('two knobs roll to the bowl bottom'); plt.show()
+```
+
+Watch: both weights crawl to their optimum and the loss flattens to 0 — the moment both partials
+hit zero, the updates become `w ← w − λ·0 = w` and the ball stops. Convergence, seen.
+
+---
+
 ## Traps I hit today
 
 ![[trap-log#^deriv-is-limit]]
