@@ -29,7 +29,8 @@ recap: "The math everything stands on: vectors → σ → the bell → covarianc
 8. [[linear-equation]] — y=mx+c; tilt vs lift; a line's *constant* slope vs a curve's *derived* one · ⭐⭐ · **atom live**
 9. [[calculus]] — derivative + chain rule (depth-gated) · ⭐⭐ · **atom live**
 10. [[gradient-descent]] — the training rule 2(P−T)·x · ⭐⭐⭐ · **atom live**
-11. [[ml-pipeline]] — the six-box map + the label-entry line · ⭐⭐ · **atom live**
+11. [[expected-value]] — EV = Σ p·v (a dot product); the **loss** GD minimizes is an EV · ⭐⭐ · **atom live**
+12. [[ml-pipeline]] — the six-box map + the label-entry line · ⭐⭐ · **atom live**
 
 ## The scrolls of this arc
 
@@ -51,3 +52,8 @@ TABLE status, edge, recap FROM "concepts" WHERE lane = "f" SORT edge DESC
 ## Arc consolidation
 
 ⏳ owed: `00_foundation-math-consolidated.md` + one-page formula card (natural slot: after s5 closes the PCA arc).
+
+⏳ owed (2026-07-10): the **continuation interactive HTML + drill** — Partial Derivative → Gradient →
+Gradient Descent → best-fit line, run START→END on the temperature numerics (sequel to
+[the line-vs-curve page](../../html/2026-07-09_line-vs-curve-slope_F.html)). Build step by step, one beat per message.
+See the [[HOME#🔖 Resume here — last touched 2026-07-10 (read this first on a new device)|HOME resume block]].

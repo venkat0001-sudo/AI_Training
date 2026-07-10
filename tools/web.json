@@ -455,6 +455,19 @@
      "url": "https://www.youtube.com/watch?v=ErfnhcEV1O8"
     }
    ]
+  },
+  {
+   "slug": "expected-value",
+   "label": "Expected value",
+   "lane": "f",
+   "status": "learning",
+   "edge": 2,
+   "res": [
+    {
+     "label": "StatQuest — Expected Values",
+     "url": "https://www.youtube.com/watch?v=KLs_7b7SKi4"
+    }
+   ]
   }
  ],
  "edges": [
@@ -742,6 +755,26 @@
    "from": "metrics",
    "to": "cross-validation",
    "why": "CV averages one of these metrics across folds — pick which one before tuning"
+  },
+  {
+   "from": "probability",
+   "to": "expected-value",
+   "why": "the pᵢ weights ARE probabilities; EV is a probability-weighted average, Σpᵢ=1"
+  },
+  {
+   "from": "vectors",
+   "to": "expected-value",
+   "why": "EV = Σ pᵢvᵢ = p·v is a dot product — probability vector dotted with payoff vector"
+  },
+  {
+   "from": "expected-value",
+   "to": "gradient-descent",
+   "why": "the loss is an expected value (average squared error); GD drives that expected miss downhill"
+  },
+  {
+   "from": "expected-value",
+   "to": "regression",
+   "why": "least-squares fits the line minimizing the expected squared residual"
   }
  ]
 }
