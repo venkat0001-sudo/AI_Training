@@ -70,6 +70,7 @@ contrasts-with:: [[pca]] — PCA has no loss and no label; GD is loss-driven wit
 scroll:: [[2026-07-05_chain-rule-to-gradient_F]] — §5–§7, the derivation + the thermal cycle
 scroll:: [[2026-06-14_calculus-foundations_F]] — Hour 2 (gradient, loss, learning rate, local minima)
 scroll:: [[2026-07-08_derivative-limit-to-gradient-descent_F]] — single-weight step by hand + the what-if tables (vary T / x / λ)
+scroll:: [[2026-07-10_line-to-gradient-thermal-fit_F]] — the full R1 story start→end: line → two knobs → loss bowl → gradient → best fit, teaching-book with what-if tables
 
 ## Decision boundary
 
@@ -81,6 +82,9 @@ scroll:: [[2026-07-08_derivative-limit-to-gradient-descent_F]] — single-weight
 ## Traps I hit
 
 ![[trap-log#^dpdw-w]]
+![[trap-log#^knob-vs-gradient]]
+![[trap-log#^predict-vs-residual]]
+![[trap-log#^downhill-more-error]]
 
 ## Depth layers
 
@@ -90,6 +94,7 @@ scroll:: [[2026-07-08_derivative-limit-to-gradient-descent_F]] — single-weight
 - **2026-07-05 (depth-gated):** derived the training rule BY HAND from the chain rule; the full 2-sensor thermal cycle; credit assignment owned. → [[2026-07-05_chain-rule-to-gradient_F]]
 - **2026-07-08 (recall + depth-gate):** rebuilt the single-weight step from scratch after early stumbles (thermostat direction + credit assignment), and produced **what-if tables** — vary `T` (sign/direction), vary `x` (blame), vary `λ` (overshoot). Still owed: ONE→MANY weights = partial derivatives / gradient vector (watched, not rebuilt). → [[2026-07-08_derivative-limit-to-gradient-descent_F]]
 - **2026-07-09 (depth-gate, brick closed):** the ONE→MANY jump owned — **partial derivative = freeze-all-but-one** (a 1-D slice through the loss **bowl**), the two model partials (∂L/∂w = 2·err·x scales with input; ∂L/∂b = 2·err absorbs the raw error, blind to input — the baseline offset), and the **gradient vector** ∇L = [∂L/∂w, ∂L/∂b] as the downhill compass. Reconciled with StatQuest's linear-regression line fit: **slope = weight, intercept = bias, SSR = the loss** — same machine. → [[2026-07-08_derivative-limit-to-gradient-descent_F]] §7
+- **2026-07-10 (depth-gate, R1 story rebuilt end-to-end):** told the *whole* fit as one narrative — problem → line `temp=w·load+b` → two knobs → residual/loss → bowl → gradient → best fit → deploy. Cleared four live cracks: **knobs are parameters, NOT the partial derivatives** (the word "slope" has two hats: `m` = slope of the line, `∂L/∂m` = slope of the loss); **prediction ≠ residual** (`pred−observed`); **`w` measures the OUTPUT's response, never load's variation**; and **downhill = LESS error** (gradient points uphill → step opposite). Self-corrected the direction rule live: negative `∂L/∂w` → floor's to the right → `w` increases → line steepens. → [[2026-07-10_line-to-gradient-thermal-fit_F]]
 
 ## Project brick
 

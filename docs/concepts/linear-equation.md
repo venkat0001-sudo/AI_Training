@@ -189,6 +189,7 @@ feeds:: [[regression]] — linear regression **is** `y = mx + c` fit to data: **
 feeds:: [[gradient-descent]] — GD tunes the line's slope & intercept (`w`, `b`) to cut the loss; the §7 reconciliation (slope=weight, intercept=bias, SSR=loss) is this same line
 contrasts-with:: [[calculus|the derivative]] — line: slope **read off**, constant; curve: slope **derived**, a function of x
 scroll:: [[2026-07-08_derivative-limit-to-gradient-descent_F]] — §0 (line-vs-curve on-ramp) + §7 (the gradient-vector close)
+scroll:: [[2026-07-10_line-to-gradient-thermal-fit_F]] — §2/§3, the `m·x ↔ w·load` mapping made explicit + what-if tables for turning each knob
 
 ## Decision boundary
 
@@ -203,6 +204,8 @@ scroll:: [[2026-07-08_derivative-limit-to-gradient-descent_F]] — §0 (line-vs-
 
 ![[trap-log#^tilt-times-lift]]
 ![[trap-log#^minus-distribute]]
+![[trap-log#^knob-vs-gradient]]
+![[trap-log#^w-measures-load]]
 
 ## Depth layers
 
@@ -211,6 +214,11 @@ scroll:: [[2026-07-08_derivative-limit-to-gradient-descent_F]] — §0 (line-vs-
   (intercept), saw `y = 2x + 3` sit **parallel** to `y = 2x` (+3 at every x), ran first principles on
   **both** a line (`5x+7 → 5`, the `h` vanishes early) and a curve (`x² → 2x`, keep `x` symbolic → a
   function), and untangled the **two hats of "2x"**. → [[2026-07-08_derivative-limit-to-gradient-descent_F]] §0/§7
+- **2026-07-10 (F, thermal grounding):** mapped the line onto R1 — `temp = w·load + b` **is** `y = m·x + c`
+  (`x↔load`, `m↔w` climb-rate/slope, `c↔b` floor/intercept); this killed the "how is `w·load` like `m·x`?"
+  confusion. Built **what-if tables** turning each knob alone (vary `w` → lines fan out from a shared
+  floor; vary `b` → parallel lift). Fixed **`w` measures the OUTPUT's response, never load's variation**.
+  → [[2026-07-10_line-to-gradient-thermal-fit_F]] §2/§3
 
 ## Project brick
 

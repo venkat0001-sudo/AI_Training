@@ -17,6 +17,14 @@ recap: Every trap I fell into, one line each — the strongest recall hooks I ow
 > trap carries a block ID (`^id`) — concept atoms EMBED these lines (`![[trap-log#^id]]`) instead
 > of copying them. The trap lives once, here.
 
+- **2026-07-10** · I believed *"the slope and intercept ARE the two partial derivatives"* → No — `w`/`b` are the two **knobs (parameters)** you turn. The partial derivatives `∂L/∂w`, `∂L/∂b` are a *different* object: the slope of the **loss** w.r.t. each knob. The word "slope" wears two hats — `m` = slope of the *line*; `∂L/∂m` = slope of the *loss bowl*. Full story: [[2026-07-10_line-to-gradient-thermal-fit_F]] §4 ^knob-vs-gradient
+
+- **2026-07-10** · I believed *"prediction = mx + c − observed"* → That subtracted thing is the **residual (the miss)**, not the prediction. Prediction = `w·load+b`; residual = `pred − observed`; loss = `Σ residual²`. Three ordered objects, not one. Full story: [[2026-07-10_line-to-gradient-thermal-fit_F]] §4 ^predict-vs-residual
+
+- **2026-07-10** · I believed *"w tells how much the load varies / load is how fast"* → `w` **never measures load**. Load is the input you read; `w` answers *"when load rises by 1, how much does TEMP rise?"* — it measures the **output's** response. The temp-change ÷ load-change ratio is `w`, and it reports temp. Full story: [[2026-07-10_line-to-gradient-thermal-fit_F]] §4 ^w-measures-load
+
+- **2026-07-10** · I believed *"if you go downhill you end up in MORE error"* → Flat backwards: **downhill = LESS error** — the bottom of the loss bowl is the goal. The gradient points **uphill** (toward more loss); you step the **opposite** way (the minus in `w ← w − η·∂L/∂w`). Read a negative `∂L/∂w` as "floor's to the right → step right → w increases." Full story: [[2026-07-10_line-to-gradient-thermal-fit_F]] §6 ^downhill-more-error
+
 - **2026-07-09** · I believed *"for y = 5x + 7, from 7 the line moves by 35"* → The slope and the intercept **never multiply**: per step y rises by the slope **5**, not 5×7. The `+7` is the *lift* (start height), the `5` is the *tilt* — and the `+7` **vanishes** when you differentiate (`d/dx(5x+7)=5`). Full story: [[linear-equation]] ^tilt-times-lift
 
 - **2026-07-09** · I believed *"subbing 5x+7 into (f(x+h)−f(x))/h gives −14"* → The minus hits the **whole** second bracket, but only `f(x)`'s `+7` flips: `+7 − 7 = 0`, **not** `−7 − 7 = −14`. `f(x+h)`'s `+7` stays positive. Result is `5h/h = 5`. Full story: [[linear-equation]] ^minus-distribute
