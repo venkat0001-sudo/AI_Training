@@ -1,0 +1,263 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Challenge Recall — think, don't just remember</title>
+<!--HUB {"type":"flashcards","title":"Challenge Recall Deck (Foundations → Entropy)","date":"2026-07-13","concepts":["probability","bayes","taxonomy","statistics","linear-algebra","pca","calculus","gradient-descent","entropy"],"edge":3} -->
+<style>
+:root{
+  --bgA:#070b14;--bgB:#0a1120;--bgC:#0c0f1c;
+  --card:rgba(16,26,48,.72);--panel:#080d1a;
+  --line:rgba(90,143,191,.35);--lineDim:rgba(90,143,191,.2);
+  --ink:#e9eff7;--inkd:#a9b6c9;--hd:#9fe8ff;--hdim:#5f7d9a;
+  --acc:#ff9433;--accg:#ffb347;--accA:rgba(255,148,51,.15);
+  --gold:#ffd75e;--num2:#7fd4c0;--red:#ff6b6b;--green:#7ee787;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(135deg,var(--bgA),var(--bgB) 55%,var(--bgC));
+  color:var(--ink);font-family:'Courier New',monospace;line-height:1.55;
+  min-height:100vh;padding:16px 14px 40px;-webkit-text-size-adjust:100%}
+.wrap{max-width:760px;margin:0 auto}
+header{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.spiral{font-size:26px;animation:spin 9s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+h1{font-size:17px;margin:0;color:var(--hd)}
+.sub{color:var(--hdim);font-size:11px;margin-top:2px}
+.bar{height:7px;background:var(--panel);border:1px solid var(--lineDim);border-radius:6px;margin:14px 0 4px;overflow:hidden}
+.barfill{height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--gold));transition:width .4s}
+.stat{display:flex;justify-content:space-between;font-size:11px;color:var(--hdim)}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0}
+.chip{background:var(--panel);border:1px solid var(--line);color:var(--inkd);
+  padding:5px 10px;border-radius:20px;cursor:pointer;font-family:inherit;font-size:11px}
+.chip.on{border-color:var(--acc);color:var(--acc);background:var(--accA)}
+.scene{perspective:1600px;margin:8px 0}
+.card{position:relative;width:100%;min-height:340px;cursor:pointer;
+  transform-style:preserve-3d;transition:transform .5s;}
+.card.flip{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;
+  display:flex;flex-direction:column;overflow-y:auto}
+.back{transform:rotateY(180deg);border-color:var(--accg)}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.badge{font-size:10px;padding:2px 9px;border-radius:20px;letter-spacing:.5px}
+.b-type{background:var(--accA);color:var(--acc);border:1px solid rgba(255,148,51,.4)}
+.b-topic{background:rgba(159,232,255,.1);color:var(--hd);border:1px solid var(--chakraEdge,rgba(159,232,255,.38))}
+.q{font-size:15px;color:var(--ink);margin:auto 0}
+.q b{color:var(--gold)}
+.qhint{color:var(--hdim);font-size:11px;margin-top:14px;text-align:center}
+.aLbl{color:var(--green);font-size:11px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.a{font-size:14px;color:var(--ink)}
+.a .k{color:var(--gold)}.a .o{color:var(--acc)}.a .t{color:var(--num2)}.a .r{color:var(--red)}.a .g{color:var(--hd)}
+.why{border-left:3px solid var(--acc);background:var(--accA);padding:7px 11px;margin-top:12px;border-radius:0 8px 8px 0;font-size:13px;color:var(--inkd)}
+.grade{margin:14px 0 4px;display:flex;gap:10px}
+.gbtn{flex:1;padding:13px;border-radius:11px;cursor:pointer;font-family:inherit;font-size:13px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.gbtn.again{border-color:var(--red);color:var(--red)}
+.gbtn.got{border-color:var(--green);color:var(--green)}
+.gbtn:active{transform:scale(.97)}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:11px;color:var(--hdim)}
+.nav button{background:transparent;border:1px solid var(--lineDim);color:var(--inkd);padding:6px 12px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:11px}
+.done{text-align:center;padding:40px 20px}
+.done h2{color:var(--gold)}
+.keyhint{text-align:center;color:var(--hdim);font-size:10.5px;margin-top:16px;line-height:1.8}
+kbd{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:1px 6px;color:var(--hd)}
+</style>
+
+<div class="wrap">
+<header>
+  <span class="spiral">🍥</span>
+  <div>
+    <h1>Challenge Recall — think, don't just remember</h1>
+    <div class="sub">Foundations → Entropy · predict · trap · derive · decide · transfer</div>
+  </div>
+</header>
+
+<div class="bar"><div class="barfill" id="barfill"></div></div>
+<div class="stat"><span id="statMastered">0 mastered</span><span id="statLeft">— left in round</span></div>
+
+<div class="filters" id="filters"></div>
+
+<div id="deckArea">
+  <div class="scene">
+    <div class="card" id="card" onclick="flip()">
+      <div class="face front">
+        <div class="badges"><span class="badge b-type" id="fType"></span><span class="badge b-topic" id="fTopic"></span></div>
+        <div class="q" id="fQ"></div>
+        <div class="qhint">🤔 Answer out loud / in your head first — then tap to reveal</div>
+      </div>
+      <div class="face back">
+        <div class="badges"><span class="badge b-topic" id="bTopic"></span></div>
+        <div class="aLbl">The answer + the why</div>
+        <div class="a" id="bA"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grade">
+    <button class="gbtn again" onclick="grade(false)">↺ Again</button>
+    <button class="gbtn got" onclick="grade(true)">✔ Got it</button>
+  </div>
+  <div class="nav">
+    <button onclick="skip()">skip →</button>
+    <span id="posLabel"></span>
+    <button onclick="shuffleDeck()">⤨ shuffle</button>
+  </div>
+  <div class="keyhint">
+    <kbd>Space</kbd> flip · <kbd>→</kbd> got it · <kbd>←</kbd> again · <kbd>s</kbd> skip
+  </div>
+</div>
+
+<div class="done" id="done" style="display:none">
+  <h2>🍥 Round cleared</h2>
+  <p id="doneMsg"></p>
+  <button class="gbtn got" style="max-width:220px;margin:0 auto" onclick="restart()">↻ Run the full deck again</button>
+</div>
+</div>
+
+<script>
+const TYPES={
+  predict:{i:'🔮',l:'Predict'}, trap:{i:'🪤',l:'Wrong-tool trap'}, derive:{i:'✍️',l:'Derive / compute'},
+  boundary:{i:'🚦',l:'Decision boundary'}, transfer:{i:'🔧',l:'Transfer → thermal'},
+  error:{i:'🐛',l:'Spot the error'}, link:{i:'🔗',l:'Connection'}
+};
+// verified numbers baked in (see python check)
+const CARDS=[
+// ---- Probability / Bayes ----
+{t:'Bayes',k:'predict',q:'Sensor fires <b>HOT</b> with 90% sensitivity. Real-hot base rate = 10%, over 200 cycles. When the alarm fires, is it really hot closer to <b>90%</b> or <b>50%</b>? Why?',
+ a:'<b class="k">~50%.</b> Of 200 cycles: <span class="t">18</span> true alarms (20 real × 0.9) vs <span class="r">18</span> false alarms (180 fine × 0.1). 18/(18+18) = 50%.<div class="why">Base rates rule. A great sensor drowns in false positives when the event is rare. Trust = evidence ÷ (evidence + noise).</div>'},
+{t:'Bayes',k:'trap',q:'The datasheet gives you <b>P(HOT | Real)</b>. You want to act on <b>P(Real | HOT)</b>. Safe to use one for the other?',
+ a:'<b class="r">No.</b> Bayes <span class="o">flips the conditional</span> — the two differ enormously when the base rate is skewed (90% vs 50% above).<div class="why">P(A|B) ≠ P(B|A). The direction you have is rarely the direction you need.</div>'},
+{t:'Bayes',k:'boundary',q:'Marginal, joint, or conditional — which do you reach for to answer <b>"given the alarm fired, is it real?"</b>',
+ a:'<b class="k">Conditional</b> — P(Real | HOT). "Given X" = condition on X.<div class="why">Marginal = overall rate; joint = both together; conditional = one <i>given</i> the other. The word "given" is the tell.</div>'},
+
+// ---- Taxonomy / trees / features vs weights ----
+{t:'Taxonomy',k:'error',q:'A teammate calls <b>if(temp>90) throttle;</b> "our ML throttle model." Correct them.',
+ a:'That\'s <b class="r">not ML</b> — nothing is learned. The threshold 90 was hand-set by an engineer. ML would <span class="o">learn</span> that threshold from data.<div class="why">Rule-based = you write the logic. ML = data writes the constants.</div>'},
+{t:'Taxonomy',k:'boundary',q:'You hand-pick the input features; the model just fits coefficients. <b>Classic ML or deep learning?</b>',
+ a:'<b class="k">Classic ML.</b> Deep learning is defined by the network <span class="o">discovering</span> features itself across layers.<div class="why">The dividing line is "who finds the features" — you (classic) vs the network (deep).</div>'},
+{t:'Taxonomy',k:'trap',q:'Model: <b>temp, voltage → throttle-risk 0.8.</b> Which are <b>features</b>, which is a <b>weight</b>, and which does the model <b>learn</b>?',
+ a:'temp &amp; voltage = <span class="t">features</span> (what you feed in). The multipliers = <span class="o">weights</span> (what the model learns). It learns the <b class="k">weights</b>, never the features.<div class="why">Feature = input you supply. Weight = knob training turns. Swapping them is the vocab trap that bites in class.</div>'},
+{t:'Taxonomy',k:'link',q:'How is a <b>trained decision tree</b> like your SSD firmware?',
+ a:'Same nested <span class="t">if/else</span> at runtime. The only difference: the thresholds came from <span class="o">data</span>, not from an engineer typing them.<div class="why">A tree is "firmware whose constants were learned." Runtime behavior identical; origin of the numbers differs.</div>'},
+
+// ---- Statistics / normal ----
+{t:'Stats',k:'error',q:'A colleague flags every reading beyond <b>±1σ</b> as an outlier. What\'s wrong?',
+ a:'About <b class="r">1 in 3</b> readings fall outside ±1σ <i>by design</i> (~68% land inside). Real outliers live beyond <span class="o">±2σ / ±3σ</span>.<div class="why">±1σ is the normal breathing room, not the fence. Over-flagging kills good data.</div>'},
+{t:'Stats',k:'derive',q:'Mean of <b>[10, 20, 30]</b>? And the instant spell-check that catches a wrong mean?',
+ a:'<b class="k">20.</b> Spell-check: deviations must sum to <span class="o">0</span> → (−10, 0, +10) = 0 ✓. If they don\'t sum to zero, the mean is wrong.<div class="why">The zero-sum of deviations is a free correctness alarm. (Once you grabbed the max, 30 — this catches it.)</div>'},
+{t:'Stats',k:'predict',q:'Add one huge outlier <b>200</b> to [20,22,25,27]. Predict what happens to the <b>mean</b> vs the <b>median</b>.',
+ a:'Mean <b class="r">lurches up</b> (dragged toward 200); median <b class="green">barely moves</b>.<div class="why">Median = outlier-robust → reach for it when a few extreme values shouldn\'t swing the summary (tail latencies!).</div>'},
+{t:'Stats',k:'transfer',q:'A NAND cell\'s Vt distribution is <b>wide (big σ)</b>. Why is that bad news for reads?',
+ a:'A wide spread pushes the tails <span class="r">across the read-reference voltage</span> → cells misread → bit errors, more ECC/read-retry.<div class="why">σ = risk. Tight Vt = clean reads; wide Vt = the drive works harder to stay correct.</div>'},
+
+// ---- Vectors / dot / cosine ----
+{t:'Vectors',k:'trap',q:'Two telemetry vectors point the <b>same direction</b>, but one is 10× longer. Dot product screams "very similar." <b>When does dot product LIE about similarity?</b>',
+ a:'Dot product mixes <span class="o">magnitude + direction</span>, so a long vector inflates it. For <i>pure direction</i> similarity use <b class="k">cosine</b> (normalizes out length).<div class="why">Different scales → dot lies. Cosine asks only "same heading?" — scale-free.</div>'},
+{t:'Vectors',k:'derive',q:'Cosine of two <b>perpendicular</b> vectors? Of two <b>identical-direction</b> vectors?',
+ a:'Perpendicular → <b class="k">0</b> (no shared direction). Same direction → <b class="k">1</b> (maximal).<div class="why">cosine ranges −1…1: 1 aligned, 0 orthogonal, −1 opposite. It\'s the angle, not the length.</div>'},
+{t:'Vectors',k:'link',q:'Why is <b>variance</b> just a special case of <b>covariance</b>?',
+ a:'Variance = <b class="k">cov(x, x)</b> — a feature\'s covariance <i>with itself</i>.<div class="why">Covariance measures co-movement of two things; point it at one thing and you get its own spread = variance. The diagonal of the covariance matrix.</div>'},
+
+// ---- Covariance / eigen / PCA ----
+{t:'PCA',k:'predict',q:'Temperature <b>rises</b>, clock <b>throttles down</b>. Predict the <b>sign of cov(temp, clock)</b> — and why.',
+ a:'<b class="r">Negative.</b> They move in <span class="o">opposite</span> directions — as one goes up the other goes down, so their deviations multiply to a negative average.<div class="why">Same-direction → +, opposite → −, unrelated → ~0. Sign = the direction of the relationship.</div>'},
+{t:'PCA',k:'error',q:'"The top eigenvector <b>v₁</b> is the most frequent row in my data." Fix the mistake.',
+ a:'v₁ is a <b class="k">direction</b> (a blend of features) of <span class="o">maximum spread</span> — not a data row, and nothing to do with frequency.<div class="why">PCA is about <i>spread</i>, not <i>how often</i>. v₁ is the axis the cloud stretches along.</div>'},
+{t:'PCA',k:'error',q:'"The eigenvector is always <b>[1,1]</b>." What\'s wrong?',
+ a:'Each matrix has its <b class="k">own</b> eigenvectors — [1,1] was special to one example. Also: <span class="o">length &amp; sign don\'t matter</span>, only direction.<div class="why">An eigenvector marks a direction the matrix only stretches (never rotates). That direction is matrix-specific.</div>'},
+{t:'PCA',k:'trap',q:'You run <b>PCA</b> to get your house-price <b>prediction weights</b>. What did you actually get?',
+ a:'<b class="k">Loadings</b> — a recipe for how to <i>blend</i> features into components. <b class="r">Not</b> prediction weights.<div class="why">Prediction weights come later, from <span class="o">gradient descent using the label</span>. PCA never sees the label — it only reshapes the inputs.</div>'},
+{t:'PCA',k:'boundary',q:'"PCA is unsupervised, so I can\'t use it inside my <b>supervised</b> thermal project." True or false?',
+ a:'<b class="r">False.</b> The label rule is about the <span class="o">method, not the pipeline</span>. PCA-the-step never touches the label → it\'s unsupervised <i>even inside</i> a supervised project.<div class="why">You can chain an unsupervised step (PCA) before a supervised one (regression). Each step is classified on its own.</div>'},
+{t:'PCA',k:'transfer',q:'20 telemetry channels, but the MCU can only afford <b>3 model inputs</b>. Which tool, and what does it buy you?',
+ a:'<b class="k">PCA</b> → compress 20 → 3 directions of max spread.<div class="why">Fewer inputs = fewer MACs + less SRAM/flash → a controller-sized model that fits the real-time budget. The "extract the cream" step.</div>'},
+
+// ---- Calculus / gradient / chain rule / least squares ----
+{t:'Calculus',k:'derive',q:'Loss = <b>(P − T)²</b>, prediction <b>P = w·x</b>. Derive <b>∂L/∂w</b>. What famous form does it take?',
+ a:'<b class="k">∂L/∂w = 2(P − T)·x</b> — chain rule: 2(P−T) × ∂P/∂w, and ∂P/∂w = x.<div class="why">= <span class="o">error × input</span>. Big error or big input → big correction. This one line trains the R2 forecaster.</div>'},
+{t:'Calculus',k:'trap',q:'For <b>p = w·x + b</b>, what is <b>∂p/∂w</b> — is it w?',
+ a:'<b class="r">No — it\'s x.</b> The coefficient of the variable is the rate. <span class="o">w</span> is the knob you turn; <span class="t">x</span> is the fixed dial reading it rides on.<div class="why">You differentiate w.r.t. w, so w\'s multiplier (x) is what survives. Swapping w and x here is the classic slip.</div>'},
+{t:'Calculus',k:'error',q:'A student writes <b>d/dx (5x−2)³ = 20x − 4</b>. What\'s wrong, and what sanity check catches it instantly?',
+ a:'They <span class="r">dropped the cube</span> (used u², not u³). <b>Degree-check:</b> derivative of a <i>cubic</i> must be a <i>quadratic</i> — a straight line means an exponent was lost. Correct: <b class="k">15(5x−2)²</b>.<div class="why">Chain rule: 3(5x−2)²·5 = 15(5x−2)². Degree drops by exactly one — always.</div>'},
+{t:'Calculus',k:'error',q:'"<b>8(2x+1)³</b> simplifies to <b>8(4x+2)³</b>." Why is that wrong?',
+ a:'You <span class="r">can\'t slide a coefficient into a power.</span> (4x+2)³ = 2³(2x+1)³ = <b class="k">8(2x+1)³</b> already — doubling inside gets <i>cubed</i> to ×8. Leave it factored.<div class="why">Inside a power, a factor is raised to that power. Distribute-into-power is a trap; keep the factored form.</div>'},
+{t:'Calculus',k:'predict',q:'The least-squares best <b>flat</b> line through <b>[2, 4]</b> — where does it sit, and what statistic is that?',
+ a:'At <b class="k">3</b> — which is the <span class="o">mean</span> of 2 and 4. The least-squares flat line IS the average.<div class="why">Minimizing Σ(b−yᵢ)² → derivative 4b−12=0 → b=3. Stats and regression are the same animal.</div>'},
+{t:'Calculus',k:'derive',q:'To fit a <b>tilted</b> line you take derivatives of <b>both</b> slope and intercept. <b>Why both?</b>',
+ a:'Two knobs (m, c) → the loss is a <span class="o">bowl</span> over the (m,c) plane. The bottom is flat in <b>every</b> direction, so you need <b class="k">∂/∂m = 0 AND ∂/∂c = 0</b>.<div class="why">One knob → a U-curve (one "=0"). Two knobs → a bowl (two "=0"s). A point is the minimum only if it\'s flat along both.</div>'},
+{t:'Calculus',k:'boundary',q:'Closed-form least squares gives the <b>exact</b> best line in one shot. So why ever bother with <b>gradient descent</b>?',
+ a:'Because closed-form <span class="r">doesn\'t exist</span> for nonlinear / huge models (neural nets). GD <span class="o">always</span> works: feel the slope, step downhill, repeat.<div class="why">Closed-form = solve the "=0"s algebraically (only easy for a line). GD = the universal trainer that never needs a formula.</div>'},
+
+// ---- Entropy / info gain ----
+{t:'Entropy',k:'predict',q:'A bin is <b>90% good / 10% bad</b> blocks. Is its entropy near <b>0</b>, near <b>0.5</b>, or near <b>1.0</b> (max)? And why the surprise?',
+ a:'<b class="k">≈ 0.47</b> — nearly <i>half</i> of max, not near zero!<div class="why">The rare bad block carries <span class="o">−log₂(0.1) = 3.32 bits</span> of surprise. 0.1×3.32 = 0.33 dominates 0.9×0.15 = 0.14. Rare events punch far above their weight.</div>'},
+{t:'Entropy',k:'derive',q:'Entropy of a <b>50/50</b> bin? Of a <b>pure</b> bin?',
+ a:'50/50 → <b class="k">1.0 bit</b> (max suspense). Pure → <b class="k">0</b> (no suspense).<div class="why">H = −Σ p·log₂p. 50/50 = coin flip = 1 bit; certain outcome = 0. The ∩-curve peaks at 0.5, hits 0 at both edges.</div>'},
+{t:'Entropy',k:'link',q:'Fill in: <b>entropy = the expected value of ______.</b>',
+ a:'<b class="k">Surprise</b> (−log₂ p). Entropy = Σ p × surprise — the same <span class="o">weighted-average loop</span> as expected value, fed "surprise" as the value.<div class="why">EV averages a value; entropy averages surprise. One machine, two hats. The −log becomes cross-entropy later.</div>'},
+{t:'Entropy',k:'boundary',q:'Your project predicts a <b>temperature number</b>. Is entropy / information gain the right split criterion?',
+ a:'<b class="r">No.</b> Entropy is for <span class="o">classes</span>. For a number target, split on <b class="k">variance / MSE reduction</b>.<div class="why">Throttle <i>classifier</i> (yes/no) → entropy/cross-entropy. Temperature <i>forecaster</i> (a number) → MSE. Know which brick you\'re building.</div>'},
+{t:'Entropy',k:'derive',q:'Parent bin: <b>4 good / 4 bad</b> (H = 1.0). A question splits it into two <b>pure</b> children. <b>Information gain?</b>',
+ a:'<b class="k">1.0 − 0 = 1.0</b> — the best possible split.<div class="why">IG = H(before) − weighted H(after). Pure children → 0 mess after → maximum drop. This greedy "biggest drop" is how a tree grows.</div>'},
+{t:'Entropy',k:'trap',q:'Information gain <b>loves</b> splitting on a unique block-ID column (every leaf becomes pure). Why is that a trap?',
+ a:'It <span class="r">overfits</span>: pure specks that memorize, not generalize. Info gain is biased toward high-cardinality splits.<div class="why">A perfect split on IDs gains nothing real. Gain-ratio / Gini temper the bias so the tree learns signal, not row numbers.</div>'}
+];
+
+let deck=[], queue=[], mastered=new Set(), activeTopic='All', total=CARDS.length;
+const el=id=>document.getElementById(id);
+
+function topics(){return ['All',...[...new Set(CARDS.map(c=>c.t))]];}
+function buildFilters(){
+  const f=el('filters');f.innerHTML='';
+  topics().forEach(t=>{
+    const b=document.createElement('div');b.className='chip'+(t===activeTopic?' on':'');
+    const n=t==='All'?CARDS.length:CARDS.filter(c=>c.t===t).length;
+    b.textContent=t+' ('+n+')';b.onclick=()=>{activeTopic=t;start();};f.appendChild(b);
+  });
+}
+function pool(){return activeTopic==='All'?CARDS.slice():CARDS.filter(c=>c.t===activeTopic);}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function start(){
+  buildFilters();
+  deck=shuffle(pool());
+  queue=deck.slice();
+  mastered=new Set();
+  el('done').style.display='none';el('deckArea').style.display='';
+  render();updateStats();
+}
+function render(){
+  if(queue.length===0){finish();return;}
+  const c=queue[0];
+  el('card').classList.remove('flip');
+  el('fType').textContent=TYPES[c.k].i+' '+TYPES[c.k].l;
+  el('fTopic').textContent=c.t;el('bTopic').textContent=TYPES[c.k].i+' '+c.t;
+  el('fQ').innerHTML=c.q;el('bA').innerHTML=c.a;
+  el('posLabel').textContent=(mastered.size)+' / '+deck.length+' cleared';
+  updateStats();
+}
+function flip(){el('card').classList.toggle('flip');}
+function grade(got){
+  const c=queue.shift();
+  if(got){mastered.add(c);} else {queue.push(c);} // "again" recycles to the back
+  render();
+}
+function skip(){queue.push(queue.shift());render();}
+function shuffleDeck(){shuffle(queue);render();}
+function updateStats(){
+  el('statMastered').textContent=mastered.size+' mastered';
+  el('statLeft').textContent=queue.length+' left in round';
+  el('barfill').style.width=(deck.length?mastered.size/deck.length*100:0)+'%';
+}
+function finish(){
+  el('deckArea').style.display='none';el('done').style.display='';
+  el('doneMsg').innerHTML='You cleared all <b>'+deck.length+'</b> challenge cards in <b>'+activeTopic+'</b>.<br>Recall that survives a trap is recall you own. 🎯';
+}
+function restart(){activeTopic='All';start();}
+
+document.addEventListener('keydown',e=>{
+  if(el('deckArea').style.display==='none')return;
+  if(e.code==='Space'){e.preventDefault();flip();}
+  else if(e.key==='ArrowRight')grade(true);
+  else if(e.key==='ArrowLeft')grade(false);
+  else if(e.key==='s'||e.key==='S')skip();
+});
+start();
+</script>
