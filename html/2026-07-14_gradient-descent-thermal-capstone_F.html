@@ -1,0 +1,446 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gradient Descent — teaching the thermal forecaster to fit itself</title>
+<!--HUB {"type":"walkthrough","title":"Gradient Descent Capstone (temp = w·load + b)","date":"2026-07-14","concepts":["gradient-descent","calculus","loss-function","thermal-project"],"edge":3} -->
+<style>
+:root{
+  --bgA:#070b14;--bgB:#0a1120;--bgC:#0c0f1c;
+  --card:rgba(16,26,48,.72);--panel:#080d1a;
+  --line:rgba(90,143,191,.35);--lineDim:rgba(90,143,191,.2);
+  --ink:#e9eff7;--inkd:#a9b6c9;--hd:#9fe8ff;--hdim:#5f7d9a;
+  --acc:#ff9433;--accg:#ffb347;--accA:rgba(255,148,51,.15);
+  --gold:#ffd75e;--num2:#7fd4c0;--red:#ff6b6b;--green:#7ee787;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(135deg,var(--bgA),var(--bgB) 55%,var(--bgC));
+  color:var(--ink);font-family:'Courier New',monospace;line-height:1.55;padding:16px 14px 120px}
+.wrap{max-width:920px;margin:0 auto}
+header{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.spiral{font-size:26px;animation:spin 9s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+h1{font-size:17px;margin:0;color:var(--hd)}
+.sub{color:var(--hdim);font-size:11px;margin-top:2px}
+.step{display:none;animation:rise .4s ease both}
+.step.on{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:14px 0}
+.stepno{color:var(--acc);font-size:12px;letter-spacing:2px;text-transform:uppercase}
+.concept{color:var(--hd);font-size:16px;font-weight:bold;margin:4px 0 8px}
+p{margin:8px 0}
+.joke{color:var(--gold);font-style:italic;border-left:3px solid var(--gold);padding:8px 12px;margin:12px 0;background:rgba(255,215,94,.06);border-radius:0 8px 8px 0}
+.ssd{color:var(--num2);border-left:3px solid var(--num2);padding:8px 12px;margin:12px 0;background:rgba(127,212,192,.06);border-radius:0 8px 8px 0}
+.why{border-left:3px solid var(--acc);background:var(--accA);padding:10px 14px;margin:12px 0;border-radius:0 8px 8px 0}
+.trap{border-left:3px solid var(--red);background:rgba(255,107,107,.08);padding:10px 14px;margin:12px 0;border-radius:0 8px 8px 0}
+.eq{background:var(--panel);border:1px solid var(--lineDim);border-radius:10px;padding:12px 14px;margin:11px 0;color:var(--hd);font-size:14px;overflow-x:auto;white-space:pre}
+.k{color:var(--gold)}.o{color:var(--acc)}.g{color:var(--hd)}.t{color:var(--num2)}.r{color:var(--red)}.grn{color:var(--green)}.dim{color:var(--hdim)}
+.tblwrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;margin:9px 0;font-size:13px}
+th,td{border:1px solid var(--lineDim);padding:6px 9px;text-align:center}
+th{background:rgba(159,232,255,.08);color:var(--hd)}
+td.lbl{text-align:left;color:var(--inkd)}
+tr.hi td{background:var(--accA);color:var(--ink)}
+figure{margin:12px 0;text-align:center}
+svg{width:100%;max-width:340px;height:auto}
+figcaption{color:var(--hdim);font-size:11px;margin-top:6px}
+.ctl{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin:14px 0}
+.ctl label{color:var(--acc);font-size:12px;letter-spacing:1px;text-transform:uppercase}
+input[type=range]{width:100%;accent-color:var(--acc);margin-top:6px}
+.readout{font-size:13.5px;color:var(--ink);margin-top:8px}
+.btn{background:var(--panel);border:1px solid var(--line);color:var(--ink);padding:8px 16px;border-radius:9px;cursor:pointer;font-family:inherit;font-size:13px;margin:6px 6px 0 0}
+.btn:hover{border-color:var(--acc);color:var(--acc)}
+.twovis{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.twovis figure{flex:1;min-width:240px;margin:6px}
+details{background:var(--panel);border:1px solid var(--lineDim);border-radius:10px;padding:8px 12px;margin:12px 0}
+summary{cursor:pointer;color:var(--num2);font-size:13px}
+pre.code{margin:8px 0 2px;padding:10px;background:#05080f;border-radius:8px;overflow-x:auto;font-size:12.5px;color:#cfe3ee;white-space:pre}
+ul{margin:8px 0;padding-left:20px}li{margin:5px 0}
+.reveal{cursor:pointer;border-bottom:1px dashed var(--acc);color:var(--acc)}
+.reveal.shown{border-bottom:none;color:var(--gold)}
+.run-layout{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px}
+.run-vis{flex:1.4;min-width:300px}
+.run-num{flex:1;min-width:270px}
+.numflow{background:#05080f;border:1px solid var(--lineDim);border-radius:8px;padding:10px 12px;font-size:12px;line-height:1.7;white-space:pre-wrap;color:#cfe3ee}
+.nav{position:fixed;left:0;right:0;bottom:0;background:rgba(7,11,20,.94);border-top:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;justify-content:center;gap:20px;backdrop-filter:blur(6px)}
+.nav button{background:var(--panel);border:1px solid var(--line);color:var(--ink);padding:9px 15px;border-radius:9px;cursor:pointer;font-family:inherit;font-size:13px}
+.nav button:hover:not(:disabled){border-color:var(--acc);color:var(--acc)}
+.nav button:disabled{opacity:.35;cursor:default}
+#dots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--lineDim);cursor:pointer}
+.dot.on{background:var(--acc);box-shadow:0 0 8px var(--acc)}
+#slabel{color:var(--hdim);font-size:11px;min-width:150px;text-align:center}
+.tag{display:inline-block;background:var(--accA);color:var(--acc);border:1px solid var(--accDim,#5a3a14);padding:1px 8px;border-radius:20px;font-size:11px;margin-left:6px}
+</style>
+
+<div class="wrap">
+<header>
+  <span class="spiral">🍥</span>
+  <div>
+    <h1>Gradient Descent — teaching the thermal forecaster to fit itself</h1>
+    <div class="sub">spine: temp = w·load + b · grade <span style="color:var(--gold)">★★★ rebuild-from-scratch</span></div>
+  </div>
+</header>
+
+<!-- STEP 0 -->
+<section class="step on">
+  <div class="stepno">The thread</div>
+  <div class="card">
+    <div class="concept">How a model goes from confidently wrong → right 🎯</div>
+    <div class="joke">😄 Every fresh model is as confidently wrong as a Delhi auto-driver quoting the fare to a
+    tourist — <i>"₹500, sir!"</i> Then it looks at the meter (the data), realises the miss, and <b>negotiates its
+    way down</b>, step by step, until the number is fair. That negotiation <b>is</b> gradient descent.</div>
+    <p>Your goal: predict SSD <b>temperature</b> from <b>load</b> with a straight line — the <b>R2 forecaster</b>
+    brick of your thermal-throttle project. The whole chain:</p>
+    <div class="eq"><span class="g">a line</span> (temp = w·load + b) → <span class="o">measure the miss</span> (loss)
+   → <span class="o">feel the downhill</span> (gradient) → <span class="k">step down</span> (update) → repeat → <span class="grn">best fit</span></div>
+    <div class="ssd">🔧 <b>The dataset we'll fit</b> (3 telemetry readings): load 1 → 40°C · load 2 → 55°C · load 3 → 70°C.
+    The true line is <b>temp = 15·load + 25</b> — but the model doesn't know that yet. It has to <i>discover</i> it.</div>
+  </div>
+</section>
+
+<!-- STEP 1 -->
+<section class="step">
+  <div class="stepno">Step 1 · the three objects</div>
+  <div class="card">
+    <div class="concept">Prediction → residual → loss (don't mix them up)</div>
+    <p>Three things, in order — the trap is calling the miss the "prediction."</p>
+    <div class="eq"><span class="g">PREDICTION</span>  P = w·load + b        <span class="dim">the line's guess</span>
+<span class="o">RESIDUAL</span>    r = P − observed      <span class="dim">the MISS (how far off)</span>
+<span class="k">LOSS</span>        L = Σ r²  / n         <span class="dim">total wrongness, ONE number</span></div>
+    <div class="joke">🍛 <b>Loss = the "kitchen disaster" score.</b> Your amma's recipe says 2 spoons of chilli;
+    you dumped in the whole box. The residual is the gap; we <b>square</b> it because over-spicing and under-spicing
+    are <i>both</i> ruined food — and squaring also punishes a huge blunder far more than a tiny one.</div>
+    <div class="trap">🪤 <b>The trap:</b> the residual is <b>not</b> the prediction. Guess (P) → miss (r) → total (L).
+    Three separate objects. Fumbling this is the #1 backprop confusion.</div>
+    <figure>
+      <svg id="svgScatter1" viewBox="0 0 320 220" role="img" aria-label="scatter with a badly fit line and residual sticks"></svg>
+      <figcaption>Red sticks = residuals (the misses). A bad line → long sticks → big loss.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- STEP 2 -->
+<section class="step">
+  <div class="stepno">Step 2 · the bowl</div>
+  <div class="card">
+    <div class="concept">Loss is a landscape — and you're blindfolded in it</div>
+    <div class="joke">🥘 <b>Picture yourself blindfolded inside a giant kadhai (wok).</b> You can't <i>see</i> the
+    bottom — but under your feet you can <b>feel which way the floor tilts</b>, so you shuffle downhill. Do it enough
+    and you reach the lowest point without ever seeing it. Gravity does the thinking; you just follow the slope.</div>
+    <p>Every knob setting <b>(w, b)</b> has a height = how wrong it is. Plot height over all settings → a <b>bowl</b>.
+    The <b>bottom = the best fit</b>. Below is a slice: loss vs <b>w</b> (with b held at its best). Drag w and watch
+    the ball — the ball is your blindfolded self.</p>
+    <div class="ctl">
+      <label>🎬 Drag w — feel the bowl</label>
+      <input id="wSlide2" type="range" min="0" max="30" step="0.5" value="3">
+      <figure style="margin:10px 0 2px"><svg id="svgBowl2" viewBox="0 0 320 210" role="img" aria-label="loss vs w bowl with a ball"></svg></figure>
+      <div class="readout" id="bowlRead2"></div>
+    </div>
+    <p class="dim">Minimum sits at <b>w = 15</b> (loss 0). Far from 15 → steep wall → big push toward the bottom.
+    Near 15 → nearly flat → tiny nudges. The bowl's steepness IS the gradient.</p>
+  </div>
+</section>
+
+<!-- STEP 3 -->
+<section class="step">
+  <div class="stepno">Step 3 · the gradient</div>
+  <div class="card">
+    <div class="concept">The gradient = the tilt of the floor under your feet</div>
+    <p>The gradient is the slope of the loss w.r.t. each knob — it points <b>uphill</b> (toward MORE loss).
+    For one reading, from the chain rule you already own:</p>
+    <div class="eq"><span class="o">∂L/∂w = 2(P − T)·load</span>     <span class="dim">= 2 · miss · input</span>
+<span class="o">∂L/∂b = 2(P − T)</span>          <span class="dim">= 2 · miss</span></div>
+    <p>= <b>error × input</b>. A big miss or a big load ⇒ a steep tilt ⇒ that knob gets a big shove. (For the whole
+    dataset you just <b>sum</b> each reading's contribution.)</p>
+    <div class="trap">🪤 <b>Sign trap:</b> the gradient points <b>UP</b>hill. To reduce loss you walk the <b>opposite</b>
+    way — that's the minus sign coming next. Read a negative ∂L/∂w as <i>"floor drops to the right → step w up."</i></div>
+    <figure>
+      <svg id="svgGrad3" viewBox="0 0 320 210" role="img" aria-label="bowl with an uphill gradient arrow"></svg>
+      <figcaption>At your current w, the arrow shows uphill. You'll step the other way.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- STEP 4 -->
+<section class="step">
+  <div class="stepno">Step 4 · the step (by hand)</div>
+  <div class="card">
+    <div class="concept">The update rule — one honest hand-worked step</div>
+    <div class="eq"><span class="o">w ← w − η · ∂L/∂w</span>        <span class="dim">η (eta) = learning rate = step size</span></div>
+    <p>Take one reading: <b>load = 2, observed temp = 55°C</b>. Current guess <b>w = 10, b = 5</b>, η = 0.05.</p>
+    <div class="eq">P = 10·2 + 5 = <span class="t">25</span>      → we predicted 25°C, way too cold
+r = P − T = 25 − 55 = <span class="r">−30</span>     → miss of −30
+
+∂L/∂w = 2(−30)(2) = <span class="o">−120</span>       (negative → push w UP)
+∂L/∂b = 2(−30)    = <span class="o">−60</span>
+
+w ← 10 − 0.05·(−120) = <span class="k">16</span>
+b ← 5  − 0.05·(−60)  = <span class="k">8</span>
+
+new P = 16·2 + 8 = <span class="grn">40</span>   → 25 → 40, closer to 55 ✓</div>
+    <p><b>One step dragged the prediction 25 → 40.</b> Not there yet — that's the point. You <b>repeat</b>, each step
+    shrinking the miss. <span class="reveal" data-r="Because the gradient (and the step) get smaller as you near the bottom — the bowl flattens out.">Why don't we overshoot to 55 in one go? tap</span></p>
+  </div>
+</section>
+
+<!-- STEP 5 -->
+<section class="step">
+  <div class="stepno">Step 5 · watch it converge <span class="tag">▶ interactive</span></div>
+  <div class="card">
+    <div class="concept">Run the loop — watch the slope line tilt, step by step</div>
+    <div class="ssd">🔧 <b>The 3 readings we're fitting:</b> load 1 → 40°C · load 2 → 55°C · load 3 → 70°C.
+    The model starts as a dumb flat line (<b>w = 0, b = 0</b>) and must <i>discover</i> the true line
+    <b>temp = 15·load + 25</b> by tuning <b>both</b> knobs.</div>
+    <p>Press <b>▶ Step</b> (or drag the scrubber). <b>Step 1 is the biggest jump</b> — the gradient is steepest when
+    you're most wrong — then each step eases: w overshoots and drifts back toward 15 while b climbs toward 25, both
+    homing on the fit. The <b>full arithmetic</b> for each step prints on the right.</p>
+    <div class="why" style="font-size:12.5px">💡 <b>Where does the <span class="o">2/3</span> in the gradient come from?</b>
+    The loss is a <b>mean</b> of squares: <b>L = (1/3)(r1² + r2² + r3²)</b>. Differentiating pulls out two pieces —
+    <b>2</b> from the square (<span class="dim">d/dw of r² = 2·r·(dr/dw)</span>) <b>×</b> <b>1/3</b> from averaging over the 3 readings
+    = <b>2/3</b>. And each residual rides on its own load (<span class="dim">dr/dw = load</span>), giving the
+    <b>r1·1 + r2·2 + r3·3</b>. <span class="dim">(10 readings → 2/10 · a plain sum instead of a mean → just 2.)</span></div>
+    <div class="ctl">
+      <button class="btn" id="stepBtn">▶ Step (1 iteration)</button>
+      <button class="btn" id="runBtn">⏩ Auto-run</button>
+      <button class="btn" id="resetBtn">↺ Reset</button>
+      <div style="margin:10px 0 2px">
+        <label style="color:var(--acc);font-size:11px;letter-spacing:1px;text-transform:uppercase">🎚️ Iteration scrubber — drag to any step</label>
+        <input id="iterSlide" type="range" min="0" max="180" step="1" value="0">
+      </div>
+      <div class="run-layout">
+        <div class="run-vis">
+          <figure><svg id="svgFit5" viewBox="0 0 320 220"></svg><figcaption>the fit — the slope line tilts each step</figcaption></figure>
+          <figure><svg id="svgBowl5" viewBox="0 0 320 210"></svg><figcaption>the ball — rolls down the bowl</figcaption></figure>
+          <div class="readout" id="run5Read"></div>
+        </div>
+        <div class="run-num">
+          <div style="color:var(--acc);font-size:11px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">numerical flow — this iteration</div>
+          <div class="numflow" id="numflow5"></div>
+        </div>
+      </div>
+    </div>
+    <div class="tblwrap"><table>
+      <tr><th>iter</th><th>w</th><th>b</th><th>loss</th></tr>
+      <tr><td>0</td><td>0.00</td><td>0.00</td><td>3175.0</td></tr>
+      <tr><td>1</td><td>19.20</td><td>8.80</td><td>72.6</td></tr>
+      <tr><td>10</td><td>20.59</td><td>12.30</td><td>23.1</td></tr>
+      <tr><td>60</td><td>17.12</td><td>20.19</td><td>3.3</td></tr>
+      <tr><td>100</td><td>15.97</td><td>22.79</td><td>0.7</td></tr>
+      <tr><td>140</td><td>15.45</td><td>23.98</td><td>0.15</td></tr>
+      <tr class="hi"><td>180</td><td>15.21</td><td>24.53</td><td>0.03</td></tr>
+    </table></div>
+    <p class="dim">It really lands: w leaps then eases (21 → 15), b climbs steadily (0 → 25), loss 3175 → 0.03. By iter ~110 the orange line sits on the green <b>target</b>; drag the scrubber to 180 to see <b>🎯 reached (15, 25)</b>. <b>numpy-verified.</b></p>
+  </div>
+</section>
+
+<!-- STEP 6 -->
+<section class="step">
+  <div class="stepno">Step 6 · the η knob (what-if)</div>
+  <div class="card">
+    <div class="concept">Learning rate: the one dial that makes or breaks it</div>
+    <div class="joke">🚆 <b>η is your travel style.</b> Too big = a Mumbai local at rush hour that flies <i>past</i> your
+    stop and out the other side. Too small = your grandmother crossing the road — perfectly safe, but you'll grow a
+    beard waiting. Just right = a veteran auto weaving smoothly to the exact doorstep. 😄</div>
+    <div class="ctl">
+      <label>🎬 Drag η, then Run — watch the behaviour change</label>
+      <input id="etaSlide" type="range" min="0.005" max="0.22" step="0.005" value="0.08">
+      <button class="btn" id="runEta">▶ Run with this η</button>
+      <div class="readout" id="etaRead"></div>
+    </div>
+    <div class="tblwrap"><table>
+      <tr><th>η</th><th>after 10 steps</th><th>behaviour</th></tr>
+      <tr><td>0.01</td><td>loss 219</td><td class="lbl">🐢 crawls — safe but slow</td></tr>
+      <tr class="hi"><td>0.08</td><td>loss 21</td><td class="lbl">✅ smooth — the sweet spot</td></tr>
+      <tr><td>0.20</td><td>loss ~360,000</td><td class="lbl">💥 overshoots → diverges</td></tr>
+    </table></div>
+    <div class="trap">💥 <b>Why too-big doesn't just wobble — it EXPLODES.</b> A step that overshoots the bottom lands
+    on the opposite wall, which is <b>steeper</b> → the gradient there is <b>bigger</b> → the next step is bigger still
+    → it climbs the walls and loss blows up <b>exponentially</b> to ∞. The fix becomes the failure. There's a hard
+    <b>threshold</b> (for this bowl, η ≈ 0.21): <b>below it converges, above it diverges</b> — no coming back.</div>
+    <div class="ssd">🔧 <b>NAND framing:</b> it's <b>read-retry Vref stepping</b> — nudge the read-reference voltage in
+    giant steps and you overshoot the low-BER valley, land in a <i>worse</i> spot, overshoot harder, and <b>never
+    settle</b>. Same as any control loop (thermal throttle / PID) with the gain cranked too high: it goes unstable
+    and swings <i>wider</i>, not tighter.</div>
+    <div class="why"><b>Lock it:</b> η too <b>small</b> = slow but safe — still arrives. η too <b>big</b> = each
+    correction overshoots to a steeper spot, so errors <b>compound to infinity</b> — the model gets <i>worse</i>, not
+    just slower. Nine times out of ten, "the model won't converge" is just η set too high.</div>
+  </div>
+</section>
+
+<!-- STEP 7 -->
+<section class="step">
+  <div class="stepno">Step 7 · land it</div>
+  <div class="card">
+    <div class="concept">When to use it, the sheet, and where it goes next 📜</div>
+    <p><b>✅ Reach for gradient descent when</b> you can't (or don't want to) solve for the best weights directly —
+    which is <i>always</i>, for anything nonlinear or big: neural nets, logistic regression, deep models.</p>
+    <div class="trap">🚫 <b>When the simpler tool wins:</b> for a plain <b>linear</b> fit like this one, there's a
+    <b>closed-form</b> answer (the "normal equations") that lands on the exact best line in <i>one</i> shot — no
+    stepping. Use that when the model is linear and the data fits in memory. GD earns its keep the moment a
+    closed-form stops existing (every real network).</div>
+    <div class="ssd">🔧 <b>Your project:</b> this is <b>literally what trains the R2 temperature forecaster</b> —
+    gradient descent tunes the weights that map telemetry → predicted °C, so firmware can throttle <i>before</i>
+    the drive cooks, not after.</div>
+    <div class="eq"><span class="g">prediction</span>   P = w·load + b
+<span class="g">loss</span>         L = Σ (P − T)² / n
+<span class="o">gradient</span>     ∂L/∂w = 2·Σ(P−T)·load ,  ∂L/∂b = 2·Σ(P−T)
+<span class="k">update</span>       w ← w − η·∂L/∂w ,  b ← b − η·∂L/∂b</div>
+    <div class="why">🧵 <b>The thread forward:</b> a neural net is just <i>millions</i> of these weights, and
+    <b>backpropagation</b> is the chain rule handing each one its own ∂L/∂w so gradient descent can nudge it. Master
+    this one bowl and you've mastered how <i>every</i> model on Earth learns — from your thermal line to GPT.</div>
+    <details><summary>▶ numpy twin — run the whole thing in Jupyter</summary>
+<pre class="code">import numpy as np, matplotlib.pyplot as plt
+x=np.array([1,2,3.]); y=np.array([40,55,70.]); n=len(x)
+w=b=0.0; eta=0.08; hist=[]
+for _ in range(60):
+    p=w*x+b; res=p-y
+    w-=eta*np.mean(2*res*x); b-=eta*np.mean(2*res)
+    hist.append(np.mean(res**2))
+print("w,b ->",round(w,2),round(b,2),"  (true 15, 25)")
+fig,ax=plt.subplots(1,2,figsize=(10,4))
+ax[0].scatter(x,y); ax[0].plot(x,w*x+b,'orange'); ax[0].set_title('the fit')
+ax[1].plot(hist); ax[1].set_title('loss per step'); ax[1].set_yscale('log')
+plt.tight_layout(); plt.show()</pre></details>
+    <p><b>Teach-it-back 🎤:</b> in NAND terms — why does a huge learning rate make the model <i>worse</i> instead of
+    just slower? (Answer by voice; I'll grade the phrasing.)</p>
+  </div>
+</section>
+
+</div>
+
+<div class="nav">
+  <button id="prev">← Back</button>
+  <div><div id="dots"></div><div id="slabel"></div></div>
+  <button id="next">Next →</button>
+</div>
+
+<script>
+// ---------- shared data + math ----------
+const XS=[1,2,3], YS=[40,55,70], N=3;
+function loss(w,b){let s=0;for(let i=0;i<N;i++){let e=w*XS[i]+b-YS[i];s+=e*e;}return s/N;}
+function grads(w,b){let gw=0,gb=0;for(let i=0;i<N;i++){let e=w*XS[i]+b-YS[i];gw+=2*e*XS[i];gb+=2*e;}return [gw/N,gb/N];}
+// slice loss(w, b=25) = (14/3)(w-15)^2  [verified]
+function bowlLoss(w){return 14/3*(w-15)*(w-15);}
+
+// ---------- scatter renderer ----------
+function scatter(svg,w,b,showTarget){
+  const LX=l=>40+l/4*250, TY=t=>200-Math.max(-20,Math.min(90,t))/90*180;
+  let s=`<line x1="40" y1="200" x2="300" y2="200" stroke="#5a8fbf"/><line x1="40" y1="200" x2="40" y2="18" stroke="#5a8fbf"/>`;
+  s+=`<text x="170" y="216" text-anchor="middle" font-size="10" fill="#a9b6c9">load →</text>`;
+  s+=`<text x="14" y="110" font-size="10" fill="#a9b6c9" transform="rotate(-90 14 110)">temp °C</text>`;
+  // target line temp = 15*load + 25 (the true best fit) — faint green dashed
+  if(showTarget){
+    s+=`<line x1="${LX(0)}" y1="${TY(25)}" x2="${LX(4)}" y2="${TY(85)}" stroke="#7ee787" stroke-width="1.5" stroke-dasharray="5 4" opacity="0.7"/>`;
+    s+=`<text x="${LX(3.1)}" y="${(TY(15*3.1+25)-5).toFixed(1)}" font-size="9" fill="#7ee787">target 15·load+25</text>`;
+  }
+  // current line across load 0..4
+  const y0=w*0+b, y4=w*4+b;
+  s+=`<line x1="${LX(0)}" y1="${TY(y0)}" x2="${LX(4)}" y2="${TY(y4)}" stroke="#ff9433" stroke-width="2"/>`;
+  // residual sticks + points
+  for(let i=0;i<N;i++){const px=LX(XS[i]),py=TY(YS[i]),ly=TY(w*XS[i]+b);
+    s+=`<line x1="${px}" y1="${py}" x2="${px}" y2="${ly}" stroke="#ff6b6b" stroke-width="1.5" stroke-dasharray="3 2"/>`;
+    s+=`<circle cx="${px}" cy="${py}" r="5" fill="#9fe8ff"/>`;}
+  svg.innerHTML=s;
+}
+// ---------- bowl renderer ----------
+function bowl(svg,w,arrow){
+  const WX=v=>30+v/30*260, LY=l=>185-Math.min(l,1050)/1050*160;
+  let s=`<line x1="30" y1="185" x2="300" y2="185" stroke="#5a8fbf"/><line x1="30" y1="185" x2="30" y2="15" stroke="#5a8fbf"/>`;
+  s+=`<text x="165" y="203" text-anchor="middle" font-size="10" fill="#a9b6c9">w →</text>`;
+  s+=`<text x="14" y="105" font-size="10" fill="#a9b6c9" transform="rotate(-90 14 105)">loss</text>`;
+  let d='';for(let i=0;i<=60;i++){const wv=i/60*30;d+=(i?'L':'M')+WX(wv).toFixed(1)+' '+LY(bowlLoss(wv)).toFixed(1)+' ';}
+  s+=`<path d="${d}" fill="none" stroke="#9fe8ff" stroke-width="2"/>`;
+  s+=`<circle cx="${WX(15).toFixed(1)}" cy="${LY(0)}" r="3" fill="#7ee787"/><text x="${WX(15)}" y="180" text-anchor="middle" font-size="9" fill="#7ee787">best w=15</text>`;
+  const bx=WX(Math.max(0,Math.min(30,w))), by=LY(bowlLoss(w));
+  if(arrow){const up=(w<15)?-1:1;s+=`<line x1="${bx}" y1="${by}" x2="${bx+up*34}" y2="${by-20}" stroke="#ff9433" stroke-width="2" marker-end="url(#ah)"/>`;
+    s+=`<defs><marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#ff9433"/></marker></defs><text x="${bx+up*20}" y="${by-26}" font-size="9" fill="#ffb347">uphill</text>`;}
+  s+=`<circle cx="${bx}" cy="${by}" r="7" fill="#ff9433" stroke="#fff" stroke-width="1"/>`;
+  svg.innerHTML=s;
+}
+const $=id=>document.getElementById(id);
+
+// step 1 static bad line
+scatter($('svgScatter1'),3,10);
+// step 2 bowl drag
+function upd2(){const w=+$('wSlide2').value;bowl($('svgBowl2'),w,false);
+  $('bowlRead2').innerHTML=`w = <b class="o">${w.toFixed(1)}</b> → loss = <b class="k">${bowlLoss(w).toFixed(0)}</b>` + (Math.abs(w-15)<0.6?'  <span class="grn">— at the bottom! 🎯</span>':'');}
+$('wSlide2').oninput=upd2;upd2();
+// step 3 gradient arrow (fixed illustrative w=4)
+bowl($('svgGrad3'),4,true);
+$('svgGrad3').closest && bowl($('svgGrad3'),4,true);
+
+// ---------- step 5 run (step-by-step + numerical flow) ----------
+const ETA5=0.08;
+let timer=null,w5=0,b5=0,it5=0;
+function draw5(){scatter($('svgFit5'),w5,b5,true);bowl($('svgBowl5'),w5,false);
+  const L=loss(w5,b5);
+  let tag='';
+  if(it5>0&&L<0.5) tag='  <span class="grn">🎯 reached (15, 25)</span>';
+  else if(it5>0&&L<5) tag='  <span class="grn">✓ fitting…</span>';
+  $('run5Read').innerHTML=`iter <b>${it5}</b> · w=<b class="o">${w5.toFixed(2)}</b> b=<b class="o">${b5.toFixed(2)}</b> · loss=<b class="k">${L.toFixed(1)}</b>`+tag;}
+function numflow(pw,pb,gw,gb,nw,nb,k){
+  const P=i=>pw*XS[i]+pb, R=i=>P(i)-YS[i];
+  const rx=R(0)*1+R(1)*2+R(2)*3, rs=R(0)+R(1)+R(2);
+  let s=`<b class="o">◆ ITERATION ${k}</b>\nline so far:  temp = ${pw.toFixed(2)}·load + ${pb.toFixed(2)}\n\n`;
+  s+=`<span class="dim">1 · predict each reading, measure the miss</span>\n`;
+  for(let i=0;i<3;i++)
+    s+=`  P${i+1} = ${pw.toFixed(2)}·${XS[i]} + ${pb.toFixed(2)} = <b>${P(i).toFixed(1)}°C</b>   (real ${YS[i]})\n`+
+       `       r${i+1} = ${P(i).toFixed(1)} − ${YS[i]} = <span class="r">${R(i).toFixed(1)}</span>\n`;
+  s+=`\n<span class="dim">2 · slope of the loss  (∂ = error × input)</span>\n`;
+  s+=`  ∂L/∂w = (2/3)(r1·1 + r2·2 + r3·3)\n`;
+  s+=`        = (2/3)(${(R(0)*1).toFixed(1)} + ${(R(1)*2).toFixed(1)} + ${(R(2)*3).toFixed(1)})\n`;
+  s+=`        = (2/3)(${rx.toFixed(1)}) = <span class="o">${gw.toFixed(1)}</span>\n`;
+  s+=`  ∂L/∂b = (2/3)(r1 + r2 + r3)\n`;
+  s+=`        = (2/3)(${rs.toFixed(1)}) = <span class="o">${gb.toFixed(1)}</span>\n`;
+  s+=`\n<span class="dim">3 · step downhill  (η = ${ETA5})</span>\n`;
+  s+=`  w ← ${pw.toFixed(2)} − ${ETA5}·(${gw.toFixed(1)}) = <span class="k">${nw.toFixed(2)}</span>\n`;
+  s+=`  b ← ${pb.toFixed(2)} − ${ETA5}·(${gb.toFixed(1)}) = <span class="k">${nb.toFixed(2)}</span>\n`;
+  s+=`\n<span class="dim">4 · new wrongness</span>\n`;
+  s+=`  loss = mean(r²) = <span class="k">${loss(nw,nb).toFixed(1)}</span>  <span class="grn">↓ from ${loss(pw,pb).toFixed(1)}</span>`;
+  $('numflow5').innerHTML=s;
+}
+const MAXIT=180;
+const START5=`<b class="o">Iteration 0 — start</b>\n w = 0.00 , b = 0.00  (flat, useless line)\n loss = <span class="k">3175.0</span>\n\nDrag the scrubber or press <b>▶ Step</b> —\nboth knobs w and b move; full math prints here.`;
+function applyIter(k){                       // deterministic: replay from (0,0) to iteration k
+  k=Math.max(0,Math.min(MAXIT,k));
+  if(k===0){w5=0;b5=0;it5=0;draw5();$('numflow5').innerHTML=START5;$('iterSlide').value=0;return;}
+  let w=0,b=0,pw=0,pb=0,gw=0,gb=0;
+  for(let i=1;i<=k;i++){pw=w;pb=b;const g=grads(pw,pb);gw=g[0];gb=g[1];w=pw-ETA5*gw;b=pb-ETA5*gb;}
+  w5=w;b5=b;it5=k;draw5();numflow(pw,pb,gw,gb,w5,b5,k);$('iterSlide').value=k;
+}
+function gotoIter(k){clearInterval(timer);timer=null;applyIter(k);}   // scrubber stops any autorun
+function step5(){ if(it5>=MAXIT) return; applyIter(it5+1); }
+function reset5(){clearInterval(timer);timer=null;applyIter(0);}
+function run5(){if(timer)return;timer=setInterval(()=>{step5();
+  if(it5>=MAXIT||loss(w5,b5)<0.4){clearInterval(timer);timer=null;}},130);}
+$('stepBtn').onclick=step5;$('runBtn').onclick=run5;$('resetBtn').onclick=reset5;
+$('iterSlide').oninput=e=>gotoIter(+e.target.value);reset5();
+
+// ---------- step 6 eta ----------
+function runEta(){const eta=+$('etaSlide').value;let w=0,b=0,diverged=false;
+  for(let i=0;i<12;i++){const [gw,gb]=grads(w,b);w-=eta*gw;b-=eta*gb;if(!isFinite(loss(w,b))||loss(w,b)>1e7){diverged=true;break;}}
+  const L=loss(w,b);let verdict;
+  if(diverged||L>1e5)verdict='<span class="r">💥 diverged — η too big</span>';
+  else if(L>150)verdict='<span class="dim">🐢 crawling — η too small</span>';
+  else verdict='<span class="grn">✅ smooth convergence</span>';
+  $('etaRead').innerHTML=`η = <b class="o">${eta.toFixed(3)}</b> → after 12 steps loss = <b class="k">${L>1e5?L.toExponential(1):L.toFixed(1)}</b> · ${verdict}`;}
+$('etaSlide').oninput=runEta;$('runEta').onclick=runEta;runEta();
+
+// ---------- reveal ----------
+document.querySelectorAll('.reveal').forEach(el=>el.onclick=()=>{if(el.classList.contains('shown'))return;el.textContent=' '+el.dataset.r;el.classList.add('shown');});
+
+// ---------- step machine ----------
+const steps=[...document.querySelectorAll('.step')];
+const labels=['The thread','3 objects','The bowl','The gradient','The step','Converge ▶','η knob','Land it'];
+let cur=0;const dots=$('dots');
+steps.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' on':'');d.onclick=()=>go(i);dots.appendChild(d);});
+function go(i){cur=Math.max(0,Math.min(steps.length-1,i));
+  steps.forEach((s,k)=>s.classList.toggle('on',k===cur));
+  [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===cur));
+  $('prev').disabled=cur===0;$('next').disabled=cur===steps.length-1;
+  $('slabel').textContent=(cur+1)+' / '+steps.length+' · '+labels[cur];
+  if(cur!==5&&timer){clearInterval(timer);timer=null;}
+  window.scrollTo({top:0,behavior:'smooth'});}
+$('prev').onclick=()=>go(cur-1);$('next').onclick=()=>go(cur+1);
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(cur+1);if(e.key==='ArrowLeft')go(cur-1);});
+go(0);
+</script>

@@ -50,7 +50,7 @@ up: "[[HOME]]"
 | # | Video | Source | Rubric | Note |
 |---|---|---|---|---|
 | 1 | ✅ **Lines READ. Curves DERIVE.** | line-vs-curve HTML | ①②③④⑤ | SHIPPED — video 1 |
-| 2 | **Gradient Descent: the bowl** | HTML owed (HOME.md "pick up later"); docs: derivative-limit-to-GD, line-to-gradient-thermal-fit | ②③④⑤ (① pending the teaching session) | The natural sequel: partial → gradient → GD → best-fit line, U → bowl. Build the HTML with the friend first (owed anyway), then the video. |
+| 2 | **Gradient Descent: the bowl** | ✅ HTML BUILT `html/2026-07-14_gradient-descent-thermal-capstone_F.html`; docs: derivative-limit-to-GD, line-to-gradient-thermal-fit | ①②③④⑤ | HTML done 2026-07-14: temp=w·load+b — 3 objects, bowl, hand-step, live scrubber 0→180 converging onto target (15,25), η-divergence + threshold. Ready to schematic → carousel Post 11 + video 2. |
 | 3 | **PCA: 20 sensors → 3 numbers** | pca-20-sensors HTML | ②③④⑤ (① self-tested) | Banger title; 11-step story; scree keep/drop; "when PCA betrays you" = trap. Ready to schematic TODAY. |
 | 4 | **The bell curve & σ** | bell-curve-sigma + normal_distribution HTMLs (merge) | ②③④⑤ | σ-slider bends the bell; 68-95-99.7; latency grounding as a case study, not the analogy. |
 | 5 | **Eigen, fully by hand** | eigen-by-hand + covariance-eigen-capstone HTMLs | ②③④⑤ | 2×2 vs 3×3 in parallel; the stretch IS the motion story. Feeds #3 — release BEFORE PCA if sequencing strictly. |
@@ -60,7 +60,7 @@ up: "[[HOME]]"
 | 9 | **BL#1: Teaching my SSD to fear heat** | R0/R1 (thermal-project-map) | ④⑤ + demo footage | First build-log; record R1 work ~Jul 18. Different pillar, different structure (screen + face + plots). |
 
 **YELLOW (not videos yet):**
-- entropy / cross-entropy / expected-value — docs exist, no HTML; high-performing topics once the teaching scroll exists (EV ties to #6's dot-product thread)
+- ✅ entropy / expected-value / info-gain — HTMLs BUILT 2026-07-13 (`html/2026-07-11_entropy-expected-value-info-gain_s4.html`, `html/2026-07-13_decision-tree-growing-iterations_s4.html`); now video-ready (EV→surprise→entropy→tree; ties to #6's dot-product thread). Promote to GREEN at next scoring.
 - mcu-deployment flashcards — no motion story → carousel material
 - linear-algebra-trainer-deck — a 14-chapter MINE for future videos, not one video
 - rasengan theme mockup — meta, N/A
