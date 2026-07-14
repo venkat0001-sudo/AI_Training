@@ -1,0 +1,345 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decision Tree — how it grows as features unlock (Cases A→D)</title>
+<!--HUB {"type":"walkthrough","title":"Decision Tree Cases A→D — entropy, info gain, if-else","date":"2026-07-13","concepts":["entropy","information-gain","decision-tree"],"edge":3} -->
+<style>
+:root{
+  --bgA:#070b14;--bgB:#0a1120;--bgC:#0c0f1c;
+  --card:rgba(16,26,48,.72);--panel:#080d1a;
+  --line:rgba(90,143,191,.35);--lineDim:rgba(90,143,191,.2);
+  --ink:#e9eff7;--inkd:#a9b6c9;--hd:#9fe8ff;--hdim:#5f7d9a;
+  --acc:#ff9433;--accg:#ffb347;--accA:rgba(255,148,51,.15);
+  --gold:#ffd75e;--num2:#7fd4c0;--red:#ff6b6b;--green:#7ee787;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(135deg,var(--bgA),var(--bgB) 55%,var(--bgC));
+  color:var(--ink);font-family:'Courier New',monospace;line-height:1.5;padding:16px 14px 120px}
+.wrap{max-width:1120px;margin:0 auto}
+header{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.spiral{font-size:26px;animation:spin 9s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+h1{font-size:17px;margin:0;color:var(--hd)}
+.sub{color:var(--hdim);font-size:11px;margin-top:2px}
+.explain{background:var(--accA);border-left:3px solid var(--acc);padding:10px 14px;margin:14px 0;border-radius:0 8px 8px 0;font-size:14px}
+.explain b{color:var(--gold)}
+.tblwrap{overflow-x:auto;margin:8px 0}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:13px}
+th,td{border:1px solid var(--lineDim);padding:6px 9px;text-align:center}
+th{background:rgba(159,232,255,.08);color:var(--hd);font-size:12px}
+td.lbl{color:var(--inkd)}
+.Y{color:var(--green);font-weight:bold}.N{color:var(--red);font-weight:bold}
+.locked{opacity:.22}
+tr.err td{background:rgba(255,107,107,.14)}
+tr.err td:first-child::after{content:" ✗";color:var(--red)}
+.legend{color:var(--hdim);font-size:11px;margin:4px 2px}
+.casebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:16px 0 6px}
+.chip{background:var(--panel);border:1px solid var(--line);color:var(--inkd);padding:7px 14px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px}
+.chip.on{border-color:var(--acc);color:var(--acc);background:var(--accA);font-weight:bold}
+.acc{margin-left:auto;font-size:14px;padding:6px 14px;border-radius:20px;border:1px solid var(--line)}
+.feats{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.fchip{font-size:11px;padding:2px 10px;border-radius:20px;border:1px solid var(--lineDim);color:var(--hdim)}
+.fchip.act{border-color:var(--num2);color:var(--num2);background:rgba(127,212,192,.1)}
+.narr{color:var(--gold);font-style:italic;font-size:13px;margin:8px 0;border-left:3px solid var(--gold);padding:6px 12px;background:rgba(255,215,94,.06);border-radius:0 8px 8px 0}
+.changed{border-left:3px solid var(--num2);background:rgba(127,212,192,.07);padding:8px 12px;margin:8px 0;border-radius:0 8px 8px 0;font-size:13px;color:var(--inkd)}
+.funnel{background:linear-gradient(90deg,rgba(159,232,255,.14),transparent);border:1px solid var(--lineDim);border-radius:10px;padding:9px 14px;margin:10px 0;font-size:13.5px;color:var(--ink)}
+.funnel b{color:var(--hd)}
+.widget{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:12px}
+.picker{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.picker label{font-size:12px;color:var(--hdim);margin-right:4px}
+.picker select{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:5px 8px;font-family:inherit;font-size:12px}
+.picker .ign{opacity:.55}
+#verdict{margin-top:10px;font-size:14px}
+.cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
+@media(max-width:940px){.cols{grid-template-columns:1fr}}
+.col{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+.colh{color:var(--acc);font-size:12px;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;border-bottom:1px solid var(--lineDim);padding-bottom:6px}
+pre{margin:0;font-size:12px;white-space:pre;overflow-x:auto;color:var(--ink)}
+pre.num .k{color:var(--gold)}pre.num .o{color:var(--acc)}pre.num .g{color:var(--green)}pre.num .r{color:var(--red)}pre.num .c{color:var(--num2)}
+pre.code{background:#05080f;border-radius:8px;padding:10px;color:#cfe3ee}
+.code .kw{color:#ff9433}.code .st{color:#7ee787}.code .cm{color:#5f7d9a}
+svg{width:100%;height:auto}
+.nav{position:fixed;left:0;right:0;bottom:0;background:rgba(7,11,20,.94);border-top:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;backdrop-filter:blur(6px)}
+.nav button{background:var(--panel);border:1px solid var(--line);color:var(--ink);padding:9px 15px;border-radius:9px;cursor:pointer;font-family:inherit;font-size:13px}
+.nav button:hover:not(:disabled){border-color:var(--acc);color:var(--acc)}
+.nav button:disabled{opacity:.35;cursor:default}
+#slabel{color:var(--hdim);font-size:11px;min-width:150px;text-align:center}
+</style>
+
+<div class="wrap">
+<header>
+  <span class="spiral">🍥</span>
+  <div>
+    <h1>Decision Tree — how it grows as features unlock</h1>
+    <div class="sub">Cases A→D · dataset on top · numerical + tree + if-else side by side</div>
+  </div>
+</header>
+
+<div class="explain">
+  <b>The problem:</b> from a handful of SSD telemetry features, decide — <b>will the drive throttle?</b>
+  Start with one feature, then unlock one more each case. Watch the tree <b>sharpen</b> (6/8 → 7/8 → 8/8)
+  and learn <i>when</i> a new feature actually earns a place in the tree.
+</div>
+
+<div class="tblwrap">
+<table id="tbl">
+  <tr>
+    <th>#</th>
+    <th data-f="Temp">Temp</th><th data-f="Workload">Workload</th>
+    <th data-f="FW">FW</th><th data-f="Ambient">Ambient</th>
+    <th>Throttle?</th>
+  </tr>
+  <tr id="r1"><td class="lbl">1</td><td data-f="Temp">High</td><td data-f="Workload">Light</td><td data-f="FW">v1</td><td data-f="Ambient">Hot</td><td class="Y">Y</td></tr>
+  <tr id="r2"><td class="lbl">2</td><td data-f="Temp">High</td><td data-f="Workload">Light</td><td data-f="FW">v2</td><td data-f="Ambient">Cool</td><td class="Y">Y</td></tr>
+  <tr id="r3"><td class="lbl">3</td><td data-f="Temp">High</td><td data-f="Workload">Light</td><td data-f="FW">v1</td><td data-f="Ambient">Cool</td><td class="Y">Y</td></tr>
+  <tr id="r4"><td class="lbl">4</td><td data-f="Temp">High</td><td data-f="Workload">Heavy</td><td data-f="FW">v2</td><td data-f="Ambient">Hot</td><td class="N">N</td></tr>
+  <tr id="r5"><td class="lbl">5</td><td data-f="Temp">Low</td><td data-f="Workload">Light</td><td data-f="FW">v2</td><td data-f="Ambient">Hot</td><td class="Y">Y</td></tr>
+  <tr id="r6"><td class="lbl">6</td><td data-f="Temp">Low</td><td data-f="Workload">Light</td><td data-f="FW">v1</td><td data-f="Ambient">Cool</td><td class="N">N</td></tr>
+  <tr id="r7"><td class="lbl">7</td><td data-f="Temp">Low</td><td data-f="Workload">Light</td><td data-f="FW">v1</td><td data-f="Ambient">Cool</td><td class="N">N</td></tr>
+  <tr id="r8"><td class="lbl">8</td><td data-f="Temp">Low</td><td data-f="Workload">Light</td><td data-f="FW">v1</td><td data-f="Ambient">Hot</td><td class="N">N</td></tr>
+</table>
+</div>
+<div class="legend">4Y / 4N · <span class="Y">Y</span> = will throttle · <span class="N">N</span> = won't · faded column = feature not unlocked yet · <span style="color:var(--red)">✗ row</span> = tree gets it wrong in this case</div>
+
+<div class="casebar">
+  <span class="chip on" data-c="A">Case A</span>
+  <span class="chip" data-c="B">Case B</span>
+  <span class="chip" data-c="C">Case C</span>
+  <span class="chip" data-c="D">Case D</span>
+  <span class="acc" id="acc"></span>
+</div>
+<div class="feats" id="feats"></div>
+<div class="funnel" id="funnel"></div>
+<div class="narr" id="narr"></div>
+<div class="changed" id="changed"></div>
+
+<div class="cols">
+  <div class="col"><div class="colh">① Numerical</div><pre class="num" id="pNum"></pre></div>
+  <div class="col"><div class="colh">② Decision tree</div><div id="pTree"></div></div>
+  <div class="col"><div class="colh">③ If-else code</div><pre class="code" id="pCode"></pre></div>
+</div>
+
+<div class="widget">
+  <div class="colh" style="color:var(--acc);font-size:12px;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--lineDim);padding-bottom:6px;margin-bottom:8px">🕹️ Classify a new sample — walks THIS case's tree</div>
+  <div class="picker" id="picker">
+    <span id="wTemp"><label>Temp</label><select id="sTemp"><option>High</option><option>Low</option></select></span>
+    <span id="wWork"><label>Workload</label><select id="sWork"><option>Light</option><option>Heavy</option></select></span>
+    <span id="wFW"><label>FW</label><select id="sFW"><option>v1</option><option>v2</option></select></span>
+    <span id="wAmb"><label>Ambient</label><select id="sAmb"><option>Hot</option><option>Cool</option></select></span>
+  </div>
+  <div id="verdict"></div>
+</div>
+</div>
+
+<div class="nav">
+  <button id="prev">← Back</button>
+  <span id="slabel"></span>
+  <button id="next">Next →</button>
+</div>
+
+<script>
+// ---------- tree drawing helpers ----------
+const DW=96,DH=32,LW=110,LH=46;
+function deci(cx,y,label){const x=cx-DW/2;
+  return `<rect x="${x}" y="${y}" width="${DW}" height="${DH}" rx="7" fill="#0a1120" stroke="#9fe8ff" stroke-width="1.5"/>`+
+  `<text x="${cx}" y="${y+21}" text-anchor="middle" font-size="13" fill="#9fe8ff">${label}</text>`;}
+function leaf(cx,y,verdict,sub){const yes=verdict[0]==='T';const c=yes?'#7ee787':'#ff6b6b';const x=cx-LW/2;
+  return `<rect x="${x}" y="${y}" width="${LW}" height="${LH}" rx="7" fill="#0a1120" stroke="${c}" stroke-width="1.5"/>`+
+  `<text x="${cx}" y="${y+19}" text-anchor="middle" font-size="12" fill="${c}">${verdict}</text>`+
+  `<text x="${cx}" y="${y+36}" text-anchor="middle" font-size="10" fill="#a9b6c9">${sub}</text>`;}
+function edge(x1,y1,x2,y2,label,lx,ly){
+  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#5a8fbf"/>`+
+  `<text x="${lx}" y="${ly}" font-size="10" fill="#7fd4c0">${label}</text>`;}
+function svg(vb,inner){return `<svg viewBox="${vb}" role="img">${inner}</svg>`;}
+
+const treeA = svg("0 0 340 170",
+  edge(170,42,90,96,"Low",118,74)+edge(170,42,250,96,"High",212,74)+
+  deci(170,10,"Temp?")+
+  leaf(90,96,"NO throttle","Low · 1Y3N · maj")+
+  leaf(250,96,"THROTTLE","High · 3Y1N · maj"));
+
+const treeB = svg("0 0 440 240",
+  edge(220,42,100,96,"Low",135,74)+edge(220,42,330,100,"High",283,74)+
+  edge(330,132,272,180,"Heavy",283,164)+edge(330,132,388,180,"Light",362,164)+
+  deci(220,10,"Temp?")+deci(330,100,"Workload?")+
+  leaf(100,96,"NO throttle","Low · 1Y3N · maj")+
+  leaf(272,180,"NO throttle","Heavy · 0Y1N")+
+  leaf(388,180,"THROTTLE","Light · 3Y0N"));
+
+const treeC = svg("0 0 440 250",
+  edge(220,42,110,100,"Low",150,74)+edge(220,42,330,100,"High",283,74)+
+  edge(110,132,58,186,"v1",72,166)+edge(110,132,166,186,"v2",138,166)+
+  edge(330,132,272,186,"Heavy",283,166)+edge(330,132,388,186,"Light",362,166)+
+  deci(220,10,"Temp?")+deci(110,100,"FW?")+deci(330,100,"Workload?")+
+  leaf(58,186,"NO throttle","v1 · 0Y3N")+leaf(166,186,"THROTTLE","v2 · 1Y0N")+
+  leaf(272,186,"NO throttle","Heavy · 0Y1N")+leaf(388,186,"THROTTLE","Light · 3Y0N"));
+
+const treeD = svg("0 0 440 250",
+  `<rect x="300" y="10" width="128" height="26" rx="7" fill="none" stroke="#5f7d9a" stroke-width="1.3" stroke-dasharray="4 3"/>`+
+  `<text x="364" y="27" text-anchor="middle" font-size="11" fill="#5f7d9a">Ambient? ✕ IG≈0</text>`+
+  edge(220,42,110,100,"Low",150,74)+edge(220,42,330,100,"High",283,74)+
+  edge(110,132,58,186,"v1",72,166)+edge(110,132,166,186,"v2",138,166)+
+  edge(330,132,272,186,"Heavy",283,166)+edge(330,132,388,186,"Light",362,166)+
+  deci(220,10,"Temp?")+deci(110,100,"FW?")+deci(330,100,"Workload?")+
+  leaf(58,186,"NO throttle","v1 · 0Y3N")+leaf(166,186,"THROTTLE","v2 · 1Y0N")+
+  leaf(272,186,"NO throttle","Heavy · 0Y1N")+leaf(388,186,"THROTTLE","Light · 3Y0N"));
+
+// ---------- per-case content ----------
+const CASES={
+A:{feats:['Temp'],locked:['Workload','FW','Ambient'],err:['r4','r5'],acc:'6 / 8',accCol:'#ffb347',
+   narr:'With one clue, the tree can only sort into "usually throttles" vs "usually not" — a couple of samples land in the wrong bucket.',
+   changed:'<b>Feature: Temp only.</b> One split, two rough majority leaves. Samples #4 and #5 are misfiled — the tree has no way to tell them apart yet.',
+   tree:treeA,
+   num:`<span class="c">H(root)</span> = 4Y / 4N
+        = -(½·log₂½ + ½·log₂½)
+        = <span class="k">1.000 bit</span>  (max confusion)
+
+<span class="o">IG(Temp)</span> = 1.000 - [½·H(3Y1N) + ½·H(1Y3N)]
+         = 1.000 - [½·0.811 + ½·0.811]
+         = 1.000 - 0.811
+         = <span class="k">0.189</span>
+
+High = 3Y1N -> majority <span class="g">THROTTLE</span>  (miss #4)
+Low  = 1Y3N -> majority <span class="r">NO</span>        (miss #5)
+-> <span class="o">6 / 8 correct</span>`,
+   code:`<span class="kw">def</span> predict(x):
+    <span class="kw">if</span> x.Temp == <span class="st">"High"</span>:
+        <span class="kw">return</span> <span class="st">"THROTTLE"</span>   <span class="cm"># majority 3/4</span>
+    <span class="kw">else</span>:                   <span class="cm"># Low</span>
+        <span class="kw">return</span> <span class="st">"NO"</span>         <span class="cm"># majority 3/4</span>`},
+
+B:{feats:['Temp','Workload'],locked:['FW','Ambient'],err:['r5'],acc:'7 / 8',accCol:'#ffb347',
+   narr:'Unlock Workload and the HIGH branch splits clean — Light always throttles, Heavy never does. The Low branch still has no second clue.',
+   changed:'<b>+ Workload.</b> Temp still wins the root (IG 0.189 > 0.138). Inside High, Workload gives a PERFECT split → that whole branch is now pure. Low is stuck at a majority leaf (still misses #5). The tree grew on the <b>right</b>.',
+   tree:treeB,
+   num:`Root: <span class="o">IG(Temp)=0.189</span> &gt; IG(Workload)=0.138
+      -> split on <span class="c">Temp</span>
+
+<span class="c">High</span> (3Y1N, H=0.811):
+  IG(Workload) = 0.811 - [¼·H(0Y1N) + ¾·H(3Y0N)]
+              = 0.811 - 0 = <span class="k">0.811</span>  -> PURE
+  Light -> <span class="g">3Y0N</span>   Heavy -> <span class="r">0Y1N</span>
+
+<span class="c">Low</span> (1Y3N): Workload is constant here
+      -> no split -> majority <span class="r">NO</span>  (miss #5)
+-> <span class="o">7 / 8 correct</span>`,
+   code:`<span class="kw">def</span> predict(x):
+    <span class="kw">if</span> x.Temp == <span class="st">"High"</span>:
+        <span class="kw">if</span> x.Workload == <span class="st">"Light"</span>:
+            <span class="kw">return</span> <span class="st">"THROTTLE"</span>   <span class="cm"># pure 3Y</span>
+        <span class="kw">else</span>:                      <span class="cm"># Heavy</span>
+            <span class="kw">return</span> <span class="st">"NO"</span>         <span class="cm"># pure 1N</span>
+    <span class="kw">else</span>:                          <span class="cm"># Low</span>
+        <span class="kw">return</span> <span class="st">"NO"</span>             <span class="cm"># majority 3/4</span>`},
+
+C:{feats:['Temp','Workload','FW'],locked:['Ambient'],err:[],acc:'8 / 8',accCol:'#7ee787',
+   narr:'Unlock FW and the LOW branch finally splits — v2 throttles, v1 does not. Now the tree branches on BOTH sides and gets every sample right.',
+   changed:'<b>+ FW version.</b> Inside Low, FW gives a PERFECT split (IG 0.811) → Low is pure too. The tree now grows <b>left AND right</b> — balanced — and reaches <b>8/8</b>. Different branches used different features (High→Workload, Low→FW): that is a real feature-interaction.',
+   tree:treeC,
+   num:`Root -> split <span class="c">Temp</span> (IG 0.189 leads)
+
+<span class="c">High</span> -> Workload (IG 0.811 -> pure)   [case B]
+
+<span class="c">Low</span> (1Y3N, H=0.811):
+  IG(FW) = 0.811 - [¾·H(0Y3N) + ¼·H(1Y0N)]
+        = 0.811 - 0 = <span class="k">0.811</span>  -> PURE
+  v2 -> <span class="g">1Y0N</span>   v1 -> <span class="r">0Y3N</span>
+
+-> <span class="g">8 / 8 correct — zero misses</span>`,
+   code:`<span class="kw">def</span> predict(x):
+    <span class="kw">if</span> x.Temp == <span class="st">"High"</span>:
+        <span class="kw">if</span> x.Workload == <span class="st">"Light"</span>:
+            <span class="kw">return</span> <span class="st">"THROTTLE"</span>
+        <span class="kw">else</span>:                   <span class="cm"># Heavy</span>
+            <span class="kw">return</span> <span class="st">"NO"</span>
+    <span class="kw">else</span>:                       <span class="cm"># Low</span>
+        <span class="kw">if</span> x.FW == <span class="st">"v2"</span>:
+            <span class="kw">return</span> <span class="st">"THROTTLE"</span>
+        <span class="kw">else</span>:                   <span class="cm"># v1</span>
+            <span class="kw">return</span> <span class="st">"NO"</span>`},
+
+D:{feats:['Temp','Workload','FW','Ambient'],locked:[],err:[],acc:'8 / 8',accCol:'#7ee787',
+   narr:'Add a fourth feature, Ambient — and nothing happens. It reduces no confusion, so the tree refuses to split on it. More columns is not more tree.',
+   changed:'<b>+ Ambient (the lesson).</b> Ambient splits 4Y4N into 2Y2N | 2Y2N → <b>zero gain</b>. At every node a better feature already wins (Workload 0.811, FW 0.811 ≫ Ambient 0.311). So the tree <b>ignores it</b> — the code is identical to Case C. A feature earns a split ONLY by beating the others.',
+   tree:treeD,
+   num:`Add Ambient. Root scoreboard:
+  Temp <span class="o">0.189</span> · Workload 0.138
+  FW 0.049 · <span class="r">Ambient 0.000</span>
+
+Ambient: 4Y4N -> 2Y2N | 2Y2N  -> gains nothing
+At High: Workload 0.811 &gt;&gt; Ambient 0.311
+At Low : FW 0.811 &gt;&gt; Ambient 0.311
+
+Ambient never wins a node -> tree unchanged.
+<span class="g">Still 8 / 8.</span>
+<span class="c">Lesson: more features != deeper tree.
+A column earns a split only by
+beating the others' info gain.</span>`,
+   code:`<span class="kw">def</span> predict(x):
+    <span class="cm"># x.Ambient exists but is UNUSED —</span>
+    <span class="cm"># it reduced no entropy, so no split.</span>
+    <span class="kw">if</span> x.Temp == <span class="st">"High"</span>:
+        <span class="kw">if</span> x.Workload == <span class="st">"Light"</span>:
+            <span class="kw">return</span> <span class="st">"THROTTLE"</span>
+        <span class="kw">else</span>:
+            <span class="kw">return</span> <span class="st">"NO"</span>
+    <span class="kw">else</span>:
+        <span class="kw">if</span> x.FW == <span class="st">"v2"</span>:
+            <span class="kw">return</span> <span class="st">"THROTTLE"</span>
+        <span class="kw">else</span>:
+            <span class="kw">return</span> <span class="st">"NO"</span>`}
+};
+
+// ---------- narrowing strip + classify widget ----------
+const RULES={
+ A:'🔎 <b>Will it throttle?</b> → answer so far: <b>throttle if Temp = High</b> &nbsp;·&nbsp; still wrong on <b>2 / 8</b>',
+ B:'🔎 <b>Will it throttle?</b> → <b>High: Light→yes, Heavy→no &nbsp;·&nbsp; Low→no</b> &nbsp;·&nbsp; wrong on <b>1 / 8</b>',
+ C:'🔎 <b>Will it throttle?</b> → <b>Temp, then Workload (High) or FW (Low) decides everything</b> &nbsp;·&nbsp; wrong on <b>0 / 8</b> ✅',
+ D:'🔎 <b>Will it throttle?</b> → <b>same rule — Ambient narrows nothing</b> &nbsp;·&nbsp; <b>0 / 8</b> ✅'
+};
+function predict(key,x){
+  if(key==='A') return x.Temp==='High'?['THROTTLE',['Temp=High']]:['NO',['Temp=Low']];
+  if(x.Temp==='High')
+    return x.Workload==='Light'?['THROTTLE',['Temp=High','Workload=Light']]:['NO',['Temp=High','Workload=Heavy']];
+  if(key==='B') return ['NO',['Temp=Low','(majority)']];
+  return x.FW==='v2'?['THROTTLE',['Temp=Low','FW=v2']]:['NO',['Temp=Low','FW=v1']];
+}
+
+// ---------- render ----------
+const order=['A','B','C','D'], ALLF=['Temp','Workload','FW','Ambient'];
+function refreshWidget(){
+  const key=order[cur], C=CASES[key], map={Temp:'wTemp',Workload:'wWork',FW:'wFW',Ambient:'wAmb'};
+  ALLF.forEach(f=>{const el=document.getElementById(map[f]);
+    el.style.display=C.feats.includes(f)?'':'none'; el.classList.toggle('ign',f==='Ambient');});
+  const x={Temp:sTemp.value,Workload:sWork.value,FW:sFW.value,Ambient:sAmb.value};
+  const [v,path]=predict(key,x), col=v==='THROTTLE'?'#7ee787':'#ff6b6b';
+  document.getElementById('verdict').innerHTML=`→ <b style="color:${col}">${v}</b> <span style="color:#a9b6c9">· path: ${path.join(' → ')}</span>`;
+}
+let cur=0;
+const $=id=>document.getElementById(id);
+function setCase(i){
+  cur=Math.max(0,Math.min(3,i));
+  const key=order[cur], C=CASES[key];
+  // chips
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.c===key));
+  // table columns
+  document.querySelectorAll('#tbl [data-f]').forEach(el=>el.classList.toggle('locked',C.locked.includes(el.dataset.f)));
+  // error rows
+  ['r1','r2','r3','r4','r5','r6','r7','r8'].forEach(r=>$(r).classList.toggle('err',C.err.includes(r)));
+  // feature chips
+  $('feats').innerHTML=ALLF.map(f=>`<span class="fchip ${C.feats.includes(f)?'act':''}">${C.feats.includes(f)?'✓ ':'🔒 '}${f}</span>`).join('');
+  // badges + text
+  $('acc').textContent='Accuracy: '+C.acc; $('acc').style.color=C.accCol; $('acc').style.borderColor=C.accCol;
+  $('narr').textContent='🎬 '+C.narr;
+  $('changed').innerHTML=C.changed;
+  $('pNum').innerHTML=C.num; $('pTree').innerHTML=C.tree; $('pCode').innerHTML=C.code;
+  $('funnel').innerHTML=RULES[key];
+  $('slabel').textContent='Case '+key+'  ·  '+(cur+1)+' / 4';
+  $('prev').disabled=cur===0; $('next').disabled=cur===3;
+  refreshWidget();
+}
+document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>setCase(order.indexOf(c.dataset.c)));
+$('prev').onclick=()=>setCase(cur-1); $('next').onclick=()=>setCase(cur+1);
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')setCase(cur+1);if(e.key==='ArrowLeft')setCase(cur-1);});
+['sTemp','sWork','sFW','sAmb'].forEach(id=>$(id).onchange=refreshWidget);
+setCase(0);
+</script>

@@ -1,0 +1,584 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entropy — from Expected Value to Information Gain (s4 prep)</title>
+<style>
+:root{
+  --bgA:#070b14; --bgB:#0a1120; --bgC:#0c0f1c;
+  --card:rgba(16,26,48,.72); --panel:#080d1a;
+  --line:rgba(90,143,191,.35); --lineDim:rgba(90,143,191,.2);
+  --ink:#e9eff7; --inkd:#a9b6c9;
+  --hd:#9fe8ff; --hdim:#5f7d9a;
+  --acc:#ff9433; --accg:#ffb347; --accDim:#5a3a14; --accA:rgba(255,148,51,.15);
+  --gold:#ffd75e; --num2:#7fd4c0;
+  --chakra:#9fe8ff; --chakraA:rgba(159,232,255,.12); --chakraEdge:rgba(159,232,255,.38);
+  --red:#ff6b6b; --green:#7ee787;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(135deg,var(--bgA),var(--bgB) 55%,var(--bgC));
+  color:var(--ink);font-family:'Courier New',monospace;line-height:1.6;
+  padding:0 0 120px;-webkit-text-size-adjust:100%}
+.wrap{max-width:920px;margin:0 auto;padding:20px 16px 0}
+header{display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--line);
+  padding-bottom:14px;margin-bottom:8px}
+.spiral{font-size:30px;animation:spin 9s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+h1{font-size:19px;margin:0;color:var(--hd);letter-spacing:.5px}
+.sub{color:var(--hdim);font-size:12px;margin-top:2px}
+.chakra-top{height:3px;background:linear-gradient(90deg,transparent,var(--chakra),transparent);
+  opacity:.7;margin-bottom:0}
+.step{display:none;animation:rise .45s ease both}
+.step.on{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:18px 18px;margin:14px 0;backdrop-filter:blur(3px)}
+.concept{color:var(--hd);font-size:16px;font-weight:bold;margin:0 0 4px}
+.stepno{color:var(--acc);font-size:12px;letter-spacing:2px;text-transform:uppercase}
+p{margin:9px 0}
+.joke{color:var(--gold);font-style:italic;border-left:3px solid var(--gold);
+  padding:8px 12px;margin:12px 0;background:rgba(255,215,94,.06);border-radius:0 8px 8px 0}
+.ssd{color:var(--num2);border-left:3px solid var(--num2);padding:8px 12px;margin:12px 0;
+  background:rgba(127,212,192,.06);border-radius:0 8px 8px 0}
+.why{border-left:3px solid var(--acc);background:var(--accA);padding:10px 14px;
+  margin:14px 0;border-radius:0 8px 8px 0}
+.trap{border-left:3px solid var(--red);background:rgba(255,107,107,.08);padding:10px 14px;
+  margin:14px 0;border-radius:0 8px 8px 0}
+.eq{background:var(--panel);border:1px solid var(--lineDim);border-radius:10px;
+  padding:12px 14px;margin:12px 0;color:var(--hd);font-size:14px;overflow-x:auto;white-space:pre}
+.k{color:var(--gold)} .o{color:var(--acc)} .g{color:var(--hd)} .t{color:var(--num2)}
+.r{color:var(--red)} .grn{color:var(--green)} .dim{color:var(--hdim)}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:13px}
+.tblwrap{overflow-x:auto}
+th,td{border:1px solid var(--lineDim);padding:7px 9px;text-align:center}
+th{background:rgba(159,232,255,.08);color:var(--hd)}
+td.lbl{text-align:left;color:var(--inkd)}
+tr.hi td{background:var(--accA);color:var(--ink)}
+.whatif-title{color:var(--acc);font-size:12px;letter-spacing:1px;text-transform:uppercase;margin:16px 0 2px}
+figure{margin:14px 0;text-align:center}
+svg{width:100%;max-width:520px;height:auto}
+figcaption{color:var(--hdim);font-size:12px;margin-top:6px}
+.ctl{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin:14px 0}
+.ctl label{color:var(--acc);font-size:12px;letter-spacing:1px;text-transform:uppercase}
+input[type=range]{width:100%;accent-color:var(--acc);margin-top:8px}
+.readout{font-size:14px;color:var(--ink);margin-top:8px}
+.reveal{cursor:pointer;border-bottom:1px dashed var(--acc);color:var(--acc)}
+.reveal.shown{border-bottom:none;color:var(--gold)}
+details{background:var(--panel);border:1px solid var(--lineDim);border-radius:10px;
+  padding:8px 12px;margin:12px 0}
+summary{cursor:pointer;color:var(--num2);font-size:13px}
+pre.code{margin:10px 0 2px;padding:10px;background:#05080f;border-radius:8px;
+  overflow-x:auto;font-size:12.5px;color:#cfe3ee;white-space:pre}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.splitbtn{background:var(--panel);border:1px solid var(--line);color:var(--inkd);
+  padding:8px 12px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:12px}
+.splitbtn.active{border-color:var(--acc);color:var(--acc);background:var(--accA)}
+.nav{position:fixed;left:0;right:0;bottom:0;background:rgba(7,11,20,.94);
+  border-top:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;
+  justify-content:space-between;gap:12px;backdrop-filter:blur(6px)}
+.nav button{background:var(--panel);border:1px solid var(--line);color:var(--ink);
+  padding:9px 16px;border-radius:9px;cursor:pointer;font-family:inherit;font-size:13px}
+.nav button:hover:not(:disabled){border-color:var(--acc);color:var(--acc)}
+.nav button:disabled{opacity:.35;cursor:default}
+#dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--lineDim);cursor:pointer}
+.dot.on{background:var(--acc);box-shadow:0 0 8px var(--acc)}
+#slabel{color:var(--hdim);font-size:11px;text-align:center;min-width:120px}
+.tag{display:inline-block;background:var(--accA);color:var(--acc);border:1px solid var(--accDim);
+  padding:1px 8px;border-radius:20px;font-size:11px;margin-left:6px}
+.grade{color:var(--gold);font-size:12px}
+ul{margin:8px 0;padding-left:20px} li{margin:5px 0}
+</style>
+
+<div class="chakra-top"></div>
+<div class="wrap">
+<header>
+  <span class="spiral">🍥</span>
+  <div>
+    <h1>Entropy — from Expected Value to Information Gain</h1>
+    <div class="sub">s4 prep · ensembles · grade <span class="grade">★★★ rebuild-from-scratch</span></div>
+  </div>
+</header>
+
+<!-- ============ STEP 0 ============ -->
+<section class="step on">
+  <div class="stepno">The thread</div>
+  <div class="card">
+    <div class="concept">One machine, four concepts 🧵</div>
+    <p>Everything here is <b>the same weighted-average loop</b> wearing different hats. Read it as one chain:</p>
+    <div class="eq"><span class="g">EXPECTED VALUE</span>  → the loop itself (average a value, weighted by chance)
+        ↓ feed it "surprise" instead of a plain value
+<span class="g">SURPRISE</span>        → how shocking one outcome is  =  −log₂(p)
+        ↓ average the surprise over all outcomes
+<span class="o">ENTROPY</span>         → expected surprise = how mixed / uncertain a pile is
+        ↓ measure how much a question shrinks it
+<span class="k">INFORMATION GAIN</span> → entropy(before) − entropy(after) = how good a split is</div>
+    <p class="dim">Two example worlds carry it: 🐕 a dog-adoption shelter + 🎰 a betting table for the
+    expected-value idea, then 🔧 bins of good/bad flash blocks for entropy &amp; the tree split.</p>
+    <div class="why">🎯 <b>Why today:</b> tomorrow's class is <b>ensembles</b> (random forest / XGBoost) — stacks of
+    decision trees, and every tree splits by chasing <b>information gain</b>. This is the exact model family
+    in your thermal-throttle research papers. Own this → the whole session is downhill.</div>
+  </div>
+</section>
+
+<!-- ============ STEP 1 : EV dog ============ -->
+<section class="step">
+  <div class="stepno">Step 1 · Expected Value</div>
+  <div class="card">
+    <div class="concept">Expected value = the long-run average, weighted by "how often"</div>
+    <p>If you repeat something forever, what do you get <b>per try on average</b>? Each outcome pulls the
+    average toward itself, and its pull-strength is its <b>probability</b>. It's the balance-point of everything
+    that could happen.</p>
+
+    <div class="joke">🐕 <b>The shelter.</b> A dog lands in the kennel. History says <b>70%</b> of dogs get adopted
+    <b>fast (3 days)</b>, <b>30%</b> take the <b>slow route (10 days)</b>. How long should you <i>expect</i> this
+    pup to wait? Not 3 (not every dog is lucky), not 10 (not every dog is stuck) — the weighted blend.</div>
+
+    <div class="eq">E[days] = <span class="t">0.7</span>×<span class="o">3</span> + <span class="t">0.3</span>×<span class="o">10</span> = 2.1 + 3.0 = <span class="k">5.1 days</span>   <span class="dim">// verified vs numpy</span></div>
+
+    <p>You may <b>never</b> see 5.1 on the calendar (it's always 3 or 10) — but it's the honest long-run
+    average. The <span class="t">70/30</span> are the <b>weights</b>; the <span class="o">days</span> are the <b>values</b>.</p>
+
+    <figure>
+      <svg viewBox="0 0 460 120" role="img" aria-label="number line from 3 to 10 with a marker at the expected value">
+        <line x1="40" y1="70" x2="420" y2="70" stroke="#5a8fbf" stroke-width="2"/>
+        <g font-size="11" fill="#a9b6c9" text-anchor="middle">
+          <line x1="60"  y1="64" x2="60"  y2="76" stroke="#5a8fbf"/><text x="60"  y="92">3 (fast)</text>
+          <line x1="400" y1="64" x2="400" y2="76" stroke="#5a8fbf"/><text x="400" y="92">10 (slow)</text>
+        </g>
+        <g id="evMark"><line id="evLine" x1="278.6" y1="48" x2="278.6" y2="92" stroke="#ff9433" stroke-width="2"/>
+          <circle id="evDot" cx="278.6" cy="70" r="6" fill="#ff9433"/>
+          <text id="evTxt" x="278.6" y="40" text-anchor="middle" font-size="12" fill="#ffd75e">E = 5.1</text></g>
+      </svg>
+      <figcaption>The expected value is a balance-point that <b>slides</b> as the weights change — drag below.</figcaption>
+    </figure>
+
+    <div class="ctl">
+      <label>🎬 What-if — drag p(fast adoption)</label>
+      <input id="evSlider" type="range" min="0" max="100" value="70">
+      <div class="readout" id="evReadout"></div>
+    </div>
+
+    <div class="whatif-title">What-if table — same dog, different luck</div>
+    <div class="tblwrap"><table>
+      <tr><th>p(fast) / p(slow)</th><th>E[days] = p·3 + (1−p)·10</th><th>meaning</th></tr>
+      <tr><td class="lbl">90 / 10</td><td>0.9·3 + 0.1·10 = <b>3.70</b></td><td class="lbl">mostly quick adopters</td></tr>
+      <tr class="hi"><td class="lbl">70 / 30</td><td>0.7·3 + 0.3·10 = <b>5.10</b></td><td class="lbl">our base case</td></tr>
+      <tr><td class="lbl">50 / 50</td><td>0.5·3 + 0.5·10 = <b>6.50</b></td><td class="lbl">coin-flip kennel</td></tr>
+      <tr><td class="lbl">30 / 70</td><td>0.3·3 + 0.7·10 = <b>7.90</b></td><td class="lbl">hard-to-place dogs</td></tr>
+    </table></div>
+    <p class="dim">Notice: the EV never leaves the 3→10 window, and it <b>slides toward whichever outcome carries
+    more weight.</b> That's all expected value is.</p>
+  </div>
+</section>
+
+<!-- ============ STEP 2 : EV bet + formula ============ -->
+<section class="step">
+  <div class="stepno">Step 2 · Expected Value</div>
+  <div class="card">
+    <div class="concept">Second example + the formula (they're the same thing)</div>
+
+    <div class="joke">🎰 <b>The betting table.</b> A slot machine pays <b>₹1000</b> with probability <b>1%</b>, and
+    <b>₹0</b> the other <b>99%</b>. Worth per pull? Not ₹1000, not ₹0 — the weighted blend:
+    <b>0.01×1000 + 0.99×0 = ₹10</b>. So a ₹50 spin is a ₹40/pull donation to the casino. 😄</div>
+
+    <div class="eq">E[X] = Σ  p(outcome) × value(outcome)      <span class="dim">// walk every outcome, weight, sum</span></div>
+
+    <p>The dog's <span class="o">days</span> and the slot's <span class="o">rupees</span> are just different
+    "value" columns fed into the <b>same loop</b>. That's why one idea covers both.</p>
+
+    <div class="ssd">🔧 <b>C-programmer's view</b> — you'd write this in your sleep:</div>
+    <pre class="code">float E = 0;
+for (int i = 0; i &lt; n; i++)
+    E += p[i] * value[i];   // weight each value by its chance
+</pre>
+
+    <div class="whatif-title">What-if table — the probability × payout trade-off</div>
+    <div class="tblwrap"><table>
+      <tr><th>p(win)</th><th>payout</th><th>E = p·payout</th><th>lesson</th></tr>
+      <tr class="hi"><td class="lbl">1%</td><td>₹1000</td><td><b>₹10</b></td><td class="lbl">base case</td></tr>
+      <tr><td class="lbl">5%</td><td>₹1000</td><td><b>₹50</b></td><td class="lbl">5× the odds → 5× the value</td></tr>
+      <tr><td class="lbl">1%</td><td>₹5000</td><td><b>₹50</b></td><td class="lbl">5× the prize → 5× the value (same!)</td></tr>
+      <tr><td class="lbl">50%</td><td>₹20</td><td><b>₹10</b></td><td class="lbl">tiny prize, huge odds = same ₹10</td></tr>
+    </table></div>
+    <p class="dim">Rows 2 &amp; 3 land on the same ₹50 — expected value <b>can't tell a rare-big prize from a
+    common-small one</b> if they multiply out equal. Hold that thought; entropy will care about the difference.</p>
+
+    <div class="why">💡 <b>Predict before Step 3:</b> we're about to feed <b>"surprise"</b> into this exact loop.
+    Guess now — should a <b>rare</b> outcome carry <b>more</b> surprise or <b>less</b>?
+    <span class="reveal" data-r="More — rare = shocking = front-page news. Surprise must rise as p falls.">tap to check</span></div>
+  </div>
+</section>
+
+<!-- ============ STEP 3 : surprise ============ -->
+<section class="step">
+  <div class="stepno">Step 3 · Surprise</div>
+  <div class="card">
+    <div class="concept">Surprise = how big a headline the outcome deserves 📰</div>
+
+    <div class="joke">🗞️ <b>Two news tickers.</b> <i>"Sun rose this morning"</i> — happens every day, p≈1 →
+    <b>nobody cares, zero surprise.</b> <i>"It rained frogs downtown"</i> — p≈tiny → <b>FRONT PAGE.</b>
+    Surprise = newsworthiness: the rarer the event, the bigger the shock.</div>
+
+    <p>So surprise must go <b>up</b> as probability goes <b>down</b>. First instinct is <span class="dim">1/p</span> —
+    but it fails one test: a <b>certain</b> event (p=1) must have <b>zero</b> surprise, and 1/1 = 1, not 0. ❌</p>
+
+    <div class="eq">surprise(outcome) = log₂(1/p) = <span class="o">−log₂(p)</span>       <span class="dim">// log₂(1)=0 → certain = 0 surprise ✓</span></div>
+    <p>The <b>−</b> is only there because log of a fraction is negative; it flips surprise back positive. No magic.
+    <b>Base 2 → unit = "bits"</b> = how many yes/no questions to pin the outcome down.</p>
+
+    <figure>
+      <svg viewBox="0 0 460 220" role="img" aria-label="surprise rises steeply as probability falls">
+        <line x1="45" y1="185" x2="440" y2="185" stroke="#5a8fbf" stroke-width="1.5"/>
+        <line x1="45" y1="185" x2="45" y2="20" stroke="#5a8fbf" stroke-width="1.5"/>
+        <text x="240" y="210" text-anchor="middle" font-size="11" fill="#a9b6c9">p (probability of the outcome)</text>
+        <text x="16" y="105" font-size="11" fill="#a9b6c9" transform="rotate(-90 16 105)">surprise (bits)</text>
+        <path id="surpPath" fill="none" stroke="#ff9433" stroke-width="2.5"/>
+        <g font-size="10" fill="#7fd4c0">
+          <circle cx="416" cy="185" r="4" fill="#7ee787"/><text x="416" y="176" text-anchor="middle">p=1→0 bits</text>
+          <circle cx="240" cy="152" r="4" fill="#ffd75e"/><text x="240" y="143" text-anchor="middle">0.5→1 bit</text>
+          <circle cx="82" cy="79" r="4" fill="#ff6b6b"/><text x="92" y="72">0.1→3.3 bits</text>
+        </g>
+      </svg>
+      <figcaption>Steep near the left edge: rare events (small p) carry <b>huge</b> surprise.</figcaption>
+    </figure>
+
+    <div class="whatif-title">What-if table — surprise at different rarities</div>
+    <div class="tblwrap"><table>
+      <tr><th>p</th><th>surprise = −log₂(p)</th><th>headline size</th></tr>
+      <tr><td class="lbl">1.0 (certain)</td><td><b>0.00 bits</b></td><td class="lbl">not news</td></tr>
+      <tr><td class="lbl">0.50 (coin)</td><td><b>1.00 bit</b></td><td class="lbl">mild</td></tr>
+      <tr><td class="lbl">0.25</td><td><b>2.00 bits</b></td><td class="lbl">notable</td></tr>
+      <tr class="hi"><td class="lbl">0.10 (rare)</td><td><b>3.32 bits</b></td><td class="lbl">big shock</td></tr>
+      <tr><td class="lbl">0.01 (very rare)</td><td><b>6.64 bits</b></td><td class="lbl">🚨 front page</td></tr>
+    </table></div>
+    <div class="ssd">🧠 <b>Deep reason for log (bonus):</b> two independent surprises should <b>add</b>. Probabilities
+    <b>multiply</b> (p₁·p₂), and log is the one function that turns multiply into add. That additivity is why
+    nature picks log — but "certain = 0" is enough to trust it.</div>
+  </div>
+</section>
+
+<!-- ============ STEP 4 : entropy ============ -->
+<section class="step">
+  <div class="stepno">Step 4 · Entropy <span class="tag">★★★ core</span></div>
+  <div class="card">
+    <div class="concept">Entropy = the expected surprise of a pull (the suspense meter 🥁)</div>
+    <p>Now snap the two halves together: run the <b>expected-value loop</b>, but the "value" of each outcome is
+    its <b>surprise</b>. Entropy is one number for <b>"how mixed / how uncertain is this pile?"</b></p>
+
+    <div class="eq"><span class="o">H = Σ p × surprise = Σ p × (−log₂ p) = −Σ p·log₂ p</span>
+    └─────the EV loop─────┘   └─Step-3 surprise─┘</div>
+
+    <div class="joke">🏏 <b>Two cricket matches.</b> India vs a gully team — result known before the toss, <b>zero
+    suspense</b>, nobody watches → H=0. World-Cup final, scores level, last ball → <b>max suspense</b>, a nation
+    holds its breath → H=max. Entropy measures the <i>nail-biter-ness</i>, not who wins.</div>
+
+    <div class="ssd">🔧 <b>Your bins of flash blocks</b> (● good, ○ bad). Pull one blind — how surprised are you?</div>
+
+    <figure>
+      <svg viewBox="0 0 500 210" role="img" aria-label="three bins pure, fifty-fifty, ninety-ten with suspense meters">
+        <!-- Bin A -->
+        <rect x="20" y="20" width="130" height="70" rx="6" fill="#0a1120" stroke="#5a8fbf"/>
+        <text x="85" y="45" text-anchor="middle" font-size="14" fill="#7ee787">●●●●●●●●●●</text>
+        <text x="85" y="65" text-anchor="middle" font-size="14" fill="#7ee787">●●●●●●●●●●</text>
+        <text x="85" y="108" text-anchor="middle" font-size="11" fill="#a9b6c9">A · pure</text>
+        <rect x="20" y="120" width="130" height="12" rx="6" fill="#111a2e" stroke="#5a8fbf"/>
+        <rect x="20" y="120" width="4" height="12" rx="2" fill="#7ee787"/>
+        <text x="85" y="150" text-anchor="middle" font-size="12" fill="#7ee787">H = 0</text>
+        <!-- Bin B -->
+        <rect x="185" y="20" width="130" height="70" rx="6" fill="#0a1120" stroke="#5a8fbf"/>
+        <text x="250" y="45" text-anchor="middle" font-size="14" fill="#e9eff7">●●●●●○○○○○</text>
+        <text x="250" y="65" text-anchor="middle" font-size="14" fill="#e9eff7">○●○●○●○●○●</text>
+        <text x="250" y="108" text-anchor="middle" font-size="11" fill="#a9b6c9">B · 50/50</text>
+        <rect x="185" y="120" width="130" height="12" rx="6" fill="#111a2e" stroke="#5a8fbf"/>
+        <rect x="185" y="120" width="130" height="12" rx="6" fill="#ff6b6b"/>
+        <text x="250" y="150" text-anchor="middle" font-size="12" fill="#ff6b6b">H = 1.0 (max)</text>
+        <!-- Bin C -->
+        <rect x="350" y="20" width="130" height="70" rx="6" fill="#0a1120" stroke="#ff9433"/>
+        <text x="415" y="45" text-anchor="middle" font-size="14" fill="#7ee787">●●●●●●●●●○</text>
+        <text x="415" y="65" text-anchor="middle" font-size="14" fill="#7ee787">●●●●●●●●●●</text>
+        <text x="415" y="108" text-anchor="middle" font-size="11" fill="#ffb347">C · 90/10</text>
+        <rect x="350" y="120" width="130" height="12" rx="6" fill="#111a2e" stroke="#ff9433"/>
+        <rect x="350" y="120" width="60.9" height="12" rx="6" fill="#ff9433"/>
+        <text x="415" y="150" text-anchor="middle" font-size="12" fill="#ffd75e">H = 0.47 ?!</text>
+      </svg>
+      <figcaption>Suspense meter = entropy. A is calm, B is pinned to max… and C is the twist.</figcaption>
+    </figure>
+
+    <div class="whatif-title">The 90/10 twist — worked out</div>
+    <p>Gut says "90/10 is basically pure → needle near 0." Watch the math disagree:</p>
+    <div class="tblwrap"><table>
+      <tr><th>outcome</th><th>p</th><th>surprise −log₂p</th><th>contribution p×surprise</th></tr>
+      <tr><td class="lbl">good ●</td><td>0.9</td><td>0.152</td><td>0.9×0.152 = <b>0.137</b></td></tr>
+      <tr class="hi"><td class="lbl">bad ○</td><td>0.1</td><td>3.322</td><td>0.1×3.322 = <b>0.332</b> ←!</td></tr>
+      <tr><td class="lbl" colspan="3">H = 0.137 + 0.332 =</td><td><b>0.469 bits</b></td></tr>
+    </table></div>
+    <div class="trap">🪤 <b>The trap (gold).</b> The <b>rare</b> bad block contributes <b>0.332</b> — more than <b>double</b>
+    the common good block's 0.137 — even though it's <b>9× rarer</b>. Rare = shocking, so the 10% minority
+    <b>dominates</b> the entropy. 90/10 isn't ≈0; it's <b>0.47, nearly half of max.</b> Your gut wanted 0 —
+    that gap is the lesson.</div>
+
+    <div class="ctl">
+      <label>🎬 What-if — drag p(good block), watch H ride the ∩-curve</label>
+      <input id="entSlider" type="range" min="1" max="99" value="90">
+      <figure style="margin:12px 0 4px">
+        <svg viewBox="0 0 440 240" role="img" aria-label="entropy curve, an inverted U peaking at 0.5">
+          <line x1="45" y1="200" x2="420" y2="200" stroke="#5a8fbf" stroke-width="1.5"/>
+          <line x1="45" y1="200" x2="45" y2="25" stroke="#5a8fbf" stroke-width="1.5"/>
+          <text x="235" y="228" text-anchor="middle" font-size="11" fill="#a9b6c9">p(good block)</text>
+          <text x="16" y="115" font-size="11" fill="#a9b6c9" transform="rotate(-90 16 115)">entropy H (bits)</text>
+          <g font-size="10" fill="#5f7d9a">
+            <text x="45"  y="215">0</text><text x="232" y="215">0.5</text><text x="415" y="215">1</text>
+            <line x1="41" y1="40" x2="49" y2="40" stroke="#5a8fbf"/><text x="30" y="44" text-anchor="end">1.0</text>
+          </g>
+          <path id="entPath" fill="none" stroke="#9fe8ff" stroke-width="2.5"/>
+          <line id="entV" x1="0" y1="200" x2="0" y2="200" stroke="#ff9433" stroke-width="1" stroke-dasharray="3 3"/>
+          <circle id="entDot" cx="0" cy="0" r="6" fill="#ff9433"/>
+        </svg>
+      </figure>
+      <div class="readout" id="entReadout"></div>
+    </div>
+
+    <div class="whatif-title">What-if table — entropy across the bin</div>
+    <div class="tblwrap"><table>
+      <tr><th>p(good)</th><th>H (bits)</th><th>needle</th></tr>
+      <tr><td class="lbl">1.00 / 0.00</td><td><b>0.000</b></td><td class="lbl">calm (pure)</td></tr>
+      <tr><td class="lbl">0.90 / 0.10</td><td><b>0.469</b></td><td class="lbl">the twist</td></tr>
+      <tr><td class="lbl">0.75 / 0.25</td><td><b>0.811</b></td><td class="lbl">rising</td></tr>
+      <tr class="hi"><td class="lbl">0.50 / 0.50</td><td><b>1.000</b></td><td class="lbl">pinned max</td></tr>
+      <tr><td class="lbl">0.25 / 0.75</td><td><b>0.811</b></td><td class="lbl">symmetric ↓</td></tr>
+      <tr><td class="lbl">0.10 / 0.90</td><td><b>0.469</b></td><td class="lbl">mirror of 90/10</td></tr>
+    </table></div>
+    <p class="dim">The curve is <b>symmetric</b> (a 90/10 bin is as mixed as a 10/90 bin), <b>0 at both edges</b>,
+    <b>peak 1.0 at 0.5</b>, and <b>steep near the edges</b> — which is exactly why the rare block moved H so much.</p>
+
+    <details><summary>▶ numpy twin — paste into Jupyter, predict the shape first</summary>
+<pre class="code">import numpy as np, matplotlib.pyplot as plt
+p = np.linspace(0.001, 0.999, 500)
+H = -p*np.log2(p) - (1-p)*np.log2(1-p)
+plt.figure(figsize=(8,5)); plt.plot(p, H, lw=2, color='#6C5CE7')
+for prob,name,c in [(1.0,'A pure','green'),(0.5,'B 50/50','crimson'),(0.9,'C 90/10','orange')]:
+    h = 0.0 if prob in (0.0,1.0) else -prob*np.log2(prob)-(1-prob)*np.log2(1-prob)
+    plt.scatter([prob],[h],color=c,s=90,zorder=5)
+    plt.annotate(f'{name}\nH={h:.2f}',(prob,h),textcoords='offset points',xytext=(8,-4))
+plt.title('Entropy vs p(good) — the ∩-shaped suspense curve')
+plt.xlabel('p(good)'); plt.ylabel('H (bits)'); plt.grid(alpha=.3); plt.tight_layout(); plt.show()
+# prints: H(0.9)=0.469  H(0.5)=1.000  H(1.0)=0.000</pre></details>
+  </div>
+</section>
+
+<!-- ============ STEP 5 : information gain ============ -->
+<section class="step">
+  <div class="stepno">Step 5 · Information Gain <span class="tag">★★★ core</span></div>
+  <div class="card">
+    <div class="concept">Information gain = how much a question killed the confusion</div>
+    <p>A decision tree's whole job: pick the <b>question</b> that best splits the data. Information gain scores
+    each candidate question as the <b>drop in entropy</b> it produces.</p>
+
+    <div class="eq"><span class="k">Information Gain = H(before) − H(after, weighted)</span>
+                   = mess before − mess after</div>
+
+    <div class="joke">🎮 <b>20 Questions.</b> "Is it bigger than a fridge?" slices the possibilities in half — huge
+    progress. "Does it have a name?" — everything does, you learned <b>nothing</b>. Info gain scores your
+    questions: big drop = great question, zero drop = wasted turn.</div>
+
+    <p>Parent bin: <b>4 good, 4 bad</b> → total confusion, <b>H = 1.0</b>. Try three different questions:</p>
+
+    <div class="btnrow">
+      <button class="splitbtn active" data-s="perfect">Perfect split</button>
+      <button class="splitbtn" data-s="good">Decent split</button>
+      <button class="splitbtn" data-s="useless">Useless split</button>
+    </div>
+
+    <figure>
+      <svg viewBox="0 0 460 210" role="img" aria-label="decision tree split from parent into two children">
+        <rect x="175" y="14" width="110" height="40" rx="6" fill="#0a1120" stroke="#5a8fbf"/>
+        <text x="230" y="32" text-anchor="middle" font-size="12" fill="#e9eff7">4 ● / 4 ○</text>
+        <text x="230" y="47" text-anchor="middle" font-size="11" fill="#ff6b6b">H = 1.0</text>
+        <text id="qtext" x="230" y="78" text-anchor="middle" font-size="11" fill="#ffb347">split on: "temp &gt; 70°C ?"</text>
+        <line id="edgeL" x1="230" y1="54" x2="120" y2="110" stroke="#5a8fbf"/>
+        <line id="edgeR" x1="230" y1="54" x2="340" y2="110" stroke="#5a8fbf"/>
+        <text x="150" y="98" font-size="10" fill="#7fd4c0">yes</text>
+        <text x="305" y="98" font-size="10" fill="#7fd4c0">no</text>
+        <rect x="55" y="110" width="130" height="46" rx="6" fill="#0a1120" stroke="#5a8fbf"/>
+        <text id="cLtxt" x="120" y="130" text-anchor="middle" font-size="12" fill="#e9eff7">4 ● / 0 ○</text>
+        <text id="cLh"   x="120" y="147" text-anchor="middle" font-size="11" fill="#7ee787">H = 0.000</text>
+        <rect x="275" y="110" width="130" height="46" rx="6" fill="#0a1120" stroke="#5a8fbf"/>
+        <text id="cRtxt" x="340" y="130" text-anchor="middle" font-size="12" fill="#e9eff7">0 ● / 4 ○</text>
+        <text id="cRh"   x="340" y="147" text-anchor="middle" font-size="11" fill="#7ee787">H = 0.000</text>
+        <text id="igtxt" x="230" y="188" text-anchor="middle" font-size="14" fill="#ffd75e">Information Gain = 1.0 − 0.000 = 1.000</text>
+      </svg>
+      <figcaption>Tap the buttons — same parent, three questions, watch the gain rank them.</figcaption>
+    </figure>
+
+    <div class="whatif-title">What-if table — same 4●/4○ parent, three questions</div>
+    <div class="tblwrap"><table>
+      <tr><th>split</th><th>children</th><th>weighted H after</th><th>IG = 1.0 − after</th><th>verdict</th></tr>
+      <tr class="hi"><td class="lbl">Perfect</td><td>[4/0] &amp; [0/4]</td><td>0.000</td><td><b>1.000</b></td><td class="lbl">🏆 tree picks this</td></tr>
+      <tr><td class="lbl">Decent</td><td>[3/1] &amp; [1/3]</td><td>0.811</td><td><b>0.189</b></td><td class="lbl">weak, but helps</td></tr>
+      <tr><td class="lbl">Useless</td><td>[2/2] &amp; [2/2]</td><td>1.000</td><td><b>0.000</b></td><td class="lbl">❌ learned nothing</td></tr>
+    </table></div>
+    <p class="dim">The tree computes IG for <b>every</b> candidate question and greedily keeps the biggest. That
+    greedy "maximize the entropy drop" is <b>how a tree grows, node by node.</b> 🌳</p>
+
+    <div class="why">🎯 <b>Your thermal project:</b> the throttle-predictor tree asks <i>which telemetry channel best
+    separates "will throttle" from "won't"</i> — temp-slope? write-rate? ambient? — and splits on the biggest
+    info gain. <b>s4 ensembles = many such trees stacked</b> (random forest / XGBoost) = the forecaster family in
+    your research papers. Entropy → info gain → trees → your R2/R3 predictor.</div>
+  </div>
+</section>
+
+<!-- ============ STEP 6 : boundary + sheet ============ -->
+<section class="step">
+  <div class="stepno">Step 6 · Land it</div>
+  <div class="card">
+    <div class="concept">Decision boundary + the formula sheet 📜</div>
+
+    <p><b>✅ Reach for entropy / information gain when</b> you're measuring the <b>mixedness of a categorical
+    pile</b> or scoring a <b>split / classifier confidence</b> — decision trees, random forests, XGBoost, and
+    (as cross-entropy) the loss of every neural net.</p>
+
+    <div class="trap">🚫 <b>Where it quietly burns you:</b>
+    <ul>
+      <li><b>Continuous targets</b> (predicting a <i>temperature number</i>, not a class) — entropy is for
+      categories; use variance/MSE reduction instead. Your R2 <i>forecaster</i> (regression) uses MSE; your
+      throttle <i>classifier</i> uses entropy/cross-entropy. Know which brick you're building.</li>
+      <li><b>Tiny leaves / high-cardinality IDs</b> — info gain is biased toward splits that shatter data into
+      many pure specks (it "loves" a unique-ID column). That's overfitting; gain-ratio / Gini temper it.</li>
+    </ul></div>
+
+    <div class="whatif-title">Formula sheet</div>
+    <div class="eq"><span class="g">Expected value</span>   E[X]  = Σ p·value          <span class="dim">(weighted average)</span>
+<span class="o">Surprise</span>         s(x)  = −log₂(p)          <span class="dim">(bits; certain→0, rare→big)</span>
+<span class="o">Entropy</span>          H     = −Σ p·log₂p        <span class="dim">(expected surprise; 0…1 bit for 2 classes)</span>
+<span class="k">Information gain</span>  IG    = H(before) − H(after, weighted)</div>
+
+    <div class="whatif-title">Key takeaways</div>
+    <ul>
+      <li>Expected value, surprise, entropy = <b>one weighted-average loop</b>, three "value" columns.</li>
+      <li>Rare events carry <b>outsized surprise</b> → the 10% minority set the 90/10 bin's entropy to <b>0.47</b>.</li>
+      <li>Entropy curve: <b>∩-shape</b>, 0 at edges, peak 1.0 at 50/50, steep near edges.</li>
+      <li>A tree splits by <b>maximizing information gain</b> = biggest entropy drop. Ensembles stack many trees.</li>
+      <li>Entropy is for <b>classes</b>; for a number target use variance/MSE.</li>
+    </ul>
+
+    <div class="why">🧵 <b>The thread forward:</b> the same <b>−log</b> becomes <b>cross-entropy</b> — the loss every
+    neural net (and every on-device QLoRA fine-tune) trains against. Today's suspense meter is tomorrow's
+    training signal. That's why this is ★★★.</div>
+  </div>
+</section>
+
+</div>
+
+<div class="nav">
+  <button id="prev">← Back</button>
+  <div><div id="dots"></div><div id="slabel"></div></div>
+  <button id="next">Next →</button>
+</div>
+
+<script>
+// ---------- step machine ----------
+const steps=[...document.querySelectorAll('.step')];
+const labels=['The thread','Expected value · dog','Expected value · bet + formula','Surprise','Entropy','Information gain','Land it'];
+let cur=0;
+const dots=document.getElementById('dots');
+steps.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' on':'');d.onclick=()=>go(i);dots.appendChild(d);});
+const prevB=document.getElementById('prev'),nextB=document.getElementById('next'),slabel=document.getElementById('slabel');
+function go(i){cur=Math.max(0,Math.min(steps.length-1,i));
+  steps.forEach((s,k)=>s.classList.toggle('on',k===cur));
+  [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===cur));
+  prevB.disabled=cur===0;nextB.disabled=cur===steps.length-1;
+  slabel.textContent=(cur+1)+' / '+steps.length+' · '+labels[cur];
+  window.scrollTo({top:0,behavior:'smooth'});}
+prevB.onclick=()=>go(cur-1);nextB.onclick=()=>go(cur+1);
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(cur+1);if(e.key==='ArrowLeft')go(cur-1);});
+go(0);
+
+// ---------- reveal spans ----------
+document.querySelectorAll('.reveal').forEach(el=>{
+  el.onclick=()=>{if(el.classList.contains('shown'))return;el.textContent=' '+el.dataset.r;el.classList.add('shown');};
+});
+
+// ---------- helpers ----------
+const log2=x=>Math.log(x)/Math.LN2;
+const Hbin=p=>(p<=0||p>=1)?0:-(p*log2(p)+(1-p)*log2(1-p));
+
+// ---------- Step 1: EV dog slider ----------
+(function(){
+  const s=document.getElementById('evSlider'),out=document.getElementById('evReadout');
+  const dot=document.getElementById('evDot'),line=document.getElementById('evLine'),txt=document.getElementById('evTxt');
+  const x0=60,x1=400,d0=3,d1=10; // number-line anchors
+  function upd(){
+    const pf=(+s.value)/100, E=pf*3+(1-pf)*10;
+    const x=x0+(E-d0)/(d1-d0)*(x1-x0);
+    dot.setAttribute('cx',x.toFixed(1));line.setAttribute('x1',x.toFixed(1));line.setAttribute('x2',x.toFixed(1));
+    txt.setAttribute('x',x.toFixed(1));txt.textContent='E = '+E.toFixed(2);
+    out.innerHTML='p(fast)= <b class="o">'+pf.toFixed(2)+'</b> → E[days] = '+pf.toFixed(2)+'×3 + '+(1-pf).toFixed(2)+'×10 = <b class="k">'+E.toFixed(2)+' days</b>';
+  }
+  s.oninput=upd;upd();
+})();
+
+// ---------- Step 3: surprise curve ----------
+(function(){
+  const path=document.getElementById('surpPath');
+  // x:45..420 for p 0.02..1 ; y:185(=0 bits) up to ~20 ; cap surprise display at ~5.6 bits -> y range
+  const xL=45,xR=420,yB=185,yT=20,capBits=5.6;
+  let d='';
+  for(let i=0;i<=100;i++){
+    const p=0.02+ (1-0.02)*i/100;
+    const s=Math.min(-log2(p),capBits);
+    const x=xL+(p)*(xR-xL);
+    const y=yB-(s/capBits)*(yB-yT);
+    d+=(i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)+' ';
+  }
+  path.setAttribute('d',d);
+})();
+
+// ---------- Step 4: entropy curve + slider ----------
+(function(){
+  const path=document.getElementById('entPath'),dot=document.getElementById('entDot'),
+        v=document.getElementById('entV'),s=document.getElementById('entSlider'),out=document.getElementById('entReadout');
+  const xL=45,xR=415,yB=200,yT=40; // H 0..1 -> yB..yT
+  const X=p=>xL+p*(xR-xL), Y=h=>yB-h*(yB-yT);
+  let d='';
+  for(let i=0;i<=200;i++){const p=0.001+0.998*i/200;d+=(i?'L':'M')+X(p).toFixed(1)+' '+Y(Hbin(p)).toFixed(1)+' ';}
+  path.setAttribute('d',d);
+  function upd(){
+    const p=(+s.value)/100, H=Hbin(p), x=X(p), y=Y(H);
+    dot.setAttribute('cx',x.toFixed(1));dot.setAttribute('cy',y.toFixed(1));
+    v.setAttribute('x1',x.toFixed(1));v.setAttribute('x2',x.toFixed(1));v.setAttribute('y2',y.toFixed(1));
+    const sg=(-log2(p)), sb=(-log2(1-p));
+    out.innerHTML='p(good)= <b class="o">'+p.toFixed(2)+'</b> · p(bad)= '+(1-p).toFixed(2)+
+      ' → H = '+p.toFixed(2)+'×'+sg.toFixed(2)+' + '+(1-p).toFixed(2)+'×'+sb.toFixed(2)+
+      ' = <b class="k">'+H.toFixed(3)+' bits</b>';
+  }
+  s.oninput=upd;upd();
+})();
+
+// ---------- Step 5: info-gain split picker ----------
+(function(){
+  const data={
+    perfect:{q:'"temp > 70°C ?"',  L:[4,0], R:[0,4]},
+    good:   {q:'"write-rate high?"',L:[3,1], R:[1,3]},
+    useless:{q:'"block id even?"',  R:[2,2], L:[2,2]},
+  };
+  const q=document.getElementById('qtext'),
+        cLt=document.getElementById('cLtxt'),cLh=document.getElementById('cLh'),
+        cRt=document.getElementById('cRtxt'),cRh=document.getElementById('cRh'),
+        ig=document.getElementById('igtxt');
+  function draw(key){
+    const s=data[key], nL=s.L[0]+s.L[1], nR=s.R[0]+s.R[1], tot=nL+nR;
+    const hL=Hbin(s.L[0]/nL), hR=Hbin(s.R[0]/nR);
+    const wH=(nL/tot)*hL+(nR/tot)*hR, gain=1-wH;
+    q.textContent='split on: '+s.q;
+    cLt.textContent=s.L[0]+' ● / '+s.L[1]+' ○';cLh.textContent='H = '+hL.toFixed(3);
+    cRt.textContent=s.R[0]+' ● / '+s.R[1]+' ○';cRh.textContent='H = '+hR.toFixed(3);
+    const col=gain>0.6?'#ffd75e':gain>0.05?'#ffb347':'#ff6b6b';
+    ig.setAttribute('fill',col);
+    ig.textContent='Information Gain = 1.0 − '+wH.toFixed(3)+' = '+gain.toFixed(3);
+  }
+  document.querySelectorAll('.splitbtn').forEach(b=>{
+    b.onclick=()=>{document.querySelectorAll('.splitbtn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');draw(b.dataset.s);};
+  });
+  draw('perfect');
+})();
+</script>

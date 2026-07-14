@@ -17,6 +17,10 @@ recap: Every trap I fell into, one line each — the strongest recall hooks I ow
 > trap carries a block ID (`^id`) — concept atoms EMBED these lines (`![[trap-log#^id]]`) instead
 > of copying them. The trap lives once, here.
 
+- **2026-07-13** · I believed *"prediction = regression; regression needs gradient descent"* → Prediction = regression (a **number**) OR classification (a **class**). **GD trains both** — MSE for regression, cross-entropy for classification; logistic regression is classification-by-GD. Entropy/info-gain is the split rule for classification **trees**, not "the classification method." Full story: [[2026-06-25_bayes-and-ml-taxonomy_s1]] ^gd-trains-both
+
+- **2026-07-13** · I believed *"non-parametric model = zero parameters"* → It means the param count **grows with the data** (not fixed), not zero. Trees/KNN are non-parametric → can grow **unbounded** and eat memory; parametric (linear/logistic/NN) has a fixed, bounded count. Full story: [[2026-06-25_bayes-and-ml-taxonomy_s1]] ^nonparam-zero
+
 - **2026-07-10** · I believed *"the slope and intercept ARE the two partial derivatives"* → No — `w`/`b` are the two **knobs (parameters)** you turn. The partial derivatives `∂L/∂w`, `∂L/∂b` are a *different* object: the slope of the **loss** w.r.t. each knob. The word "slope" wears two hats — `m` = slope of the *line*; `∂L/∂m` = slope of the *loss bowl*. Full story: [[2026-07-10_line-to-gradient-thermal-fit_F]] §4 ^knob-vs-gradient
 
 - **2026-07-10** · I believed *"prediction = mx + c − observed"* → That subtracted thing is the **residual (the miss)**, not the prediction. Prediction = `w·load+b`; residual = `pred − observed`; loss = `Σ residual²`. Three ordered objects, not one. Full story: [[2026-07-10_line-to-gradient-thermal-fit_F]] §4 ^predict-vs-residual
