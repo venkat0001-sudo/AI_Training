@@ -1,0 +1,290 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>K-means Clustering — elbow + the loop, numerical & sketch in sync</title>
+<!--HUB {"type":"walkthrough","title":"K-means Clustering (elbow + Lloyd's loop)","date":"2026-07-18","concepts":["kmeans","clustering","unsupervised","empirical-variance"],"edge":2} -->
+<style>
+:root{
+  --bgA:#070b14;--bgB:#0a1120;--bgC:#0c0f1c;
+  --card:rgba(16,26,48,.72);--panel:#080d1a;
+  --line:rgba(90,143,191,.35);--lineDim:rgba(90,143,191,.2);
+  --ink:#e9eff7;--inkd:#a9b6c9;--hd:#9fe8ff;--hdim:#5f7d9a;
+  --acc:#ff9433;--accg:#ffb347;--accA:rgba(255,148,51,.15);
+  --gold:#ffd75e;--num2:#7fd4c0;--red:#ff6b6b;--green:#7ee787;
+  --c0:#22D3EE;--c1:#ff9433;--c2:#7ee787;--grey:#5f7d9a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(135deg,var(--bgA),var(--bgB) 55%,var(--bgC));
+  color:var(--ink);font-family:'Courier New',monospace;line-height:1.5;padding:16px 14px 120px}
+.wrap{max-width:980px;margin:0 auto}
+header{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.spiral{font-size:26px;animation:spin 9s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+h1{font-size:16px;margin:0;color:var(--hd)}
+.sub{color:var(--hdim);font-size:11px;margin-top:2px}
+.explain{background:var(--accA);border-left:3px solid var(--acc);padding:9px 14px;margin:12px 0;border-radius:0 8px 8px 0;font-size:13.5px}
+.explain b{color:var(--gold)}
+.tblwrap{overflow-x:auto;margin:6px 0}
+table{border-collapse:collapse;width:100%;min-width:440px;font-size:12px}
+th,td{border:1px solid var(--lineDim);padding:4px 7px;text-align:center}
+th{background:rgba(159,232,255,.08);color:var(--hd)}
+.phaseband{display:flex;gap:8px;align-items:center;margin:14px 0 4px;flex-wrap:wrap}
+.phase{font-size:11px;padding:4px 11px;border-radius:20px;border:1px solid var(--lineDim);color:var(--hdim)}
+.phase.on{border-color:var(--acc);color:var(--acc);background:var(--accA);font-weight:bold}
+.cols{display:flex;gap:14px;flex-wrap:wrap;margin-top:6px}
+.numcol{flex:1;min-width:290px}
+.viscol{flex:1;min-width:290px}
+.col{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+.colh{color:var(--acc);font-size:11px;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--lineDim);padding-bottom:6px;margin-bottom:8px}
+.numflow{font-size:12.5px;line-height:1.7;white-space:pre-wrap;color:#cfe3ee;min-height:300px}
+.numflow .k{color:var(--gold)}.numflow .o{color:var(--acc)}.numflow .r{color:var(--red)}.numflow .g{color:var(--green)}.numflow .dim{color:var(--hdim)}
+.numflow .b0{color:var(--c0)}.numflow .b1{color:var(--c1)}.numflow .b2{color:var(--c2)}
+svg{width:100%;height:auto;display:block}
+.stepbadge{display:inline-block;font-size:11px;padding:2px 10px;border-radius:20px;background:var(--accA);color:var(--acc);border:1px solid var(--lineDim);margin-bottom:6px}
+.wcss{font-size:13px;color:var(--gold);margin-top:6px;text-align:center}
+.nav{position:fixed;left:0;right:0;bottom:0;background:rgba(7,11,20,.94);border-top:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;justify-content:center;gap:20px;backdrop-filter:blur(6px)}
+.nav button{background:var(--panel);border:1px solid var(--line);color:var(--ink);padding:9px 15px;border-radius:9px;cursor:pointer;font-family:inherit;font-size:13px}
+.nav button:hover:not(:disabled){border-color:var(--acc);color:var(--acc)}
+.nav button:disabled{opacity:.35;cursor:default}
+#slabel{color:var(--hdim);font-size:11px;min-width:170px;text-align:center}
+.legend{font-size:11px;color:var(--hdim);margin-top:6px;text-align:center}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;vertical-align:middle;margin:0 2px 0 8px}
+</style>
+
+<div class="wrap">
+<header>
+  <span class="spiral">🍥</span>
+  <div>
+    <h1>K-means Clustering — the elbow + the loop, in sync</h1>
+    <div class="sub">unsupervised · cgpa vs iq · numerical ↔ sketch move together · grade ★★ supporting</div>
+  </div>
+</header>
+
+<div class="explain">
+  <b>The problem:</b> 9 students, two features (<b>cgpa</b>, <b>iq</b>), <b>no labels</b>. Do natural groups exist?
+  K-means <b>discovers</b> them (it clusters — it doesn't classify). <b>Part A:</b> how many clusters? (elbow).
+  <b>Part B:</b> watch k=3 run from scratch — assign → move → repeat until the centroids stop.
+</div>
+
+<div class="tblwrap">
+<table id="dtbl">
+  <tr><th>pt</th><th>P1</th><th>P2</th><th>P3</th><th>P4</th><th>P5</th><th>P6</th><th>P7</th><th>P8</th><th>P9</th></tr>
+  <tr><td>cgpa (x)</td><td>2</td><td>3</td><td>2</td><td>8</td><td>9</td><td>8</td><td>5</td><td>6</td><td>5</td></tr>
+  <tr><td>iq (y)</td><td>3</td><td>2</td><td>2</td><td>3</td><td>2</td><td>2</td><td>8</td><td>9</td><td>9</td></tr>
+</table>
+</div>
+
+<div class="phaseband">
+  <span class="phase" data-ph="A">Part A · Elbow (pick k)</span>
+  <span class="phase" data-ph="B">Part B · k=3 loop</span>
+  <span class="legend" style="margin-left:auto">
+    <span class="dot" style="background:var(--c0)"></span>cluster 0
+    <span class="dot" style="background:var(--c1)"></span>cluster 1
+    <span class="dot" style="background:var(--c2)"></span>cluster 2
+    · ◆ = centroid
+  </span>
+</div>
+
+<div class="cols">
+  <div class="numcol"><div class="col"><div class="colh">① Numerical</div>
+    <div class="stepbadge" id="stepbadge"></div>
+    <div class="numflow" id="numflow"></div>
+  </div></div>
+  <div class="viscol"><div class="col"><div class="colh">② Sketch (moves with the numbers)</div>
+    <svg id="scatter" viewBox="0 0 340 250"></svg>
+    <div class="wcss" id="wcssline"></div>
+  </div></div>
+</div>
+</div>
+
+<div class="nav">
+  <button id="prev">← Back</button>
+  <span id="slabel"></span>
+  <button id="next">Next →</button>
+</div>
+
+<script>
+// ---------- data ----------
+const PTS=[[2,3],[3,2],[2,2],[8,3],[9,2],[8,2],[5,8],[6,9],[5,9]];
+const NM=['P1','P2','P3','P4','P5','P6','P7','P8','P9'];
+const COL=['#22D3EE','#ff9433','#7ee787'], GREY='#5f7d9a';
+// data->pixel  (x 0..10 -> 45..315 ; y 0..10 -> 205..25)
+const PX=x=>45+x/10*270, PY=y=>205-y/10*180;
+
+function scatterSVG(lab,cents,opts){
+  opts=opts||{};
+  let s='';
+  // axes
+  s+=`<line x1="45" y1="205" x2="325" y2="205" stroke="#5a8fbf"/><line x1="45" y1="205" x2="45" y2="18" stroke="#5a8fbf"/>`;
+  s+=`<text x="185" y="228" text-anchor="middle" font-size="11" fill="#a9b6c9">cgpa →</text>`;
+  s+=`<text x="16" y="115" font-size="11" fill="#a9b6c9" transform="rotate(-90 16 115)">iq →</text>`;
+  // assignment lines (point -> its centroid)
+  if(opts.lines&&cents&&lab){
+    for(let i=0;i<9;i++){ if(lab[i]<0)continue; const c=cents[lab[i]];
+      s+=`<line x1="${PX(PTS[i][0])}" y1="${PY(PTS[i][1])}" x2="${PX(c[0])}" y2="${PY(c[1])}" stroke="${COL[lab[i]]}" stroke-width="1" opacity="0.35" stroke-dasharray="3 2"/>`;}
+  }
+  // points
+  for(let i=0;i<9;i++){const c=(lab&&lab[i]>=0)?COL[lab[i]]:GREY;
+    s+=`<circle cx="${PX(PTS[i][0])}" cy="${PY(PTS[i][1])}" r="7" fill="${c}" stroke="#0a1120" stroke-width="1.5"/>`;
+    s+=`<text x="${PX(PTS[i][0])}" y="${PY(PTS[i][1])-11}" text-anchor="middle" font-size="9" fill="#a9b6c9">${NM[i]}</text>`;}
+  // centroids (big diamonds)
+  if(cents) cents.forEach((c,k)=>{const x=PX(c[0]),y=PY(c[1]);
+    s+=`<path d="M ${x} ${y-9} L ${x+9} ${y} L ${x} ${y+9} L ${x-9} ${y} Z" fill="${COL[k]}" stroke="#fff" stroke-width="1.5"/>`;});
+  return s;
+}
+function elbowSVG(kHi){
+  const W=[[1,138.22],[2,77.67],[3,4.00]];
+  // inset: k 1..3 -> x 70..300 ; wcss 0..140 -> y 205..40
+  const EX=k=>70+(k-1)/2*230, EY=w=>205-w/140*165;
+  let s=`<line x1="55" y1="205" x2="315" y2="205" stroke="#5a8fbf"/><line x1="55" y1="205" x2="55" y2="25" stroke="#5a8fbf"/>`;
+  s+=`<text x="185" y="228" text-anchor="middle" font-size="11" fill="#a9b6c9">k (clusters) →</text>`;
+  s+=`<text x="18" y="120" font-size="11" fill="#a9b6c9" transform="rotate(-90 18 120)">WCSS (total spread)</text>`;
+  let d='';W.forEach((p,i)=>d+=(i?'L':'M')+EX(p[0])+' '+EY(p[1])+' ');
+  s+=`<path d="${d}" fill="none" stroke="#9fe8ff" stroke-width="2"/>`;
+  W.forEach(p=>{const on=p[0]===kHi;
+    s+=`<circle cx="${EX(p[0])}" cy="${EY(p[1])}" r="${on?6:4}" fill="${on?'#ff9433':'#9fe8ff'}"/>`;
+    s+=`<text x="${EX(p[0])}" y="${EY(p[1])-11}" text-anchor="middle" font-size="10" fill="${on?'#ffd75e':'#a9b6c9'}">${p[1]}</text>`;
+    s+=`<text x="${EX(p[0])}" y="222" text-anchor="middle" font-size="10" fill="#a9b6c9">k=${p[0]}</text>`;});
+  if(kHi===3) s+=`<text x="${EX(3)}" y="${EY(4)+22}" text-anchor="middle" font-size="10" fill="#7ee787">elbow!</text>`;
+  return s;
+}
+
+// ---------- the steps (each = one synced frame) ----------
+const K3F=[2.33,2.33], K3G=[8.33,2.33], K3B=[5.33,8.67]; // final k=3 centroids
+const STEPS=[
+// ---- Part A: elbow ----
+{ph:'A',lab:'Setup · the data',badge:'9 points, no labels',
+ num:`<span class="o">Goal:</span> find natural groups in 9 students.
+Features: cgpa (x), iq (y). No labels → <b>cluster</b>, not classify.
+
+By eye there look like <b>3 blobs</b>:
+  <span class="dim">low-low · high-cgpa/low-iq · mid-cgpa/high-iq</span>
+But let's let the ELBOW decide k, not our eyes.`,
+ draw:()=>scatterSVG([-1,-1,-1,-1,-1,-1,-1,-1,-1],null),wcss:''},
+
+{ph:'A',lab:'Elbow · k = 1',badge:'1 cluster',
+ num:`<span class="o">k = 1</span> — everything in one blob.
+centroid = mean of all 9 = (<span class="k">5.33, 4.44</span>)
+
+WCSS = Σ (distance to centroid)²  over all points
+     = <span class="k">138.22</span>   (huge — one clump can't be tight)`,
+ draw:()=>scatterSVG([0,0,0,0,0,0,0,0,0],[[5.33,4.44]]),wcss:'WCSS(k=1) = 138.22',elbow:1},
+
+{ph:'A',lab:'Elbow · k = 2',badge:'2 clusters',
+ num:`<span class="o">k = 2</span> — best 2-way split:
+ <span class="b0">cluster 0</span>: P1 P2 P3 P7 P8 P9  → (3.83, 5.5)
+ <span class="b1">cluster 1</span>: P4 P5 P6          → (8.33, 2.33)
+
+WCSS = <span class="k">77.67</span>   (big drop from 138 — real structure found)`,
+ draw:()=>scatterSVG([0,0,0,1,1,1,0,0,0],[[3.83,5.5],[8.33,2.33]]),wcss:'WCSS(k=2) = 77.67',elbow:2},
+
+{ph:'A',lab:'Elbow · k = 3 → pick it',badge:'3 clusters — the elbow',
+ num:`<span class="o">k = 3</span> — three tight blobs:
+ <span class="b0">cluster 0</span>: P1 P2 P3 → (2.33, 2.33)
+ <span class="b1">cluster 1</span>: P4 P5 P6 → (8.33, 2.33)
+ <span class="b2">cluster 2</span>: P7 P8 P9 → (5.33, 8.67)
+
+WCSS = <span class="k">4.00</span>   (steep drop → then it flattens)
+
+<span class="o">🫱 THE ELBOW:</span> 138 → 78 → <b>4</b> → (k=4 would barely help).
+The corner is <b>k = 3</b>. Beyond it, extra clusters just slice
+already-tight groups. <span class="dim">(k=9 → WCSS=0, useless.)</span>`,
+ draw:()=>scatterSVG([0,0,0,1,1,1,2,2,2],[K3F,K3G,K3B]),wcss:'WCSS(k=3) = 4.00  ← elbow',elbow:3},
+
+// ---- Part B: the k=3 loop from scratch ----
+{ph:'B',lab:'Loop · init centroids',badge:'iteration 0 — random init',
+ num:`Now watch k=3 run <b>from scratch</b>. Pick 3 real points
+as starting centroids (deliberately clumsy, to show movement):
+
+ ◆ <span class="b0">centroid 0</span> = P1 (2, 3)
+ ◆ <span class="b1">centroid 1</span> = P2 (3, 2)
+ ◆ <span class="b2">centroid 2</span> = P7 (5, 8)
+
+Two seeds sit in the SAME blob — a bad start. Watch it fix itself.`,
+ draw:()=>scatterSVG([-1,-1,-1,-1,-1,-1,-1,-1,-1],[[2,3],[3,2],[5,8]]),wcss:''},
+
+{ph:'B',lab:'Loop · ASSIGN (iter 1)',badge:'iter 1 — nearest centroid wins',
+ num:`Each point → its <b>nearest</b> centroid (Euclidean dist):
+ P1(2,3): d0=<span class="g">0.0</span> d1=1.41 d2=5.83 → <span class="b0">c0</span>
+ P2(3,2): d0=1.41 d1=<span class="g">0.0</span> d2=6.32 → <span class="b1">c1</span>
+ P4(8,3): d0=6.0 d1=<span class="g">5.10</span> d2=5.83 → <span class="b1">c1</span>
+ P7(5,8): d0=5.83 d1=6.32 d2=<span class="g">0.0</span> → <span class="b2">c2</span>
+ ...
+ <span class="b0">c0</span>: P1 P3   <span class="b1">c1</span>: P2 P4 P5 P6   <span class="b2">c2</span>: P7 P8 P9
+ <span class="r">← messy: c1 grabbed the whole right blob + P2</span>`,
+ draw:()=>scatterSVG([0,1,0,1,1,1,2,2,2],[[2,3],[3,2],[5,8]],{lines:true}),wcss:'WCSS = 91.00 (still high)'},
+
+{ph:'B',lab:'Loop · MOVE (iter 1)',badge:'iter 1 — centroid = cluster mean',
+ num:`Move each centroid to the <b>mean</b> of its members:
+ <span class="b0">c0</span> = mean(P1,P3) = ((2+2)/2,(3+2)/2) = (<span class="k">2, 2.5</span>)
+ <span class="b1">c1</span> = mean(P2,P4,P5,P6)
+      = ((3+8+9+8)/4,(2+3+2+2)/4) = (<span class="k">7, 2.25</span>)
+ <span class="b2">c2</span> = mean(P7,P8,P9) = (<span class="k">5.33, 8.67</span>)
+
+Centroids jumped toward their crowds. Now re-assign.`,
+ draw:()=>scatterSVG([0,1,0,1,1,1,2,2,2],[[2,2.5],[7,2.25],[5.33,8.67]],{lines:true}),wcss:'centroids moved →'},
+
+{ph:'B',lab:'Loop · ASSIGN (iter 2)',badge:'iter 2 — a point switches!',
+ num:`Re-measure to the moved centroids:
+ P2(3,2): d0=<span class="g">1.12</span>  d1=4.01  d2=... → <span class="b0">c0</span>
+ <span class="o">↑ P2 JUMPS from c1 → c0</span> (c0 is now closer)
+
+ <span class="b0">c0</span>: P1 P2 P3   <span class="b1">c1</span>: P4 P5 P6   <span class="b2">c2</span>: P7 P8 P9
+ <span class="g">← the three true blobs, cleanly split</span>`,
+ draw:()=>scatterSVG([0,0,0,1,1,1,2,2,2],[[2,2.5],[7,2.25],[5.33,8.67]],{lines:true}),wcss:'WCSS = 9.77 (big drop!)'},
+
+{ph:'B',lab:'Loop · MOVE (iter 2)',badge:'iter 2 — recompute means',
+ num:`Move centroids to the new means:
+ <span class="b0">c0</span> = mean(P1,P2,P3) = (<span class="k">2.33, 2.33</span>)
+ <span class="b1">c1</span> = mean(P4,P5,P6) = (<span class="k">8.33, 2.33</span>)
+ <span class="b2">c2</span> = mean(P7,P8,P9) = (<span class="k">5.33, 8.67</span>)
+
+Almost settled — one more check to be sure.`,
+ draw:()=>scatterSVG([0,0,0,1,1,1,2,2,2],[K3F,K3G,K3B],{lines:true}),wcss:'centroids moved →'},
+
+{ph:'B',lab:'Loop · ASSIGN (iter 3)',badge:'iter 3 — nothing changes',
+ num:`Re-measure again:
+ every point is STILL nearest its own centroid.
+ <span class="b0">c0</span>: P1 P2 P3   <span class="b1">c1</span>: P4 P5 P6   <span class="b2">c2</span>: P7 P8 P9
+
+<span class="g">No point switched.</span> When assignments stop changing,
+the next move won't move anything...`,
+ draw:()=>scatterSVG([0,0,0,1,1,1,2,2,2],[K3F,K3G,K3B],{lines:true}),wcss:'WCSS = 4.00'},
+
+{ph:'B',lab:'Loop · CONVERGED ✓',badge:'centroids stopped → done',
+ num:`MOVE step: means = same points → <b>centroids don't move.</b>
+<span class="g">>>> CONVERGED.</span>
+
+Final clusters (WCSS = <span class="k">4.00</span>, matches the elbow):
+ ◆ <span class="b0">cluster 0</span> (2.33, 2.33): P1 P2 P3  — low cgpa, low iq
+ ◆ <span class="b1">cluster 1</span> (8.33, 2.33): P4 P5 P6  — high cgpa, low iq
+ ◆ <span class="b2">cluster 2</span> (5.33, 8.67): P7 P8 P9  — mid cgpa, high iq
+
+<span class="o">Same loop as gradient descent:</span> step, step, step → settle.
+Bad init can trap it in a worse answer → that's why you
+re-run with different seeds and keep the lowest WCSS.`,
+ draw:()=>scatterSVG([0,0,0,1,1,1,2,2,2],[K3F,K3G,K3B]),wcss:'WCSS = 4.00 · CONVERGED 🎯'},
+];
+
+// ---------- render ----------
+const $=id=>document.getElementById(id);
+let cur=0;
+function render(){
+  const S=STEPS[cur];
+  $('stepbadge').textContent=S.badge;
+  $('numflow').innerHTML=S.num;
+  if(S.elbow){$('scatter').setAttribute('viewBox','0 0 340 470');$('scatter').innerHTML=twoPanel(S);}
+  else {$('scatter').setAttribute('viewBox','0 0 340 250');$('scatter').innerHTML=S.draw();}
+  $('wcssline').textContent=S.wcss||'';
+  document.querySelectorAll('.phase').forEach(p=>p.classList.toggle('on',p.dataset.ph===S.ph));
+  $('slabel').textContent=(cur+1)+' / '+STEPS.length+'  ·  '+S.lab;
+  $('prev').disabled=cur===0;$('next').disabled=cur===STEPS.length-1;
+}
+// for elbow steps show scatter (top) + elbow plot (bottom) stacked in one taller svg
+function twoPanel(S){
+  return `<g>${S.draw()}</g><g transform="translate(0,235)"><text x="185" y="14" text-anchor="middle" font-size="11" fill="#ffb347">the elbow plot</text>${elbowSVG(S.elbow)}</g>`;
+}
+$('prev').onclick=()=>{if(cur>0){cur--;render();}};
+$('next').onclick=()=>{if(cur<STEPS.length-1){cur++;render();}};
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')$('next').click();if(e.key==='ArrowLeft')$('prev').click();});
+render();
+</script>

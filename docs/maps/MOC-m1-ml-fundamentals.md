@@ -27,7 +27,7 @@ recap: "M1 in one map: raw data → working predictors (s1–s6, 20 Jun – 19 J
 7. [[trees-svm]] — decision trees & SVMs (s3) · ⭐⭐⭐ · *seed — s3 notes owed*
 8. [[entropy]] — the suspense meter; trees' splitting currency · ⭐⭐⭐ · **atom live (stub — resume before s4)**
 9. [[ensembles]] — bagging, forests, boosting (s4, 11 Jul) · ⭐⭐ · *seed*
-10. [[kmeans]] — clustering without labels (s5, 18 Jul) · ⭐⭐ · *seed*
+10. [[kmeans]] — clustering without labels (s5, 18 Jul) · ⭐⭐ · **atom live (frame-by-frame walk)**
 11. [[pca]] — keep the cigar's long axis (s5, but pre-built from Foundation) · ⭐⭐⭐ · **atom live**
 12. [[mcu-deployment]] — what survives on a microcontroller · ⭐⭐⭐ · **stub**
 
@@ -50,7 +50,8 @@ TABLE status, edge, recap FROM "concepts" WHERE lane = "m1" SORT edge DESC
 **Due before s4 (11 Jul):** [[entropy]] resume (formula/twin/info-gain) — on the T-minus-3 math-prep map.
 **Due at/after s3 notes:** [[trees-svm]] · [[gini-impurity]].
 **Due at s4:** [[ensembles]] (+ log-odds "amount of say").
-**Due at s5 (18 Jul — the R1 gate):** [[kmeans]].
+**Due at s5 (18 Jul — the R1 gate):** ✅ [[kmeans]] atom live (18 Jul); [[pca]] revised in-session.
+**Foundation seed (bottom-out for [[kmeans]]/[[variance-sigma]]):** [[mean]].
 **Later:** [[naive-bayes]] · [[kl-divergence]] (M4) · [[attention]] (s14).
 
 ## Arc consolidation

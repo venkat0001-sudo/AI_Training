@@ -17,6 +17,10 @@ recap: Every trap I fell into, one line each — the strongest recall hooks I ow
 > trap carries a block ID (`^id`) — concept atoms EMBED these lines (`![[trap-log#^id]]`) instead
 > of copying them. The trap lives once, here.
 
+- **2026-07-18** · I believed *"decision tree and k-means both CLASSIFY"* → A tree **classifies** — sorts into KNOWN, labelled bins. K-means **clusters** — it DISCOVERS groups that never had labels; you name them *after*. classify = assign to known bins · cluster = discover the bins. Full story: [[kmeans]] ^kmeans-classify
+
+- **2026-07-18** · I believed *"pick the k with the lowest WCSS"* → WCSS always falls as k rises, hitting **0 at k=n** (every point its own cluster = useless). Lowest-WCSS has a trivial, meaningless winner. Use the **elbow** — the k where the drop stops paying off. Full story: [[kmeans]] ^kmeans-wcss-min
+
 - **2026-07-13** · I believed *"prediction = regression; regression needs gradient descent"* → Prediction = regression (a **number**) OR classification (a **class**). **GD trains both** — MSE for regression, cross-entropy for classification; logistic regression is classification-by-GD. Entropy/info-gain is the split rule for classification **trees**, not "the classification method." Full story: [[2026-06-25_bayes-and-ml-taxonomy_s1]] ^gd-trains-both
 
 - **2026-07-13** · I believed *"non-parametric model = zero parameters"* → It means the param count **grows with the data** (not fixed), not zero. Trees/KNN are non-parametric → can grow **unbounded** and eat memory; parametric (linear/logistic/NN) has a fixed, bounded count. Full story: [[2026-06-25_bayes-and-ml-taxonomy_s1]] ^nonparam-zero

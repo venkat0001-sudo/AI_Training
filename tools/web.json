@@ -199,7 +199,7 @@
    "slug": "kmeans",
    "label": "K-means clustering",
    "lane": "m1",
-   "status": "upcoming",
+   "status": "learning",
    "res": [
     {
      "label": "StatQuest — K-means",
