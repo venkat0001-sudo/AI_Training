@@ -10,6 +10,9 @@
 # Raw uploaded session resource bundles (kept locally, not published)
 *_resources/
 
+# CampusX paid-course notes PDFs (licensed material — repo is public, never publish)
+CampusX/
+
 # Obsidian: keep vault CONFIG (the *.json), drop the regenerable bulk.
 # NOTE: gitignore has no inline comments — patterns must stand alone.
 # .smart-env = embeddings cache (regenerable) · plugins/ = binaries (reinstall from community-plugins.json)

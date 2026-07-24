@@ -15,6 +15,13 @@
    "edge": 3
   },
   {
+   "slug": "pandas-iloc-shape-rule",
+   "label": ".iloc shape rule (scalar/slice/list)",
+   "lane": "f",
+   "status": "owned",
+   "edge": 1
+  },
+  {
    "slug": "variance-sigma",
    "label": "Variance · σ",
    "lane": "f",

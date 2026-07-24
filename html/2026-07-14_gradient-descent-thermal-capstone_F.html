@@ -282,7 +282,7 @@ new P = 16·2 + 8 = <span class="grn">40</span>   → 25 → 40, closer to 55 �
     the drive cooks, not after.</div>
     <div class="eq"><span class="g">prediction</span>   P = w·load + b
 <span class="g">loss</span>         L = Σ (P − T)² / n
-<span class="o">gradient</span>     ∂L/∂w = 2·Σ(P−T)·load ,  ∂L/∂b = 2·Σ(P−T)
+<span class="o">gradient</span>     ∂L/∂w = (2/n)·Σ(P−T)·load ,  ∂L/∂b = (2/n)·Σ(P−T)
 <span class="k">update</span>       w ← w − η·∂L/∂w ,  b ← b − η·∂L/∂b</div>
     <div class="why">🧵 <b>The thread forward:</b> a neural net is just <i>millions</i> of these weights, and
     <b>backpropagation</b> is the chain rule handing each one its own ∂L/∂w so gradient descent can nudge it. Master
