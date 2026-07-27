@@ -27,9 +27,15 @@ up: "[[HOME]]"
 | [[mcu-deployment\|MCU deployment + decision-tree geometry]] | `html/2026-06-26_mcu-deployment-flashcards_s1.html` | 2026-06-26 | 2026-07-21 (recall sprint) | +16d | 2026-08-06 |
 | [[gradient-descent\|Gradient descent (numeric loss-shrinking example)]] | `docs/2026-06-25_bayes-and-ml-taxonomy_s1.md` (GD example), `docs/2026-07-08_derivative-limit-to-gradient-descent_F.md` §7, `docs/2026-07-10_line-to-gradient-thermal-fit_F.md` (full R1 story), `html/2026-07-14_gradient-descent-thermal-capstone_F.html` (capstone) | 2026-06-28 | 2026-07-14 (capstone HTML built + owned: temp=w·load+b — 3 objects, bowl, gradient (why 2/3 = 2 from square × 1/3 from mean), hand-step, 60→180-iter convergence to (15,25) w/ target line, η knob. DIVERGENCE owned: too-big η overshoots to a steeper wall → gradient bigger → compounds exponentially past threshold ≈0.21; "fix becomes the failure", NAND = read-retry Vref overshoot) | +16d | 2026-07-30 |
 | [[calculus\|Derivative=limit → chain rule → training gradient 2(P−T)·x (credit assignment, thermal cycle)]] | `docs/2026-07-05_chain-rule-to-gradient_F.md`, `docs/2026-07-08_derivative-limit-to-gradient-descent_F.md`, `html/2026-07-09_line-vs-curve-slope_F.html` | 2026-07-05 | 2026-07-21 (recall sprint) | +16d | 2026-08-06 |
-| [[expected-value\|Expected value (EV = Σ p·v; loss is an EV)]] | `docs/concepts/expected-value.md`, `docs/2026-07-10_line-to-gradient-thermal-fit_F.md` | 2026-07-10 | 2026-07-27 (recall deck) | +7d | 2026-08-03 |
+| [[expected-value\|Expected value (EV = Σ p·v; loss is an EV)]] | `docs/concepts/expected-value.md`, `docs/2026-07-10_line-to-gradient-thermal-fit_F.md` | 2026-07-10 | 2026-07-10 (first contact; Jul 21–27 cloud-deck passes VOIDED — decks never run) | +1d | **2026-07-11 — OVERDUE 16d** |
 
-| [[kmeans\|K-means clustering (elbow, assign/mean loop, WCSS, local-minima restarts)]] | `docs/concepts/kmeans.md`, `html/2026-07-18_kmeans-clustering-walkthrough_s5.html`, `docs/2026-07-18_kmeans-clustering-walkthrough_s5.md` | 2026-07-18 | 2026-07-27 (recall deck) | +7d | 2026-08-03 |
+| [[kmeans\|K-means clustering (elbow, assign/mean loop, WCSS, local-minima restarts)]] | `docs/concepts/kmeans.md`, `html/2026-07-18_kmeans-clustering-walkthrough_s5.html`, `docs/2026-07-18_kmeans-clustering-walkthrough_s5.md` | 2026-07-18 | 2026-07-18 (first contact; Jul 21–27 cloud-deck passes VOIDED — decks never run) | +1d | **2026-07-19 — OVERDUE 8d** |
 
 **Legend:** DUE items are batched into the next recall sprint / due-cards deck. Snap a due date to a
 pre-class Saturday slot when the weekend session builds on that topic.
+
+**⛔ THE HONESTY RULE (2026-07-27, after the phantom-pass incident):** generating a deck is NOT a
+recall. A ladder step advances ONLY when the learner *reports completing* the cards (or demonstrably
+uses the concept in a newer lesson). Cloud/automated sessions may build decks and list due items but
+must NEVER edit `Last recalled` / `Ladder step` / `Next due` — Jul 21–27 decks silently advanced
+EV + k-means four times while the learner never opened them, and the ledger lied for a week.
