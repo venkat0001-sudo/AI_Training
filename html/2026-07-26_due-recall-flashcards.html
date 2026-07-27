@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sage Flash-Scroll — Due Recall Deck | 2026-07-26</title>
+<!--HUB {"title": "Due recall deck 2026-07-26", "date": "2026-07-26", "sessions": [], "concepts": ["expected-value","kmeans"], "type": "flashcards", "recap": "Spaced-recall deck for topics due 2026-07-26: Expected Value and K-means clustering"} -->
+<style>
+:root{
+  --sage-dark:#1a2e0d; --sage-deep:#2d4a1e; --sage-mid:#4a7a2e; --sage-light:#7a9e5a; --sage-pale:#a8c87a;
+  --earth-dark:#3d2b0d; --earth-mid:#8b5e1a; --earth-light:#c4902e;
+  --orange:#ff8c00; --orange-glow:#ffb347; --cream:#f5e6c8; --cream-dark:#d4c09a;
+  --glow:rgba(255,140,0,0.3); --red:#d9534f; --blue:#5a8fbf; --green:#9fd67a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:linear-gradient(135deg,#0d1a07 0%,#0d1f08 50%,#1a1a0a 100%);
+  color:var(--cream); font-family:'Courier New',monospace; min-height:100vh; overflow-x:hidden; line-height:1.6;
+}
+.particle{position:fixed;border-radius:50%;pointer-events:none;animation:floatUp linear infinite;z-index:0;}
+@keyframes floatUp{0%{transform:translateY(100vh) rotate(0deg);opacity:0;}10%{opacity:.6;}90%{opacity:.4;}100%{transform:translateY(-120px) rotate(720deg);opacity:0;}}
+.header{text-align:center;padding:46px 20px 10px;position:relative;z-index:1;}
+.frog{font-size:62px;display:block;animation:sagePulse 3s ease-in-out infinite;}
+@keyframes sagePulse{0%,100%{text-shadow:0 0 20px #7a9e5a,0 0 40px rgba(122,158,90,.4);transform:scale(1);}50%{text-shadow:0 0 40px var(--orange),0 0 80px rgba(255,140,0,.4);transform:scale(1.08);}}
+.title{font-size:clamp(1.4em,5vw,2.1em);color:var(--orange);text-shadow:0 0 25px var(--orange);letter-spacing:3px;margin:10px 0 6px;}
+.subtitle{color:var(--sage-pale);font-size:.88em;letter-spacing:2px;}
+.dojo-line{color:var(--sage-mid);font-size:.7em;letter-spacing:4px;margin:8px 0;}
+
+/* progress + controls */
+.bar-top{max-width:760px;margin:10px auto 0;position:relative;z-index:1;padding:0 16px;}
+.meta{display:flex;justify-content:space-between;align-items:center;font-size:.78em;color:var(--cream-dark);margin-bottom:6px;flex-wrap:wrap;gap:8px;}
+.meta b{color:var(--orange-glow);}
+.progress{height:8px;background:rgba(0,0,0,.4);border:1px solid rgba(74,122,46,.4);border-radius:6px;overflow:hidden;}
+.progress .fill{height:100%;background:linear-gradient(90deg,var(--sage-mid),var(--orange));width:0;transition:width .3s;}
+
+/* deck filter pills */
+.decks{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:16px auto;max-width:760px;padding:0 16px;position:relative;z-index:1;}
+.deck-pill{cursor:pointer;background:rgba(74,122,46,.18);border:1px solid rgba(74,122,46,.45);border-radius:20px;padding:7px 16px;font-size:.74em;color:var(--cream-dark);transition:all .2s;user-select:none;min-height:36px;display:flex;align-items:center;}
+.deck-pill:hover{border-color:var(--orange);color:var(--cream);}
+.deck-pill.active{background:var(--orange);color:#1a1a0a;font-weight:bold;box-shadow:0 0 14px var(--orange);}
+
+/* CARD */
+.stage{max-width:760px;margin:14px auto;padding:0 16px;position:relative;z-index:1;}
+.flip{perspective:1600px;cursor:pointer;}
+.flip-inner{position:relative;width:100%;min-height:320px;transition:transform .55s cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d;}
+.flip.flipped .flip-inner{transform:rotateY(180deg);}
+.face{
+  position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  background:rgba(20,40,12,.78);border:1px solid rgba(74,122,46,.55);border-radius:16px;
+  padding:28px 24px;backdrop-filter:blur(6px);display:flex;flex-direction:column;justify-content:center;overflow-y:auto;
+}
+.face::before{content:'';position:absolute;top:0;left:10%;right:10%;height:2px;background:linear-gradient(90deg,transparent,var(--orange),transparent);border-radius:2px;}
+.face.back{transform:rotateY(180deg);border-color:rgba(255,140,0,.5);background:rgba(28,30,12,.85);}
+.tag{position:absolute;top:14px;left:20px;font-size:.6em;color:var(--earth-light);border:1px solid var(--earth-mid);border-radius:20px;padding:2px 11px;letter-spacing:2px;}
+.side-tag{position:absolute;top:14px;right:20px;font-size:.62em;letter-spacing:3px;}
+.side-q{color:var(--sage-pale);}
+.side-a{color:var(--orange-glow);}
+.q-text{font-size:clamp(1em,3vw,1.22em);color:var(--cream);text-align:center;margin:10px 0;}
+.a-text{font-size:clamp(.85em,2.5vw,.98em);color:var(--sage-pale);}
+.a-text b{color:var(--orange-glow);}
+.a-text code{background:rgba(0,0,0,.45);color:var(--orange-glow);padding:2px 7px;border-radius:5px;font-size:.92em;}
+.a-text .ssd{color:var(--green);}
+.hint{position:absolute;bottom:14px;left:0;right:0;text-align:center;font-size:.68em;color:var(--sage-mid);letter-spacing:1px;}
+
+/* nav buttons — large tap targets for mobile */
+.nav{display:flex;justify-content:center;align-items:center;gap:10px;margin:18px auto;flex-wrap:wrap;max-width:760px;padding:0 14px;}
+.btn{cursor:pointer;background:rgba(74,122,46,.2);border:1px solid rgba(74,122,46,.5);border-radius:10px;padding:12px 18px;font-size:.82em;color:var(--cream);font-family:inherit;transition:all .2s;user-select:none;min-height:44px;display:flex;align-items:center;justify-content:center;}
+.btn:hover{background:var(--orange);color:#1a1a0a;box-shadow:0 0 14px var(--orange);}
+.btn.know{border-color:var(--green);color:var(--green);}
+.btn.know:hover{background:var(--green);color:#1a1a0a;box-shadow:0 0 14px var(--green);}
+.btn.again{border-color:var(--red);color:var(--red);}
+.btn.again:hover{background:var(--red);color:#1a1a0a;box-shadow:0 0 14px var(--red);}
+.btn.ghost{opacity:.8;}
+.score{text-align:center;font-size:.78em;color:var(--cream-dark);margin:4px auto 30px;padding:0 16px;}
+.score b.good{color:var(--green);} .score b.bad{color:var(--red);}
+.kbd{display:inline-block;background:rgba(0,0,0,.5);border:1px solid var(--sage-mid);border-radius:5px;padding:1px 7px;font-size:.82em;color:var(--cream-dark);margin:0 2px;}
+.foot{text-align:center;color:var(--sage-mid);font-size:.72em;padding:10px 20px 50px;position:relative;z-index:1;}
+.done{text-align:center;color:var(--orange-glow);font-size:1.1em;margin:20px 0;display:none;padding:0 16px;}
+
+/* mobile: stack buttons on narrow screens */
+@media(max-width:480px){
+  .nav{gap:8px;}
+  .btn{padding:12px 14px;font-size:.78em;}
+  .face{padding:22px 16px;}
+  .kbd{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="frog">🐸</span>
+  <div class="title">SAGE FLASH-SCROLL</div>
+  <div class="subtitle">Due Recall — Expected Value &amp; K-means · 2026-07-26</div>
+  <div class="dojo-line">◈ MOUNT MYŌBOKU DOJO · SPACED RECALL ◈</div>
+</div>
+
+<div class="bar-top">
+  <div class="meta">
+    <span>Card <b id="idx">1</b> / <b id="total">0</b></span>
+    <span id="deckname">All cards</span>
+    <span><b id="seen">0</b> seen · <span style="color:var(--green)">✔ <b id="kcount">0</b></span> · <span style="color:var(--red)">↺ <b id="acount">0</b></span></span>
+  </div>
+  <div class="progress"><div class="fill" id="fill"></div></div>
+</div>
+
+<div class="decks" id="decks"></div>
+
+<div class="stage">
+  <div class="flip" id="flip" onclick="toggleFlip()">
+    <div class="flip-inner">
+      <div class="face front">
+        <span class="tag" id="ftag">·</span>
+        <span class="side-tag side-q">QUESTION</span>
+        <div class="q-text" id="qtext">—</div>
+        <div class="hint">tap / <span class="kbd">Space</span> to flip 🍥</div>
+      </div>
+      <div class="face back">
+        <span class="tag" id="btag">·</span>
+        <span class="side-tag side-a">🔓 ANSWER</span>
+        <div class="a-text" id="atext">—</div>
+        <div class="hint"><span class="kbd">J</span> know · <span class="kbd">F</span> again · <span class="kbd">→</span> next</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="nav">
+  <div class="btn ghost" onclick="prev()">◀ Prev</div>
+  <div class="btn again" onclick="mark(false)">↺ Again <span class="kbd">F</span></div>
+  <div class="btn know" onclick="mark(true)">✔ Got it <span class="kbd">J</span></div>
+  <div class="btn ghost" onclick="next()">Next ▶</div>
+  <div class="btn ghost" onclick="shuffle()">🔀 Shuffle</div>
+  <div class="btn ghost" onclick="resetAll()">⟲ Reset</div>
+</div>
+<div class="score" id="score">Flip every card. Mark <b class="good">✔ Got it</b> only when you could say the answer out loud without peeking.</div>
+<div class="done" id="done">🐸 Sage Mode achieved — all cards known. Re-shuffle for another pass, or press ⟲ Reset.</div>
+
+<div class="foot">Active recall &gt; re-reading · say the answer out loud · the struggle to retrieve IS the learning.</div>
+
+<script>
+/* floating particles */
+const pcolors=['#7a9e5a','#ff8c00','#a8c87a','#c4902e'];
+for(let i=0;i<26;i++){const p=document.createElement('div');p.className='particle';const s=Math.random()*8+3;
+ p.style.width=p.style.height=s+'px';p.style.left=Math.random()*100+'%';
+ p.style.background=pcolors[i%pcolors.length];p.style.boxShadow='0 0 '+(s*2)+'px '+pcolors[i%pcolors.length];
+ p.style.animationDuration=(Math.random()*16+12)+'s';p.style.animationDelay=(Math.random()*-20)+'s';
+ document.body.appendChild(p);}
+
+/* ---- DECK ---- */
+const CARDS=[
+ /* ---- EXPECTED VALUE ---- */
+ {d:"Expected Value",
+  q:"The dog-treat bet: ₹200 if the dog catches (p = 0.10), you pay ₹50 if he misses. Say the EV out loud. Take it or walk away?",
+  a:"EV = 0.10 × 200 + 0.90 × (−50) = 20 − 45 = <b>−25</b> ❌. Walk away.<br>Big prize, but too rare — the frequent ₹50 loss drowns it. <b>EV is the referee between size and rarity.</b>"},
+ {d:"Expected Value",
+  q:"Same dog-treat payoffs (₹200/₹50), but now the catch rate is 1-in-3. Compute EV. What is the one thing that flipped the verdict?",
+  a:"EV = 0.33 × 200 + 0.67 × (−50) = 66 − 33.5 = <b>+32.5</b> ✅.<br>Only the <b>probability changed</b> (0.10 → 0.33); payoffs untouched. Rarity and size fight — shift either one and the verdict moves."},
+ {d:"Expected Value",
+  q:"Troll 2 bet: win $10 if they've heard of it (p = 0.17), lose $1 if not. Compute EV. What reward R makes it exactly break-even?",
+  a:"EV = 0.17 × 10 + 0.83 × (−1) = 1.70 − 0.83 = <b>+0.87</b> ✅ good bet.<br>Break-even: 0.17·R + 0.83·(−1) = 0 → R = 0.83 ÷ 0.17 ≈ <b>$4.88</b>. Below ~$4.88 the bet turns bad."},
+ {d:"Expected Value",
+  q:"You're offered a bet with EV = +$50 per play. But a single loss wipes you out completely. Take it?",
+  a:"<b>No.</b> EV is a long-run average — it says nothing about <b>the next single play</b>. Ruin-risk matters independently of EV. A +EV bet that can bankrupt you on one draw is reckless.<br><span class='ssd'>Only use EV to judge repeated, survivable bets.</span>"},
+ {d:"Expected Value",
+  q:"In one sentence, why is the ML training loss called an 'expected value'? Connect Σ pᵢvᵢ to what the optimizer minimises.",
+  a:"Loss = (1/N)·Σ residual² = <b>average squared error over the data</b> = EV of the squared miss, with each data point weighted equally (p = 1/N). Gradient descent's whole job is to shove that <b>expected miss downhill</b>."},
+ {d:"Expected Value",
+  q:"EV > 0, so the bet is definitely profitable on the next play. True or false — and the one-line reason?",
+  a:"<b>False.</b> EV is the <b>long-run average</b> over many plays. The next single play is still random — you win or lose that one independently. EV only guarantees the average *converges* to +0.87 (or whatever) across many trials."},
+
+ /* ---- K-MEANS ---- */
+ {d:"K-means",
+  q:"WCSS scores for the 9-student dataset: k=1→138.22, k=2→77.67, k=3→4.00, k=4→3.0. Which k do you pick — and why NOT just grab the lowest WCSS?",
+  a:"Pick <b>k = 3</b> (the elbow — steep drop stops paying off after k=3). Lowest WCSS is a trap: at k=9 every point is its own centroid → WCSS=0 → <b>useless</b>. The corner, not the floor."},
+ {d:"K-means",
+  q:"After iter 1, cluster 1 holds P2(3,2), P4(8,3), P5(9,2), P6(8,2). Compute the new centroid c1 after the MOVE step.",
+  a:"mean_x = (3+8+9+8)/4 = <b>7</b>; mean_y = (2+3+2+2)/4 = <b>2.25</b> → c1 = <b>(7, 2.25)</b>.<br>The MOVE step is just the arithmetic mean of the cluster's members — that's the entire update rule."},
+ {d:"K-means",
+  q:"In iter 2, c0 has moved to (2, 2.5). P2 is at (3, 2). Verify out loud: does P2 stay in cluster 1 or switch to cluster 0?",
+  a:"d(P2, c0=(2,2.5)) = √(1² + 0.5²) = √1.25 ≈ <b>1.12</b>.<br>d(P2, c1=(7,2.25)) = √(4² + 0.25²) ≈ <b>4.01</b>.<br>P2 <b>switches to cluster 0</b>. WCSS drops 91.0 → <b>9.77</b> — the big messy cluster just split correctly."},
+ {d:"K-means",
+  q:"K-means converged to WCSS = 4.00 from this random init. But WCSS = 4.00 might not be the global optimum. What do you do — and why is this the same problem as gradient descent?",
+  a:"<b>Re-run with different random seeds, keep the result with the lowest WCSS.</b><br>Both k-means and gradient descent can trap in <b>local minima</b> — a bad init leads to a worse solution. The fix is the same: multiple restarts from different starting points."},
+ {d:"K-means",
+  q:"You have labelled data: each NAND block is tagged 'fresh', 'worn', or 'dying'. Should you use k-means or a decision tree?",
+  a:"<b>Decision tree</b> (supervised classifier). K-means DISCOVERS groups when there are <b>no labels</b>. You already have labels — using k-means throws that information away. Cluster ≠ classify: the dividing line is whether labels exist before training."},
+ {d:"K-means",
+  q:"Features: P/E cycles (range 0–10,000) and raw BER (range 0–0.001). You run k-means as-is. What goes wrong, and what is the one-line fix?",
+  a:"<b>Distance is hijacked by P/E cycles</b> — their huge range dominates Euclidean distance, so BER barely contributes. The 'clusters' become P/E buckets, not health tiers.<br>Fix: <b>scale features first</b> (StandardScaler or min-max). Unscaled features = silent sabotage."},
+
+ /* ---- CROSS-TOPIC ---- */
+ {d:"Cross-topic",
+  q:"Variance is the covariance of X with ___. Write out the EV-formula proof in one line.",
+  a:"<b>Var(X) = Cov(X, X) = E[(X − μ)²] = Σ pᵢ·(xᵢ − μ)²</b><br>Covariance is the general case; variance is just the covariance of a variable with <b>itself</b>. Same Σ(p·v) shape as expected value — payoff is the squared deviation from the mean."},
+ {d:"Cross-topic",
+  q:"K-means and gradient descent both loop until convergence and both risk local minima. Name ONE sharp difference between how they converge.",
+  a:"GD follows a <b>smooth gradient</b> of a continuous loss (∂L/∂w step by step).<br>K-means alternates <b>hard, discrete</b> ASSIGN + MOVE steps — no smooth gradient, no learning rate, points switch clusters in jumps.<br>Same 'iterate-to-convergence' rhythm, completely different mechanics."},
+];
+
+/* ---- ENGINE ---- */
+let baseOrder=[...CARDS.keys()];
+let order=[...baseOrder];
+let cur=0, flipped=false;
+const status={};
+let activeDeck="ALL";
+
+/* build filter pills */
+const deckLabels=["ALL",...[...new Set(CARDS.map(c=>c.d))]];
+const deckBox=document.getElementById('decks');
+deckLabels.forEach(d=>{
+  const el=document.createElement('div');
+  el.className='deck-pill'+(d==="ALL"?' active':'');
+  el.textContent=d==="ALL"?"All cards":d;
+  el.onclick=()=>setDeck(d,el);
+  deckBox.appendChild(el);
+});
+
+function setDeck(d,el){
+  activeDeck=d;
+  document.querySelectorAll('.deck-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  baseOrder=[...CARDS.keys()].filter(i=>d==="ALL"||CARDS[i].d===d);
+  order=[...baseOrder];
+  for(const k in status)delete status[k];
+  cur=0;
+  document.getElementById('done').style.display='none';
+  render();
+}
+
+function render(){
+  if(order.length===0)return;
+  const c=CARDS[order[cur]];
+  flipped=false;document.getElementById('flip').classList.remove('flipped');
+  document.getElementById('qtext').innerHTML=c.q;
+  document.getElementById('atext').innerHTML=c.a;
+  document.getElementById('ftag').textContent=c.d;
+  document.getElementById('btag').textContent=c.d;
+  document.getElementById('idx').textContent=cur+1;
+  document.getElementById('total').textContent=order.length;
+  document.getElementById('deckname').textContent=activeDeck==="ALL"?"All cards":activeDeck;
+  updateScore();
+}
+
+function toggleFlip(){
+  flipped=!flipped;
+  document.getElementById('flip').classList.toggle('flipped',flipped);
+  if(flipped)status[order[cur]]=status[order[cur]]||'seen';
+  updateScore();
+}
+
+function next(){if(cur<order.length-1){cur++;render();}}
+function prev(){if(cur>0){cur--;render();}}
+
+function mark(known){
+  const cardIdx=order[cur];
+  status[cardIdx]=known?'know':'again';
+  if(!known){
+    /* recycle: append to end of queue so it comes around again */
+    order.push(cardIdx);
+    document.getElementById('total').textContent=order.length;
+  }
+  updateScore();
+  setTimeout(()=>{
+    if(cur<order.length-1){cur++;render();}
+    else{checkDone();}
+  },180);
+}
+
+function shuffle(){
+  const base=[...baseOrder];
+  for(let i=base.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[base[i],base[j]]=[base[j],base[i]];}
+  baseOrder=base; order=[...base];
+  for(const k in status)delete status[k];
+  cur=0;
+  document.getElementById('done').style.display='none';
+  render();
+}
+
+function resetAll(){
+  order=[...baseOrder];
+  for(const k in status)delete status[k];
+  cur=0;
+  document.getElementById('done').style.display='none';
+  render();
+}
+
+function updateScore(){
+  const kcount=Object.values(status).filter(v=>v==='know').length;
+  const acount=Object.values(status).filter(v=>v==='again').length;
+  const seen=Object.keys(status).length;
+  const total=CARDS.filter(c=>activeDeck==="ALL"||c.d===activeDeck).length;
+  document.getElementById('kcount').textContent=kcount;
+  document.getElementById('acount').textContent=acount;
+  document.getElementById('seen').textContent=seen;
+  document.getElementById('fill').style.width=(seen/total*100)+'%';
+  document.getElementById('score').innerHTML=`<b class="good">✔ ${kcount} known</b> · <b class="bad">↺ ${acount} to review</b> · ${seen}/${total} unique seen`;
+}
+
+function checkDone(){
+  const total=CARDS.filter(c=>activeDeck==="ALL"||c.d===activeDeck).length;
+  const kcount=Object.values(status).filter(v=>v==='know').length;
+  if(kcount>=total)document.getElementById('done').style.display='block';
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space'){e.preventDefault();toggleFlip();}
+  else if(e.code==='ArrowRight')next();
+  else if(e.code==='ArrowLeft')prev();
+  else if(e.key==='j'||e.key==='J')mark(true);
+  else if(e.key==='f'||e.key==='F')mark(false);
+  else if(e.key==='s'||e.key==='S')shuffle();
+});
+render();
+</script>
+</body>
+</html>
