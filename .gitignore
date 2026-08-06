@@ -13,6 +13,10 @@
 # CampusX paid-course notes PDFs (licensed material — repo is public, never publish)
 CampusX/
 
+# Copyrighted books / third-party PDFs kept locally for study (public repo — never publish)
+*.pdf
+!deck_build_resources/**/*.pdf
+
 # Obsidian: keep vault CONFIG (the *.json), drop the regenerable bulk.
 # NOTE: gitignore has no inline comments — patterns must stand alone.
 # .smart-env = embeddings cache (regenerable) · plugins/ = binaries (reinstall from community-plugins.json)
