@@ -79,6 +79,13 @@ up: "[[HOME]]"
 
 **Retention checkpoints (2026 research):** target 40–55 % avg-view for 5–15 min; review each video's retention curve before building the next — steep early drop = hook problem, mid-sag = pacing problem.
 
+### Motion-tool roster (who does what)
+
+- **Manim** (`manim-video-style`) — the instructional core: numbers-in-motion, formulas, plots. Default for teaching beats.
+- **Hyperframes / Remotion** — HTML-driven explainer motion and code/UI animation.
+- **Gemini Omni** — short AI clips (face hook, B-roll), generate-then-assemble via ffmpeg.
+- **Higgsfield** (added 2026-08-05) — *cinematic camera-motion on stills*. Role = **animated HOOKS and mascot motion only**, not instruction. Feed an approved still (Embedded Ninja mascot, a finished carousel image) as the **start frame** → get a 3–5 s push-in / orbit / crash-zoom opener; lock brand via the start-frame, stitch into the ffmpeg flow like an Omni clip. **Gotchas:** no reliable text (labels/numbers stay as post overlays), short clips (plan cuts), credit cost (hero shots only). Teaching stays in Manim/Hyperframes.
+
 ## 5 · The Atlas map (the serialization glue)
 
 A single reusable end-scene (Manim, ~10 s): a constellation of nodes left→right through six season clusters on the dark brand background; shipped videos glow cyan, the current video's node pulses orange, unlit nodes stay faint. Same closing music sting every time. The map IS the channel trailer once all nodes are lit.
