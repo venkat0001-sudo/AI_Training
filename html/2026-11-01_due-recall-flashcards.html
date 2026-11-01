@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sage Flash-Scroll — All Due Topics | 2026-11-01</title>
+<!--HUB {"title": "All due topics recall deck", "date": "2026-11-01", "sessions": ["recall"], "concepts": ["normal-distribution","probability","bayes","ml-taxonomy","vectors","covariance","eigenvectors","pca","mcu-deployment","gradient-descent","calculus","expected-value","kmeans"], "type": "flashcards", "recap": "Full due-topics deck — all 13 overdue topics from the spaced-recall ledger"} -->
+<style>
+:root{
+  --sage-dark:#1a2e0d; --sage-deep:#2d4a1e; --sage-mid:#4a7a2e; --sage-light:#7a9e5a; --sage-pale:#a8c87a;
+  --earth-dark:#3d2b0d; --earth-mid:#8b5e1a; --earth-light:#c4902e;
+  --orange:#ff8c00; --orange-glow:#ffb347; --cream:#f5e6c8; --cream-dark:#d4c09a;
+  --glow:rgba(255,140,0,0.3); --red:#d9534f; --blue:#5a8fbf; --green:#9fd67a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:linear-gradient(135deg,#0d1a07 0%,#0d1f08 50%,#1a1a0a 100%);
+  color:var(--cream); font-family:'Courier New',monospace; min-height:100vh; overflow-x:hidden; line-height:1.6;
+}
+.particle{position:fixed;border-radius:50%;pointer-events:none;animation:floatUp linear infinite;z-index:0;}
+@keyframes floatUp{0%{transform:translateY(100vh) rotate(0deg);opacity:0;}10%{opacity:.6;}90%{opacity:.4;}100%{transform:translateY(-120px) rotate(720deg);opacity:0;}}
+.header{text-align:center;padding:46px 20px 10px;position:relative;z-index:1;}
+.frog{font-size:62px;display:block;animation:sagePulse 3s ease-in-out infinite;}
+@keyframes sagePulse{0%,100%{text-shadow:0 0 20px #7a9e5a,0 0 40px rgba(122,158,90,.4);transform:scale(1);}50%{text-shadow:0 0 40px var(--orange),0 0 80px rgba(255,140,0,.4);transform:scale(1.08);}}
+.title{font-size:2.1em;color:var(--orange);text-shadow:0 0 25px var(--orange);letter-spacing:3px;margin:10px 0 6px;}
+@media(max-width:480px){.title{font-size:1.5em;letter-spacing:1px;}}
+.subtitle{color:var(--sage-pale);font-size:.88em;letter-spacing:2px;}
+.dojo-line{color:var(--sage-mid);font-size:.7em;letter-spacing:4px;margin:8px 0;}
+
+.bar-top{max-width:760px;margin:10px auto 0;position:relative;z-index:1;padding:0 16px;}
+.meta{display:flex;justify-content:space-between;align-items:center;font-size:.78em;color:var(--cream-dark);margin-bottom:6px;flex-wrap:wrap;gap:8px;}
+.meta b{color:var(--orange-glow);}
+.progress{height:8px;background:rgba(0,0,0,.4);border:1px solid rgba(74,122,46,.4);border-radius:6px;overflow:hidden;}
+.progress .fill{height:100%;background:linear-gradient(90deg,var(--sage-mid),var(--orange));width:0;transition:width .3s;}
+
+.decks{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:16px auto;max-width:760px;padding:0 16px;position:relative;z-index:1;}
+.deck-pill{cursor:pointer;background:rgba(74,122,46,.18);border:1px solid rgba(74,122,46,.45);border-radius:20px;padding:7px 14px;font-size:.74em;color:var(--cream-dark);transition:all .2s;user-select:none;min-height:36px;display:flex;align-items:center;}
+.deck-pill:hover{border-color:var(--orange);color:var(--cream);}
+.deck-pill.active{background:var(--orange);color:#1a1a0a;font-weight:bold;box-shadow:0 0 14px var(--orange);}
+
+.stage{max-width:760px;margin:14px auto;padding:0 16px;position:relative;z-index:1;}
+.flip{perspective:1600px;cursor:pointer;}
+.flip-inner{position:relative;width:100%;min-height:300px;transition:transform .55s cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d;}
+@media(max-width:480px){.flip-inner{min-height:260px;}}
+.flip.flipped .flip-inner{transform:rotateY(180deg);}
+.face{
+  position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  background:rgba(20,40,12,.78);border:1px solid rgba(74,122,46,.55);border-radius:16px;
+  padding:30px 28px;backdrop-filter:blur(6px);display:flex;flex-direction:column;justify-content:center;overflow-y:auto;
+}
+@media(max-width:480px){.face{padding:22px 16px;}}
+.face::before{content:'';position:absolute;top:0;left:10%;right:10%;height:2px;background:linear-gradient(90deg,transparent,var(--orange),transparent);border-radius:2px;}
+.face.back{transform:rotateY(180deg);border-color:rgba(255,140,0,.5);background:rgba(28,30,12,.85);}
+.tag{position:absolute;top:14px;left:16px;font-size:.6em;color:var(--earth-light);border:1px solid var(--earth-mid);border-radius:20px;padding:2px 11px;letter-spacing:2px;max-width:55%;}
+.side-tag{position:absolute;top:14px;right:16px;font-size:.62em;letter-spacing:3px;}
+.side-q{color:var(--sage-pale);}
+.side-a{color:var(--orange-glow);}
+.q-text{font-size:1.15em;color:var(--cream);text-align:center;margin:18px 0 8px;padding:0 4px;}
+@media(max-width:480px){.q-text{font-size:1em;}}
+.a-text{font-size:.95em;color:var(--sage-pale);padding:0 2px;}
+.a-text b{color:var(--orange-glow);}
+.a-text code{background:rgba(0,0,0,.45);color:var(--orange-glow);padding:2px 7px;border-radius:5px;font-size:.88em;}
+.a-text .ssd{color:var(--green);}
+.hint{position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:.65em;color:var(--sage-mid);letter-spacing:1px;}
+
+.nav{display:flex;justify-content:center;align-items:center;gap:10px;margin:18px auto;flex-wrap:wrap;max-width:760px;padding:0 12px;}
+.btn{cursor:pointer;background:rgba(74,122,46,.2);border:1px solid rgba(74,122,46,.5);border-radius:10px;padding:12px 18px;font-size:.82em;color:var(--cream);font-family:inherit;transition:all .2s;user-select:none;min-height:44px;display:flex;align-items:center;gap:4px;}
+.btn:hover{background:var(--orange);color:#1a1a0a;box-shadow:0 0 14px var(--orange);}
+.btn.know{border-color:var(--green);color:var(--green);}
+.btn.know:hover{background:var(--green);color:#1a1a0a;box-shadow:0 0 14px var(--green);}
+.btn.again{border-color:var(--red);color:var(--red);}
+.btn.again:hover{background:var(--red);color:#1a1a0a;box-shadow:0 0 14px var(--red);}
+.btn.ghost{opacity:.85;}
+.kbd{display:inline-block;background:rgba(0,0,0,.5);border:1px solid var(--sage-mid);border-radius:5px;padding:1px 7px;font-size:.82em;color:var(--cream-dark);margin:0 2px;}
+.score{text-align:center;font-size:.78em;color:var(--cream-dark);margin:4px auto 20px;padding:0 16px;}
+.score b.good{color:var(--green);} .score b.bad{color:var(--red);}
+.foot{text-align:center;color:var(--sage-mid);font-size:.72em;padding:10px 20px 50px;position:relative;z-index:1;}
+.done{text-align:center;color:var(--orange-glow);font-size:1.1em;margin:20px 0;display:none;padding:0 20px;}
+.again-badge{display:none;position:absolute;top:14px;right:16px;background:var(--red);color:white;font-size:.6em;border-radius:20px;padding:2px 9px;z-index:2;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="frog">🐸</span>
+  <div class="title">SAGE FLASH-SCROLL</div>
+  <div class="subtitle">All Due Topics — Spaced Recall Sprint</div>
+  <div class="dojo-line">◈ MOUNT MYŌBOKU DOJO · DECK 2026-11-01 ◈</div>
+</div>
+
+<div class="bar-top">
+  <div class="meta">
+    <span>Card <b id="idx">1</b> of <b id="qlen">0</b> <span id="recyclebadge" style="color:var(--red);display:none">(+<b id="rccount">0</b> recycled)</span></span>
+    <span id="deckname">All jutsu</span>
+    <span><b id="seen">0</b>/<b id="total">0</b> unique · <span style="color:var(--green)">✔ <b id="kcount">0</b></span> · <span style="color:var(--red)">↺ <b id="acount">0</b></span></span>
+  </div>
+  <div class="progress"><div class="fill" id="fill"></div></div>
+</div>
+
+<div class="decks" id="decks"></div>
+
+<div class="stage">
+  <div class="flip" id="flip" onclick="toggleFlip()">
+    <div class="flip-inner">
+      <div class="face front">
+        <span class="tag" id="ftag">·</span>
+        <span class="side-tag side-q">QUESTION</span>
+        <div class="q-text" id="qtext">—</div>
+        <div class="hint">tap / <span class="kbd">Space</span> to flip 🍥</div>
+      </div>
+      <div class="face back">
+        <span class="tag" id="btag">·</span>
+        <span class="side-tag side-a">🔓 ANSWER</span>
+        <div class="a-text" id="atext">—</div>
+        <div class="hint"><span class="kbd">J</span> got it · <span class="kbd">F</span> again · <span class="kbd">→</span> next</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="nav">
+  <div class="btn ghost" onclick="prev()" style="min-width:44px">◀</div>
+  <div class="btn again" onclick="mark(false)">↺ Again <span class="kbd">F</span></div>
+  <div class="btn know" onclick="mark(true)">✔ Got it <span class="kbd">J</span></div>
+  <div class="btn ghost" onclick="next()" style="min-width:44px">▶</div>
+  <div class="btn ghost" onclick="shuffle()">🔀 Shuffle</div>
+  <div class="btn ghost" onclick="resetAll()">⟲ Reset</div>
+</div>
+<div class="score" id="score">Flip every card. Mark <b class="good">✔ Got it</b> only when you could say it out loud to a junior engineer.</div>
+<div class="done" id="done">🐸 Sage Mode — all unique cards marked known. Reshuffle for another pass.</div>
+
+<div class="foot">Active recall &gt; re-reading · answer out loud · Again-cards recycle to the end of the queue 🔄</div>
+
+<script>
+/* particles */
+const colors=['#7a9e5a','#ff8c00','#a8c87a','#c4902e'];
+for(let i=0;i<26;i++){const p=document.createElement('div');p.className='particle';const s=Math.random()*8+3;
+ p.style.width=p.style.height=s+'px';p.style.left=Math.random()*100+'%';
+ p.style.background=colors[i%colors.length];p.style.boxShadow='0 0 '+(s*2)+'px '+colors[i%colors.length];
+ p.style.animationDuration=(Math.random()*16+12)+'s';p.style.animationDelay=(Math.random()*-20)+'s';
+ document.body.appendChild(p);}
+
+/* ---- CARDS ---- */
+const CARDS=[
+/* ─── NORMAL DISTRIBUTION ─── */
+{d:"Normal",q:"Drive A=[98,100,102,99,101], Drive B=[80,120,90,110,100]. Both have the same mean (100 µs). What does σ reveal that the mean hides? Give both σ values.",
+ a:"<b>σ_A ≈ 1.58 µs · σ_B ≈ 15.81 µs.</b><br>Same average, totally different spread. Drive A = 100 ± 1.6 (rock-steady). Drive B = 100 ± 16 (jitter-bomb). The mean said 'identical drives'; σ exposed the lie. <span class='ssd'>Wide σ = p99 tail blowout → QoS support ticket.</span>"},
+
+{d:"Normal",q:"Drive B has mean=100 µs, σ=15.81. Is a reading of 120 µs an outlier? Where is the real outlier fence?",
+ a:"<b>Not an outlier.</b> ±1σ band = 84–116 µs, so 120 sits just outside ±1σ — but <b>±1σ is NOT the fence.</b> ±2σ = 68–132 µs: 120 is comfortably inside. Real outlier fence = <b>±3σ ≈ 52–148 µs.</b> About 1-in-3 readings normally falls outside ±1σ by design. Only beyond ±3σ should you 'go investigate.'"},
+
+{d:"Normal",q:"z-score: Drive B, mean=100 µs, σ=15.81. A reading of 80 µs — compute z and state what it means in plain words.",
+ a:"<b>z = (80 − 100) / 15.81 = −1.26σ.</b> The reading sits 1.26 standard deviations <i>below</i> the mean — well inside the normal band (|z| < 2). z-scores let you compare drives with different σ values on the same ruler, and set anomaly thresholds in σ units."},
+
+{d:"Normal",q:"Variance is in squared units (µs²). Why report σ instead of variance on a datasheet — and when do you WANT variance?",
+ a:"<b>σ = √variance</b> brings the spread back to real units (µs, not µs²) so you can say '100 ± 16 µs.' The '250 µs²' of Drive B is meaningless to a human.<br>Keep variance <b>inside the math machinery</b> — covariance, MSE loss, optimization — because squared form adds and combines cleanly. Report σ to humans, use variance in the equations."},
+
+{d:"Normal",q:"[cross] The 68-95-99.7 rule — fill in the blanks: ±1σ ≈ ___%, ±2σ ≈ ___%, ±3σ ≈ ___% of readings. Which band is the 'outlier boundary'?",
+ a:"<b>±1σ ≈ 68%, ±2σ ≈ 95%, ±3σ ≈ 99.7%.</b><br>Outlier boundary = <b>±2σ (or ±3σ for stricter definitions).</b> Drive B reading of 80 µs → z = −1.26 → inside ±2σ → normal jitter. A 55 µs reading → z = −2.8 → approaching ±3σ → 'go investigate.' Rule ties directly to Bayes: area under bell slice = probability a read lands there."},
+
+/* ─── PROBABILITY BASICS ─── */
+{d:"Probability",q:"The 200-cycle table: 18 real alarms, 18 false alarms, 2 misses, 162 true negatives. What are P(Real), P(HOT), and P(Real∩HOT)?",
+ a:"<b>P(Real)</b> = 20/200 = <b>0.10</b> (base rate — 10% of cycles are real events)<br><b>P(HOT)</b> = 36/200 = <b>0.18</b> (marginal — sensor fires this often regardless of truth)<br><b>P(Real∩HOT)</b> = 18/200 = <b>0.09</b> (joint — both true AND alarm fires)<br>Marginal = counts a single margin; joint = counts the cell where both happen."},
+
+{d:"Probability",q:"'P(HOT|Real) = 90%, so if the alarm fires it's 90% likely real.' What is wrong with this reasoning?",
+ a:"It confuses <b>P(HOT|Real)</b> (given real, sensor catches it — datasheet, fixed) with <b>P(Real|HOT)</b> (given alarm fired, is it real? — the field question). These are <i>NOT</i> the same.<br>From the table: P(Real|HOT) = 18/36 = <b>50%</b>. The 9× more common calm cycles produce just as many false alarms, dragging trust to 50%. <b>Rarity is the villain.</b>"},
+
+{d:"Probability",q:"What is the base-rate trap? Give the one-line SSD version.",
+ a:"The <b>base-rate trap</b>: you ignore how rare the real event is, and assume the sensor's spec accuracy = your posterior trust.<br><span class='ssd'>SSD: sensor is 90% accurate, but real events are 10% of cycles → 18 real alarms vs 18 false alarms → only 50% trust when it fires. Rarity floods the alarm bucket with noise.</span>"},
+
+{d:"Probability",q:"When should you skip Bayes and use a fixed threshold instead? Give the concrete test.",
+ a:"Use <b>fixed threshold</b> when the rule is fully known, hard, and fixed — e.g. 'above 95°C is a hard limit from the datasheet.' You already know the number with certainty; computing a posterior adds nothing.<br>Use Bayes when: events are <b>rare</b>, the detector is <b>imperfect</b>, and the false-alarm cost matters. Wrong setting = <b>throttle on noise</b>, tank performance."},
+
+/* ─── BAYES' THEOREM ─── */
+{d:"Bayes",q:"Reconstruct the Bayes formula from scratch. What is the 'shape to remember'?",
+ a:"<code>P(Real|HOT) = P(HOT|Real)·P(Real) / [P(HOT|Real)·P(Real) + P(HOT|¬Real)·P(¬Real)]</code><br><b>Shape:</b> posterior = (one real-alarm bucket) ÷ (ALL the ways the sensor could fire HOT). The bottom sums every bucket that makes the alarm fire — real and false. The top is the one that's actually real."},
+
+{d:"Bayes",q:"Plug in the numbers: P(HOT|Real)=0.90, P(Real)=0.10, P(HOT|¬Real)=0.10, P(¬Real)=0.90. Compute P(Real|HOT) step by step.",
+ a:"Numerator: 0.90 × 0.10 = <b>0.09</b><br>Denominator: 0.09 + (0.10 × 0.90) = 0.09 + 0.09 = <b>0.18</b><br><b>P(Real|HOT) = 0.09 / 0.18 = 0.50 (50%)</b><br>That 50% comes straight from the table: 18 real alarms ÷ 36 total alarms = 0.50. Body-counting always works."},
+
+{d:"Bayes",q:"The base rate drops to 5% (P(Real)=0.05). Without recalculating, which direction does P(Real|HOT) move — up or down — and why?",
+ a:"<b>Down.</b> Rarer events → even more calm cycles → the false-alarm bucket fills faster while the real-alarm bucket shrinks. With P(Real)=0.05: numerator = 0.90×0.05 = 0.045; denominator = 0.045 + 0.10×0.95 = 0.045 + 0.095 = 0.14; posterior ≈ <b>32%</b>. Rarity is the villain — halving the base rate more than halved trust."},
+
+{d:"Bayes",q:"'Known' vs 'Want' in Bayes — which direction do you know, which do you need, and where does each live?",
+ a:"<b>KNOWN: P(HOT|Real)</b> — the datasheet: given a real event, how often does the sensor catch it? Hardware fixed.<br><b>WANT: P(Real|HOT)</b> — the field moment: the alarm just fired, should I trust it? Depends on base rate.<br>Bayes is the bridge: it flips the conditional using the base rate you carry about how rare real events actually are."},
+
+{d:"Bayes",q:"[cross] Bayes meets the bell curve: what does 'area under a bell-curve slice' physically represent?",
+ a:"It's the <b>probability a reading lands in that range</b> — the same probability you'd plug into P(HOT) if the sensor output were a Gaussian. The bell maps directly into Bayes: a wider σ spreads alarm probability across more values, a sharper bell concentrates it. Anomaly detection: P(anomaly) = area in the tail beyond ±3σ."},
+
+/* ─── ML TAXONOMY ─── */
+{d:"ML Taxonomy",q:"`if(temp>90) throttle;` — where does this sit in the AI→ML taxonomy? ML or not?",
+ a:"<b>Rule-based — outside ML.</b> A human hand-coded the threshold 90°C. The machine learned nothing. Rule-based logic = AI (the umbrella), but NOT ML. ML = the machine learns the threshold from data.<br>The boundary: 'who writes the logic?' Human writes it → rule-based. Machine learns it from data → ML."},
+
+{d:"ML Taxonomy",q:"Classic ML vs Deep Learning — what is the single dividing line? Where does logistic regression sit?",
+ a:"<b>Who finds the features.</b><br>• Classic ML → <b>you</b> hand-curate features (temp, P/E, voltage). Model learns weights.<br>• Deep learning → the <b>network</b> finds features via stacked layers. You feed raw data.<br>Logistic regression = <b>Classic ML</b>. It also = the single neuron — stack many in layers → deep learning."},
+
+{d:"ML Taxonomy",q:"In `score = 0.7·temp + 0.2·cycles + 0.05·retention + 0.4·workload` — which numbers are features, which are weights?",
+ a:"<b>Features</b> (what you feed in): temp, cycles, retention, workload — <b>human chose these</b>.<br><b>Weights</b> (what the model learned): 0.7, 0.2, 0.05, 0.4 — <b>gradient descent found these</b>.<br>❌ Never say 'I set the weights to make temp more important' — if a human sets them, it is not ML."},
+
+{d:"ML Taxonomy",q:"The algorithm vs the model: in the Vref-calibration analogy, which is the sweep routine and which is the calibration table?",
+ a:"<b>Sweep routine = the algorithm</b> (gradient descent, CART tree-builder — the procedure that adjusts parameters). It produces the artifact; it does NOT become it.<br><b>Calibration table = the trained model</b> (the deployable artifact: the fitted weights, the tree with split values). You ship the table, not the sweep."},
+
+{d:"ML Taxonomy",q:"For your on-device SSD thermal-throttle predictor — classic ML or deep learning? Give the one-sentence reason.",
+ a:"<b>Classic ML</b> (small decision tree or logistic regression). Inputs are tabular telemetry you already understand (temp, P/E, workload), you have KB of SRAM and a real-time deadline, and you need explainability. A deep net's 'free feature discovery' only pays on massive, raw, unstructured data. <span class='ssd'>Inference = MAC loop on integers → fits in SRAM.</span>"},
+
+/* ─── VECTORS ─── */
+{d:"Vectors",q:"You walk 3 east and 4 north. What is your straight-line distance from the start? Give the formula and compute it.",
+ a:"<b>|v| = √(3² + 4²) = √(9+16) = √25 = 5.</b><br>Formula: <code>|v| = √(v₁² + v₂² + … + vₙ²)</code> — square all components, sum, square-root. Same move as a TV diagonal (3-wide, 4-tall → 5-inch diagonal) or a drone at 6 m/s east + 8 m/s up → true speed = √(36+64) = 10 m/s."},
+
+{d:"Vectors",q:"A=[5,4,1], D=[10,8,2]. Compute A·D. What does this number mean — and what can it NOT tell you?",
+ a:"<b>A·D = (5×10)+(4×8)+(1×2) = 50+32+2 = 84.</b><br>Dot product measures alignment — but it's contaminated by magnitude. A·D=84 can mean 'aligned AND loud' OR just 'loud.' The two lies:<br>1) Same direction, different volume → wildly different dot scores (D = 2×A → A·A = 42, A·D = 84, same direction ×2 score).<br>2) Different directions can give the same dot score."},
+
+{d:"Vectors",q:"A=[5,4,1], D=[10,8,2], C=[2,8,100]. A·D=84, A·C=142. D is A's perfect taste twin; C is a Romance fanatic. Why does dot product WRONGLY pick C as more similar?",
+ a:"C's Romance score of 100 <b>bulldozed the dot product.</b> C's huge |C|≈100 inflated A·C to 142 even though their tastes are opposite. <b>Volume beat direction.</b><br>Fix: cosine strips out both magnitudes → cosine(A,D)=84/(6.48×12.96)≈<b>1.00</b> (perfect twin ✓), cosine(A,C)=142/(6.48×100.3)≈<b>0.22</b> (opposite ✓). Cosine reads taste, not loudness."},
+
+{d:"Vectors",q:"When is raw dot product 'enough' — and when must you switch to cosine? Give the precise condition.",
+ a:"<b>Dot product is enough ONLY when all vectors are approximately the same length.</b> Then magnitude can't distort the ranking.<br><b>Use cosine the moment magnitudes vary</b> — and in real recommendation / embedding data they always do (some users rate 5 items, some rate 5,000). Cosine = (A·B)/(|A||B|); range −1…+1; direction only."},
+
+{d:"Vectors",q:"[cross] The score in an ML model: `score = w·x = Σ wᵢxᵢ`. Which familiar vector operation IS this — and what is the firmware analogy?",
+ a:"<b>A dot product</b> — the multiply-accumulate (MAC) loop. The model's prediction is literally a dot product between the weight vector and the feature vector.<br><span class='ssd'>Firmware echo: `for(i) score += w[i] * feature[i];` — the same MAC loop you write for FIR filters or Vref calibration scoring.</span> This is why quantizing to INT8 works: dot product on integers is cheap."},
+
+/* ─── COVARIANCE ─── */
+{d:"Covariance",q:"Temp=[40,50,60], Latency=[100,120,140]. Compute cov(T,L) by hand: deviations, votes, average. What is the result?",
+ a:"<b>Means:</b> T̄=50, L̄=120<br><b>Deviations:</b> T−T̄: −10, 0, +10 · L−L̄: −20, 0, +20<br><b>Votes:</b> (−10)(−20)=+200 · (0)(0)=0 · (+10)(+20)=+200 · sum=+400<br><b>cov(T,L) = 400/2 = +200</b><br>Positive: when T is above its mean, L is too → they rise together ✓"},
+
+{d:"Covariance",q:"Predict the SIGN of cov(Temp, Clock) when temperature rises and the clock throttles. Explain the vote mechanism.",
+ a:"<b>Negative.</b> When Temp is above T̄ (positive deviation), Clock is below C̄ (negative deviation). Every vote = (+)(−) = negative. From the 4-case table: T=[40,50,60], C=[900,850,800] → votes: (−10)(+50)=−500, 0, (+10)(−50)=−500 → sum=−1000 → cov=<b>−500</b>. Opposite movement = negative votes win."},
+
+{d:"Covariance",q:"The 3×3 covariance matrix diagonal is [100, 2500, 400] for Temp, Clock, Latency. Off-diagonal: T-C=−500, T-L=+200, C-L=−1000. Read this matrix: which feature wiggles most? What does −1000 between Clock and Latency tell you?",
+ a:"<b>Clock wiggles most</b> (variance 2500 — the wild one). Temp barely moves (100).<br><b>−1000</b>: Clock↑ → Latency↓ (strongly). When the clock speeds up, latency drops — negative covariance, strong relationship.<br><b>Checklist:</b> diagonal = who spreads most · off-diagonal sign = relationship direction · symmetry check (T-L = L-T). A missing symmetry = arithmetic error."},
+
+{d:"Covariance",q:"cov(X,Y) where Y is just random noise (wiggles on its own). What happens to the votes, and what is the covariance?",
+ a:"<b>≈ 0.</b> If Y wiggles randomly relative to X, its deviations don't sync with X's. Example: X−X̄=[−10,0,+10], Y−Ȳ=[+20,−40,+20] → votes: (−10)(+20)=−200, 0, (+10)(+20)=+200 → sum=0 → cov=<b>0</b>. Positive and negative votes cancel — no systematic relationship. The matrix off-diagonal would be 0 here."},
+
+{d:"Covariance",q:"[cross] cov(X,X) = ? Why can it NEVER be negative?",
+ a:"<b>cov(X,X) = variance(X).</b> Votes become (xᵢ−X̄)² — a number multiplied by ITSELF — which is always ≥ 0. Even if the deviation is negative, (−10)×(−10) = +100. Every vote is non-negative, so the average is ≥ 0. This is exactly why the <b>diagonal of the covariance matrix is always positive</b> — it holds each feature's own variance."},
+
+/* ─── EIGENVECTORS ─── */
+{d:"Eigenvectors",q:"Matrix A=[[2,0],[0,3]]. Feed v=[1,1] → output=[2,3]. Is [1,1] an eigenvector? Use the direction test.",
+ a:"<b>No.</b> [1,1] enters at 45°; [2,3] exits at ~56° (more north, because the matrix pulls the north leg ×3 while the east leg only ×2). Direction changed → rotation happened → NOT an eigenvector. The unequal stretch (×2 vs ×3) tipped the arrow toward the stronger leg. The diagonal [1,1] only holds if the matrix pulls both legs equally."},
+
+{d:"Eigenvectors",q:"For A=[[2,0],[0,3]], is v=[1,0] an eigenvector? What is the eigenvalue?",
+ a:"<b>Yes.</b> A·[1,0] = [2,0] = 2×[1,0]. Direction unchanged (still pure east), just stretched ×2. <b>λ=2.</b><br>Similarly, A·[0,1]=[0,3]=3×[0,1] → eigenvector [0,1], λ=3.<br>Axis arrows always have ONE leg → nothing to tip them → they are always eigenvectors of diagonal matrices; eigenvalue = the diagonal entry."},
+
+{d:"Eigenvectors",q:"2×2 Temp/Latency covariance matrix: [[100,200],[200,400]]. The eigenvalues are λ₁=500, λ₂=0. What % is each? What does v₁=[1,2] mean in plain words?",
+ a:"<b>λ₁=500 → 500/(500+0) = 100%</b> of all variance.<br><b>λ₂=0 → 0%</b> — the perpendicular direction has zero spread (data sits perfectly on L=2T+20).<br><b>v₁=[1,2]</b>: the main axis is '1 part Temp + 2 parts Latency.' Both components positive → they rise together. The eigenvector <b>recovered the feature relationship</b> (Latency swings 2× per unit Temp). This is PCA's 1st principal component."},
+
+{d:"Eigenvectors",q:"Why must det(C−λI)=0 to find eigenvalues? (The collapsing-matrix argument in one paragraph.)",
+ a:"We want (C−λI)v=0 with v≠0 — a <b>nonzero arrow crushed to zero.</b> Only a <b>collapsing matrix</b> can do that (it squashes a whole dimension onto a line). The fingerprint of collapse = <b>det=0</b> (determinant = area-scaling factor; det=0 → area goes to 0 → collapse).<br>So det(C−λI)=0 hunts the λ values that MAKE C−λI collapse — those are the eigenvalues."},
+
+{d:"Eigenvectors",q:"Eigenvalue vs eigenvector — which is 'how important', which is 'which direction'? What does the biggest eigenvalue mean for PCA?",
+ a:"<b>Eigenvalue (λ) = HOW important</b> (how much variance lives in that direction — the 'stretch factor').<br><b>Eigenvector (v) = WHICH direction</b> (the arrow that survives the matrix without rotating — a 'recipe blend of features').<br>Biggest eigenvalue = eigenvector of highest-variance direction = <b>PCA's 1st principal component</b>. Most information lives there. Keep top-K by λ, drop the rest."},
+
+/* ─── PCA ─── */
+{d:"PCA",q:"PCA in three steps: fill in the blanks. Raw data → ___ → ___ → principal components.",
+ a:"Raw data → <b>covariance matrix</b> → <b>eigenvectors + eigenvalues</b> → principal components.<br>That's the entire algorithm. The covariance matrix captures pairwise co-movement; eigenvectors are its natural axes; eigenvalues rank them by variance. Keep top-K axes → compressed representation."},
+
+{d:"PCA",q:"3-sensor example: covariance matrix C=[[2,1,1],[1,2,1],[1,1,2]], eigenvalues λ=[4,1,1]. If you keep only PC1, what % of total variance is preserved?",
+ a:"<b>Total variance = Σλ = 4+1+1 = 6.</b><br><b>PC1 share = 4/6 = 66.7%.</b><br>PC1 eigenvector = [1,1,1] normalized → 'all three sensors rise together' (the common-mode tide). Keeping just PC1 compresses 3 sensors → 1 number (their sum) and retains ⅔ of the variance. For edge-AI: ⅔ less SRAM/MACs/power, same dominant signal."},
+
+{d:"PCA",q:"Name 2 scenarios where PCA BETRAYS you — throws away the important signal.",
+ a:"1) <b>The rare anomaly hides in a small-λ direction.</b> A thermal-runaway spike might be the only deviation in a direction PCA considers 'low variance' → it gets dropped. The rare event IS the point.<br>2) <b>You lose interpretability.</b> The kept numbers are blends of features ('1·Temp + 2·Latency'), not named sensors. A debugger can't inspect a principal component in firmware."},
+
+{d:"PCA",q:"[cross] Why is PCA 'unsupervised' even inside a supervised house-price pipeline?",
+ a:"A technique is supervised/unsupervised by whether <b>that technique looks at the label</b>, not whether the project has labels.<br>PCA only studies how features co-move. It never sees the price. <b>Test:</b> 'Has the label entered the math yet?' No → step is unsupervised (PCA loadings = recipe weights). Yes → supervised (gradient descent = prediction weights).<br><span class='ssd'>Kitchen: prep cook chops veg without seeing the order — his step is unsupervised, even inside a supervised kitchen.</span>"},
+
+/* ─── MCU DEPLOYMENT ─── */
+{d:"MCU Deploy",q:"No-FPU microcontroller. Why does a decision tree beat logistic regression at inference — what is the EXACT mechanism?",
+ a:"A tree does only <b>integer compares</b>: <code>if(temp > 78) take right;</code> — <b>no multiplication.</b><br>Logistic regression needs a multiply-accumulate per feature <i>plus</i> a sigmoid (<code>exp()</code> = float). On a chip with no FPU, every multiply and exp is <b>software-emulated</b> — tens to hundreds of cycles each. The tree never pays that toll.<br>Caveat: quantize logistic to INT8 and you get close to tree cost; a huge tree can blow flash budget."},
+
+{d:"MCU Deploy",q:"Depth vs node count in a deployed decision tree — what resource does each constrain?",
+ a:"<b>Depth → latency + SRAM/stack.</b> One inference walks exactly one path root→leaf = depth compares. Max latency = depth steps (guaranteed real-time bound).<br><b>Node count → flash/ROM.</b> Every node's threshold + pointers must be stored.<br><span class='ssd'>A fat-shallow tree can have fewer latency cycles than a skinny-deep one, even with the same number of nodes. Depth is the real-time knob.</span>"},
+
+{d:"MCU Deploy",q:"Max nodes in a depth-2 binary tree? Is '15 nodes at depth 2' possible?",
+ a:"<b>max nodes = 2^(d+1) − 1.</b> Depth 2 → 2³−1 = <b>7 nodes</b> maximum.<br><b>15 nodes at depth 2 is impossible</b> for a binary tree. 15 nodes forces depth 3 (perfect depth-3 = 2⁴−1 = 15). Depth both floors and ceilings node count. Setting max_depth=2 caps flash at ≤7 nodes AND guarantees ≤2 compare-steps at inference."},
+
+{d:"MCU Deploy",q:"When do you abandon classic ML and reach for a TinyML net (small CNN or MLP) on-device? What is the trigger?",
+ a:"When the input is a <b>raw signal you cannot summarize by hand</b> — a waveform or time-series where the <i>shape</i> carries the meaning (vibration pattern, acoustic emission). Then a <b>1D-CNN or INT8-quantized MLP</b> earns its RAM by finding features you couldn't hand-pick.<br>Tooling: TFLite Micro, CMSIS-NN, Edge Impulse. For clean tabular telemetry (temp, P/E, voltage) → classic ML still wins."},
+
+/* ─── GRADIENT DESCENT ─── */
+{d:"Grad Descent",q:"The three objects in the gradient-descent story for SSD thermal model ŷ=w·load+b. Name them and state what each represents.",
+ a:"1. <b>The bowl</b> — the loss surface (plot of MSE loss vs w). The bottom = best weight. Deeper in the bowl = lower error.<br>2. <b>The gradient</b> — the slope of the bowl at your current position. Points uphill; stepping AGAINST it = going downhill.<br>3. <b>The learning rate (η)</b> — how big a step you take downhill each iteration. Too small → slow. Too large → overshoot → diverge."},
+
+{d:"Grad Descent",q:"One step: w=3.0, x=2, y=10, η=0.05. Model ŷ=w·x. Compute ŷ, error, loss, gradient, and new w.",
+ a:"<b>ŷ</b> = 3.0×2 = 6.0 · <b>error</b> = 6−10 = −4.0 · <b>loss</b> = (−4)² = 16.0<br><b>gradient</b> = dL/dw = 2·(ŷ−y)·x = 2·(−4)·2 = <b>−16.0</b><br><b>w ← 3.0 − 0.05·(−16) = 3.80</b><br>Next step from w=3.80: ŷ=7.6, error=−2.4, loss=5.76, gradient=−9.6, w←4.28. Converges toward w=5 (loss→0)."},
+
+{d:"Grad Descent",q:"What causes divergence in gradient descent? Describe the feedback loop that makes it exponential.",
+ a:"<b>Learning rate too large (η > threshold ≈ 0.21 in the thermal model).</b><br>Loop: too-big step → <b>overshoots</b> to a steeper wall → gradient is now <b>bigger</b> → next step overshoots even further → compounds exponentially. 'Fix becomes the failure' — same as a NAND read-retry that overshoots the Vref window and makes errors worse. Fix: shrink η until steps reliably land on the same side."},
+
+{d:"Grad Descent",q:"Gradient descent vs closed-form (normal equations): when does each win?",
+ a:"<b>Closed-form</b>: exact answer in one shot (solve the matrix equation). Wins when feature count is <b>small</b> — it needs a matrix inverse which costs O(n³) and dies at huge n.<br><b>Gradient descent</b>: iterative, scales to millions of features and parameters. Wins when the problem is large. The Jun-20 notebook implements BOTH for the same linear classifier to show the trade-off.<br><span class='ssd'>Embedded analogy: Vref = one-shot analytic vs iterative ADC sweep.</span>"},
+
+{d:"Grad Descent",q:"The training rule: dL/dw = 2(P−T)·x. What do the error term (P−T) and the input x each control?",
+ a:"<b>(P−T) = error</b>: picks the direction and magnitude of the step. Positive (prediction too high) → gradient positive → w decreases. Negative (too low) → w increases. Error = how wrong we are.<br><b>x = input</b>: decides the <b>blame</b> — how much does this weight deserve credit for the error? If x=0, changing w has no effect on the output → gradient=0 → weight correctly gets zero update."},
+
+/* ─── CALCULUS ─── */
+{d:"Calculus",q:"Why is d/dx(x²)=2x EXACT, not an approximation? What is the limit definition doing?",
+ a:"The derivative is defined as the <b>limit</b> as the nudge h→0 of [f(x+h)−f(x)]/h:<br><code>(x+h)²−x² / h = (2xh + h²)/h = 2x + h → 2x as h→0</code><br>The limit gets rid of the residual h, making it <b>exact</b> — not 'slope at x=2.01' but 'slope at exactly x=2.' The approximation trap: you computed it at h=0.01 (≈2.01), but the derivative is the value you approach, not any specific non-zero h."},
+
+{d:"Calculus",q:"y = 5x + 7. What is the derivative? What role does the +7 play in it?",
+ a:"<b>dy/dx = 5.</b> The +7 contributes <b>nothing</b>. A constant has zero slope — it shifts the line up by 7 but doesn't change how fast it climbs. Lift (intercept) and tilt (slope) are completely independent knobs. The +7 vanishes when you differentiate.<br>❌ Slip to avoid: '7 times 5 = 35' — the lift and tilt never multiply. The derivative reads the tilt alone."},
+
+{d:"Calculus",q:"Chain rule: `loss = (w·x − y)²`. Name the outer and inner functions. Write dL/dw.",
+ a:"<b>Outer</b>: f(u) = u² · <b>Inner</b>: u = w·x − y<br><b>dL/dw</b> = d(u²)/du · du/dw = 2u · x = <b>2(w·x − y)·x = 2(P−T)·x</b><br>Chain rule multiplies because rates are nested 'per' counts (output-per-middle × middle-per-input). Like pizzas-per-box × slices-per-pizza: chain them by multiplying."},
+
+{d:"Calculus",q:"In the credit-assignment rule 2(P−T)·x: what would happen if input x=0? What does this reveal about credit?",
+ a:"If <b>x=0, the gradient = 0</b> — even if the prediction is wildly wrong, weight w gets <b>zero update</b>. This is correct: if that feature is absent (zero), changing its weight cannot affect the output, so it deserves no blame/credit. Input x is the 'lever arm' — how much the weight can move the prediction. Zero lever = zero blame = no update."},
+
+/* ─── EXPECTED VALUE ─── */
+{d:"Exp. Value",q:"Troll 2 bet: p(heard)=0.17, payoff +$10; p(not heard)=0.83, payoff −$1. Compute EV. Good bet?",
+ a:"<b>EV = 0.17·10 + 0.83·(−1) = 1.70 − 0.83 = +0.87</b><br><b>Good bet</b> ✅ — the rare $10 prize beats the frequent $1 loss. EV > 0 → worth taking over the long run.<br>Break-even: what reward R makes it fair? 0.17R = 0.83 → R ≈ <b>$4.88</b>. Below that, flip the decision."},
+
+{d:"Exp. Value",q:"Dog-treat bet: catch rate=0.10, win ₹200, lose ₹50. Compute EV. Does raising catch rate to 0.33 flip it?",
+ a:"<b>At 0.10:</b> EV = 0.10·200 + 0.90·(−50) = 20 − 45 = <b>−25</b> ❌ walk away.<br><b>At 0.33:</b> EV = 0.33·200 + 0.67·(−50) = 66 − 33.5 = <b>+32.5</b> ✅ take it!<br>Payoffs unchanged — only the catch probability rose 0.10→0.33. Rarity and size fight; shift either one and the verdict flips."},
+
+{d:"Exp. Value",q:"EV = Σpᵢvᵢ. What two vectors are you dot-product-ing? Why is this the same operation as `score = w·x`?",
+ a:"You dot the <b>probability vector p</b> against the <b>payoff vector v</b>: EV = p·v.<br>Same multiply-and-sum structure as w·x (weights dotted with features). EV is a probability-weighted average — each outcome scaled by how likely it is, then summed. The formula is identical in shape to any linear score; the 'input' is the payoff and the 'weight' is the probability."},
+
+{d:"Exp. Value",q:"ML connection: in one sentence, what IS the training loss — framed as an expected value?",
+ a:"The loss is the <b>expected (average) squared error across all training examples</b>: EV of the squared gap between prediction and label, with each example weighted equally (p = 1/N).<br>'Minimize the loss' = 'make the expected miss small.' Gradient descent drives this EV downhill. More training samples → better estimate of the true EV → more stable gradient."},
+
+/* ─── K-MEANS ─── */
+{d:"K-Means",q:"Name the two alternating steps of the k-means loop and the stopping condition.",
+ a:"1. <b>ASSIGN</b>: each point joins its nearest centroid (Euclidean distance).<br>2. <b>MOVE</b>: each centroid slides to the mean of its members.<br><b>Stop</b> when assignments no longer change (centroids freeze). WCSS objective = total within-cluster spread; the loop implicitly minimizes it."},
+
+{d:"K-Means",q:"Elbow plot: k=1→138.22, k=2→77.67, k=3→4.00, k=4→3.0. Which k do you pick, and why NOT k=9?",
+ a:"Pick <b>k=3</b> — the elbow. WCSS drops steeply from 77.67 to 4.00 (real structure found), then barely moves to 3.0 (diminishing returns).<br>❌ <b>k=9 gives WCSS=0</b>: every point is its own centroid — useless. WCSS always falls with k, so you look for where the drop stops paying off, not the minimum."},
+
+{d:"K-Means",q:"In the 9-student run, initial centroids c0=P1(2,3), c1=P2(3,2), c2=P7(5,8). After iter 1 MOVE, where does c1 move? Which point switched in iter 2?",
+ a:"Iter 1 assigns c1 → {P2,P4,P5,P6}. Move: c1 = mean(P2,P4,P5,P6) = mean of [(3,2),(8,3),(9,2),(8,2)] = <b>(7, 2.25)</b>.<br>Iter 2 ASSIGN: <b>P2 switches from c1 → c0</b> (P2 is now closer to c0=(2,2.5) at d=1.12 than to c1=(7,2.25) at d=4.01). WCSS drops from 91.0 → 9.77. Iter 3 converges: WCSS=4.00 ✓"},
+
+{d:"K-Means",q:"Name 3 scenarios where k-means fails you.",
+ a:"1. <b>You have labels</b> → use a classifier, not clustering. K-means DISCOVERS groups; it cannot sort into known labels.<br>2. <b>Non-spherical / varying-density clusters</b> → k-means forces round blobs; use DBSCAN or GMM instead.<br>3. <b>Un-scaled features</b> → the feature with the widest range hijacks the Euclidean distance. <b>Scale first.</b> Also: high-dimensional raw data → distances flatten (curse of dimensionality) → run PCA first."},
+
+{d:"K-Means",q:"[cross] K-means vs gradient descent: both iterate to convergence. What is the key structural difference?",
+ a:"<b>K-means: alternates ASSIGN / MOVE.</b> No gradient, no loss function with a derivative. It minimizes WCSS by alternation, not by following a slope.<br><b>Gradient descent: follows dL/dw downhill</b> — computes the loss, takes its derivative, steps in the direction of steepest decrease.<br>Both share: 'loop until it settles', both risk local minima, both have a convergence guarantee (to a local optimum). Fix local minima: re-run both with different starts."},
+
+/* ─── CROSS-TOPIC ─── */
+{d:"Cross-Topic",q:"Variance is the covariance of ___ with ___. Fill in the blank and explain why this means variance must ALWAYS be non-negative.",
+ a:"Variance is the covariance of <b>X with itself</b>: cov(X,X) = avg of (xᵢ−X̄)² = variance(X).<br>Why always ≥ 0: every vote is (xᵢ−X̄)² — a number squared — so every vote is ≥ 0, and the average of non-negative votes is ≥ 0. There is no deviation that produces a negative vote when the variable is paired with itself. This is why the covariance matrix diagonal is always non-negative."},
+
+{d:"Cross-Topic",q:"EV, dot product, gradient descent — fill in: 'The loss is an ___ of squared errors. Gradient descent minimizes it by following the ___ of the loss. The gradient is itself a dot product between ___ and ___.'",
+ a:"'The loss is an <b>expected value</b> of squared errors. Gradient descent minimizes it by following the <b>gradient (slope)</b> of the loss. The gradient is itself a dot product between <b>the error (P−T)</b> and <b>the input x</b>.'<br>Three topics, one chain: EV → loss → gradient (calculus) → dot product (linear algebra) → weight update. The whole training loop IS linear algebra + probability, evaluated in a loop."},
+];
+
+/* ─── ENGINE with Again-card recycling ─── */
+let allOrder=[...CARDS.keys()];
+let queue=[...allOrder]; // working queue; Again cards appended
+let cur=0,flipped=false;
+const status={}; // cardIdx -> 'know'|'again'
+let activeDeck="ALL";
+let recycleCount=0;
+
+/* build deck chips */
+const deckNames=["ALL",...[...new Set(CARDS.map(c=>c.d))]];
+const deckBox=document.getElementById('decks');
+deckNames.forEach(d=>{
+ const el=document.createElement('div');el.className='deck-pill'+(d==="ALL"?' active':'');
+ el.textContent=d==="ALL"?"All jutsu":d;
+ el.onclick=()=>setDeck(d,el);deckBox.appendChild(el);
+});
+
+function filteredIndices(){
+ return [...CARDS.keys()].filter(i=>activeDeck==="ALL"||CARDS[i].d===activeDeck);
+}
+function setDeck(d,el){
+ activeDeck=d;
+ document.querySelectorAll('.deck-pill').forEach(p=>p.classList.remove('active'));
+ el.classList.add('active');
+ queue=[...filteredIndices()];recycleCount=0;cur=0;
+ for(const k in status)delete status[k];
+ render();
+}
+
+function render(){
+ if(queue.length===0){document.getElementById('qtext').textContent='—';return;}
+ const ci=queue[cur];
+ const c=CARDS[ci];
+ flipped=false;document.getElementById('flip').classList.remove('flipped');
+ document.getElementById('qtext').innerHTML=c.q;
+ document.getElementById('atext').innerHTML=c.a;
+ document.getElementById('ftag').textContent=c.d;
+ document.getElementById('btag').textContent=c.d;
+ document.getElementById('idx').textContent=cur+1;
+ document.getElementById('qlen').textContent=queue.length;
+ document.getElementById('deckname').textContent=activeDeck==="ALL"?"All jutsu":activeDeck;
+ updateScore();
+}
+
+function toggleFlip(){
+ flipped=!flipped;
+ document.getElementById('flip').classList.toggle('flipped',flipped);
+ if(flipped&&!status[queue[cur]])status[queue[cur]]='seen';
+ updateScore();
+}
+
+function next(){if(cur<queue.length-1){cur++;render();}}
+function prev(){if(cur>0){cur--;render();}}
+
+function mark(known){
+ const ci=queue[cur];
+ if(known){
+  status[ci]='know';
+ } else {
+  status[ci]='again';
+  // recycle: append to end of queue
+  queue.push(ci);
+  recycleCount++;
+ }
+ updateScore();
+ setTimeout(()=>{
+  if(cur<queue.length-1){cur++;render();}
+  else{checkDone();}
+ },180);
+}
+
+function shuffle(){
+ const fi=filteredIndices();
+ for(let i=fi.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[fi[i],fi[j]]=[fi[j],fi[i]];}
+ queue=[...fi];recycleCount=0;cur=0;
+ for(const k in status)delete status[k];
+ render();document.getElementById('done').style.display='none';
+}
+
+function resetAll(){
+ queue=[...filteredIndices()];recycleCount=0;cur=0;
+ for(const k in status)delete status[k];
+ render();document.getElementById('done').style.display='none';
+}
+
+function updateScore(){
+ const fi=filteredIndices();
+ const k=fi.filter(i=>status[i]==='know').length;
+ const a=fi.filter(i=>status[i]==='again').length;
+ const seen=fi.filter(i=>status[i]&&status[i]!=='').length;
+ document.getElementById('kcount').textContent=k;
+ document.getElementById('acount').textContent=a;
+ document.getElementById('seen').textContent=seen;
+ document.getElementById('total').textContent=fi.length;
+ document.getElementById('fill').style.width=(seen/fi.length*100)+'%';
+ document.getElementById('score').innerHTML=`<b class="good">✔ ${k} known</b> · <b class="bad">↺ ${a} to review</b> · ${seen}/${fi.length} unique seen`;
+ if(recycleCount>0){
+  document.getElementById('recyclebadge').style.display='inline';
+  document.getElementById('rccount').textContent=recycleCount;
+ }
+}
+
+function checkDone(){
+ const fi=filteredIndices();
+ const k=fi.filter(i=>status[i]==='know').length;
+ if(k===fi.length)document.getElementById('done').style.display='block';
+}
+
+document.addEventListener('keydown',e=>{
+ if(e.code==='Space'){e.preventDefault();toggleFlip();}
+ else if(e.code==='ArrowRight')next();
+ else if(e.code==='ArrowLeft')prev();
+ else if(e.key==='j'||e.key==='J')mark(true);
+ else if(e.key==='f'||e.key==='F')mark(false);
+ else if(e.key==='s'||e.key==='S')shuffle();
+});
+
+render();
+</script>
+</body>
+</html>
